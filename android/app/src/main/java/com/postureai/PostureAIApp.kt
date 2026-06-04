@@ -11,15 +11,23 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import com.postureai.rn.PostureAIPackage
+import com.postureai.pairing.PairingManager
+import com.postureai.bluetooth.SpineBluetoothManager
+import kotlinx.coroutines.MainScope
 
 class PostureAIApp : Application(), ReactApplication {
+
+  lateinit var pairingManager: PairingManager
+    private set
+    
+  private lateinit var bluetoothManager: SpineBluetoothManager
 
   override val reactNativeHost: ReactNativeHost =
       object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
-              // Packages that cannot be autolinked yet can be added manually here, for example:
-              // add(MyReactNativePackage())
+              add(PostureAIPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -37,8 +45,17 @@ class PostureAIApp : Application(), ReactApplication {
     super.onCreate()
     SoLoader.init(this, OpenSourceMergedSoMapping)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
+    
+    // Initialize Core Logic
+    pairingManager = PairingManager(this)
+    
+    // Start Bluetooth Simulation automatically for now
+    bluetoothManager = SpineBluetoothManager(this, MainScope()) { raw ->
+        // Direct call to JNI for calculation
+        com.postureai.MainActivity.calculateSpineAnglesStatic(raw)
+    }
+    bluetoothManager.startSimulation()
   }
 }
