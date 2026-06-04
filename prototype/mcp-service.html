@@ -119,5 +119,34 @@
 <a href="index.html" class="hidden md:flex absolute top-3 -left-14 items-center gap-1 text-meta text-text-tertiary hover:text-accent-warm transition-colors">← 原型导航</a>
 </div>
 </div>
+<script>
+  // 复制按钮 + 重新生成 + 启动/停止
+  (function() {
+    const urlStr = "http://192.168.1.42:8765/mcp";
+    const tokenStr = "eop_7f3a9b2e8d4a6c1f5b9c2";
+    const urlEl = document.querySelector('.text-meta.font-mono.bg-canvas.rounded.px-2.py-1\.5');
+    const tokenEl = document.querySelectorAll('.text-meta.font-mono.bg-canvas.rounded.px-2.py-1\.5')[1];
+    const copyBtns = document.querySelectorAll('button.size-8.rounded-lg');
+    if (copyBtns[0] && urlEl) copyBtns[0].addEventListener('click', () => { navigator.clipboard && navigator.clipboard.writeText(urlStr); flash(0, copyBtns[0]); });
+    if (copyBtns[1] && tokenEl) copyBtns[1].addEventListener('click', () => { navigator.clipboard && navigator.clipboard.writeText(tokenStr); flash(1, copyBtns[1]); });
+    function flash(idx, btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span class="text-status-healthy text-meta">✓</span>';
+      setTimeout(() => { btn.innerHTML = orig; }, 1200);
+    }
+    // 启动/停止按钮 toggle
+    const stopBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('停止 MCP'));
+    if (stopBtn) stopBtn.addEventListener('click', () => {
+      stopBtn.textContent = stopBtn.textContent.includes('停止') ? '启动 MCP 服务' : '停止 MCP 服务';
+      stopBtn.classList.toggle('bg-accent-warm');
+      stopBtn.classList.toggle('hover:bg-accent-warm/90');
+      stopBtn.classList.toggle('text-white');
+      stopBtn.classList.toggle('bg-status-alert/10');
+      stopBtn.classList.toggle('hover:bg-status-alert/15');
+      stopBtn.classList.toggle('text-status-alert');
+      stopBtn.classList.toggle('ring-status-alert/30');
+    });
+  })();
+</script>
 </body>
 </html>

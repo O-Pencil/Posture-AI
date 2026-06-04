@@ -122,5 +122,42 @@
   </a>
 </div>
 </div>
+<script>
+  // 3 步引导点击推进（点 step N → 标记 N 完成，让 step N+1 高亮）
+  (function() {
+    const steps = document.querySelectorAll('section.space-y-3 > div.bg-surface-1');
+    if (steps.length < 3) return;
+    const labels = ['开板子', '靠近手机', '校准'];
+    steps.forEach((step, i) => {
+      step.style.cursor = 'pointer';
+      step.addEventListener('click', () => {
+        // 标记前 i 步完成
+        for (let j = 0; j < steps.length; j++) {
+          const num = steps[j].querySelector('.font-mono.font-bold');
+          const dot = steps[j].querySelector('.size-2.rounded-full');
+          if (j < i) {
+            // 完成
+            if (num) { num.textContent = '✓'; num.className = 'font-mono font-bold text-status-healthy'; }
+            steps[j].classList.add('opacity-50');
+            if (dot) dot.className = 'size-2 rounded-full bg-status-healthy mt-3';
+          } else if (j === i) {
+            if (num) { num.textContent = String(j+1); num.className = 'font-mono font-bold text-accent-warm'; }
+            steps[j].classList.remove('opacity-50');
+            if (dot) dot.className = 'size-2 rounded-full bg-accent-warm mt-3';
+          } else {
+            if (num) { num.textContent = String(j+1); num.className = 'font-mono font-bold text-text-tertiary'; }
+            steps[j].classList.remove('opacity-50');
+            if (dot) dot.className = 'size-2 rounded-full bg-surface-2 mt-3';
+          }
+        }
+        if (i >= 2) {
+          // 全部完成
+          const btn = document.querySelector('a.bg-accent-warm');
+          if (btn) { btn.textContent = '进入校准 →'; btn.href = 'calibration.html'; }
+        }
+      });
+    });
+  })();
+</script>
 </body>
 </html>

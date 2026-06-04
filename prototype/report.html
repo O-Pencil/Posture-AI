@@ -144,5 +144,34 @@
 <a href="index.html" class="hidden md:flex absolute top-3 -left-14 items-center gap-1 text-meta text-text-tertiary hover:text-accent-warm transition-colors">← 原型导航</a>
 </div>
 </div>
+<script>
+  // 周/月/日 tabs 切换
+  (function() {
+    const data = {
+      '日': { score: 87,   delta: '+3  vs 昨天',  line: '20,55 60,40 100,65 140,30 180,50 220,35 260,25 300,40', ai: '今天你保持了 47 分钟健康坐姿。下午 14:00-15:30 段有 2 次驼背，建议每 45 分钟起来走 30 秒。' },
+      '周': { score: 84,   delta: '+6  vs 上周',  line: '20,55 60,40 100,65 140,30 180,50 220,35 260,25 300,40', ai: '本周你平均每小时有 3.2 次低头动作，主要集中在 10:00–11:30 段。建议每 45 分钟抬头看远处 30 秒。' },
+      '月': { score: 79,   delta: '+11 vs 上月',  line: '20,40 60,55 100,70 140,35 180,65 220,45 260,30 300,50', ai: '本月平均分 79 分比上月提升 11 分。周末（6/8, 6/15）数据缺失，可能未佩戴。' },
+    };
+    const tabs = document.querySelectorAll('div.inline-flex.bg-surface-2 button');
+    const scoreEl = document.querySelector('.font-mono.text-display');
+    const deltaEl = document.querySelector('.text-status-healthy.font-mono');
+    const poly = document.querySelector('polyline');
+    const polygon = document.querySelector('polygon');
+    const aiP = document.querySelector('section.bg-accent-warm\/5 p');
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.textContent.trim();
+        const d = data[tab]; if (!d) return;
+        tabs.forEach(b => { b.className = 'text-meta px-4 py-1.5 rounded-full text-text-tertiary'; });
+        btn.className = 'text-meta px-4 py-1.5 rounded-full bg-surface-raised text-text-primary font-medium';
+        scoreEl.textContent = d.score;
+        deltaEl.textContent = d.delta;
+        poly.setAttribute('points', d.line);
+        polygon.setAttribute('points', d.line + ' 300,115 20,115');
+        if (aiP) aiP.textContent = d.ai;
+      });
+    });
+  })();
+</script>
 </body>
 </html>
