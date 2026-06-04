@@ -1,3 +1,12 @@
+/**
+ * @file McpForegroundService.kt
+ * @description 前台 Service（specialUse 类型），保活 MCP HTTP 服务；通过 LifecycleRegistry 暴露给 ServiceRuntime。
+ *
+ * [WHO] 提供 `class McpForegroundService: Service, LifecycleOwner`、`onCreate/onStartCommand/onDestroy/onBind`、`getRuntimeOrNull()`、private `createNotificationChannel()` / `buildNotification()` / `stopServiceInternal()`；伴生对象 `ACTION_STOP` / `CHANNEL_ID` / `NOTIFICATION_ID`
+ * [FROM] 依赖 androidx.lifecycle（LifecycleRegistry）、NotificationCompat、PostureAIApp、ServiceRuntime、R.drawable.ic_notification
+ * [TO] 被 Android 启动器（`<service android:name=".service.McpForegroundService" />`）调度；`runtime` 被外部读取调 `getRuntimeOrNull()`
+ * [HERE] android/app/src/main/java/com/postureai/service/McpForegroundService.kt · MCP 前台服务
+ */
 package com.postureai.service
 
 import android.app.Notification

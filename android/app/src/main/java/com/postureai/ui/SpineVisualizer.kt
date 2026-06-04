@@ -1,3 +1,12 @@
+/**
+ * @file SpineVisualizer.kt
+ * @description Compose `AndroidView` 嵌入 WebView，加载 assets/threejs_spine/index.html 渲染 3D 脊柱，update 时通过 evaluateJavascript 推实时角度。
+ *
+ * [WHO] 提供 `@Composable SpineVisualizer(angles: FloatArray, modifier)`
+ * [FROM] 依赖 androidx.compose.runtime、AndroidView、`android.webkit.WebView` / `WebChromeClient`、assets 资源 `threejs_spine/index.html`
+ * [TO] 被 Android UI 嵌入用于演示 3D 脊柱随 KinematicsHub 实时变化
+ * [HERE] android/app/src/main/java/com/postureai/ui/SpineVisualizer.kt · 3D 脊柱可视化（WebView）
+ */
 package com.postureai.ui
 
 import android.webkit.WebView

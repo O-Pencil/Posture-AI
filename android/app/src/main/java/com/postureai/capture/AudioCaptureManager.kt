@@ -1,3 +1,12 @@
+/**
+ * @file AudioCaptureManager.kt
+ * @description 16kHz 单声道 PCM 录音，把最近 10 秒音频维护成环形 buffer，给 VL 推理提供切片。
+ *
+ * [WHO] 提供 AudioCaptureManager、`start()` / `stop()`、`suspend sliceRecentPcm(durationSec: Int): ByteArray`、`getSampleRate(): Int`
+ * [FROM] 依赖 `android.media.AudioRecord`（MIC、16kHz、PCM_16BIT）、`kotlinx.coroutines.Dispatchers.IO`
+ * [TO] 被 `DefaultPerceptionEngine.analyze()`（LOOK/LISTEN/PERCEIVE 三种模式）、`ServiceRuntime.audioCaptureManager` 持有
+ * [HERE] android/app/src/main/java/com/postureai/capture/AudioCaptureManager.kt · 音频采集与环形缓冲
+ */
 package com.postureai.capture
 
 import android.media.AudioFormat

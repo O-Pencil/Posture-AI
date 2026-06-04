@@ -1,3 +1,12 @@
+/**
+ * @file InferenceStatusPanel.kt
+ * @description Compose 状态卡片：ModelStatusCard（权重/JNI 状态）+ InferenceStatusCard（TTFT/Prefill/Decode/TPS/输出预览）。
+ *
+ * [WHO] 提供 `@Composable ModelStatusCard(state: ModelInstallState)`、`@Composable InferenceStatusCard(status: InferenceStatus)`、private `InferencePhase.toDisplayName()`
+ * [FROM] 依赖 androidx.compose.material3（Card / MaterialTheme / Text）、`ModelInstallState` / `InferenceStatus` / `InferencePhase`
+ * [TO] 被 RN 端（未来 Compose 嵌入）或 Android 独立 Activity 引用；当前主要用于演示和调试
+ * [HERE] android/app/src/main/java/com/postureai/ui/InferenceStatusPanel.kt · 推理状态可视化
+ */
 package com.postureai.ui
 
 import androidx.compose.foundation.layout.Arrangement

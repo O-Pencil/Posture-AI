@@ -1,3 +1,12 @@
+/**
+ * @file KinematicsModule.kt
+ * @description RN 桥接模块：订阅 KinematicsHub.state 通过 DeviceEventManagerModule 发 onKinematicsUpdate 给 JS，暴露 getLatestState / setSimulationScenario 两个 @ReactMethod。
+ *
+ * [WHO] 提供 `class KinematicsModule(reactContext: ReactApplicationContext)`、`getName()`、`init` 协程订阅、private `sendEvent()`、`@ReactMethod getLatestState(promise)` / `setSimulationScenario(scenario)` / `addListener()` / `removeListeners()`
+ * [FROM] 依赖 `com.facebook.react.bridge.*`、`KinematicsHub`、`kotlinx.coroutines.flow.collectLatest`
+ * [TO] 被 `PostureAIPackage.createNativeModules` 注册；JS 端 `NativeModules.KinematicsModule` 与 `NativeEventEmitter` 调用
+ * [HERE] android/app/src/main/java/com/postureai/rn/KinematicsModule.kt · RN 桥接层
+ */
 package com.postureai.rn
 
 import com.facebook.react.bridge.ReactApplicationContext

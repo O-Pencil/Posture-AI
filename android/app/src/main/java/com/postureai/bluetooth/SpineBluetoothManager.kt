@@ -1,3 +1,12 @@
+/**
+ * @file SpineBluetoothManager.kt
+ * @description BLE GATT 客户端，与 PoseMaster-C6 / Omni-Posture-Spine 脊柱传感器通讯；内置 10Hz 模拟数据流用于演示。
+ *
+ * [WHO] 提供 SpineBluetoothManager、`startSimulation()` / `stopSimulation()` / `startBleScan()` / `disconnect()`、`processIncomingData(ByteArray)`、内部 `gattCallback`；伴生对象暴露 `SERVICE_UUID` / `CHAR_UUID` / `CCCD_UUID`
+ * [FROM] 依赖 `android.bluetooth.*`（BluetoothManager / ScanCallback / BluetoothGattCallback）、`com.postureai.inference.mnn.KinematicsHub`、JNI `calculateAngles` 回调
+ * [TO] 被 `PostureAIApp.onCreate()` 实例化并调 `startSimulation()`；`KinematicsHub.update(neck, lumbar)` 写入姿态状态
+ * [HERE] android/app/src/main/java/com/postureai/bluetooth/SpineBluetoothManager.kt · BLE 模拟与真实数据入口
+ */
 package com.postureai.bluetooth
 
 import android.annotation.SuppressLint

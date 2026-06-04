@@ -1,3 +1,12 @@
+/**
+ * @file CameraCaptureManager.kt
+ * @description CameraX 绑定后摄，提供拍静止帧 + 持续分析流，给 LOOK 推理和 Watchdog 提供 JPEG 帧。
+ *
+ * [WHO] 提供 CameraCaptureManager、`suspend bind(lifecycleOwner)` / `unbind()`、`suspend captureFrame(maxLongEdge: Int = 768): ByteArray`、`getLatestWatchdogFrame(): ByteArray?`
+ * [FROM] 依赖 androidx.camera（core/camera2/lifecycle/view 1.4.0）、`android.graphics.YuvImage`、`kotlinx.coroutines.sync.Mutex`
+ * [TO] 被 `DefaultPerceptionEngine.analyze()` 调 `captureFrame()`；被 `WatchdogManager.runWatchCycle()` 调 `getLatestWatchdogFrame()`；被 `ServiceRuntime` 持有
+ * [HERE] android/app/src/main/java/com/postureai/capture/CameraCaptureManager.kt · 摄像头双流采集
+ */
 package com.postureai.capture
 
 import android.content.Context

@@ -1,3 +1,12 @@
+/**
+ * @file WatchdogManager.kt
+ * @description 周期感知任务调度：startWatch 起协程循环、5 分钟同 alertKey 去重、命中异常落盘 + SSE 广播。
+ *
+ * [WHO] 提供 `class WatchdogManager(scope, perceptionEngine, cameraCaptureManager, sessionManager, alertStore)`、`data class WatchTask(watchId, intervalSec, prompt, alertRules, job)`、`startWatch(intervalSec, prompt, alertRules): String` / `stopWatch(watchId): String` / `listWatches(): String` / `stopAll()`、private `runWatchCycle(task)` / `pushNotification(alert)`
+ * [FROM] 依赖 `CameraCaptureManager`、`PerceptionEngine`、`McpSessionManager`、`PendingAlertStore`、`kotlinx.coroutines.delay/launch/Job`
+ * [TO] 被 MCP 工具 `phone_watch_start/stop/list` 通过 `McpRequestHandler` 调用
+ * [HERE] android/app/src/main/java/com/postureai/watchdog/WatchdogManager.kt · 周期感知调度
+ */
 package com.postureai.watchdog
 
 import com.postureai.capture.CameraCaptureManager

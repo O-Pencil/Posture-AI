@@ -1,3 +1,12 @@
+/**
+ * @file PairingManager.kt
+ * @description 持久化 Bearer Token (eop_<uuid>) 与服务端口 (默认 8765)，首次访问 token 自动生成。
+ *
+ * [WHO] 提供 `class PairingManager(context)`、`bearerToken: String`（getter 懒生成）、`serverPort: Int`（getter/setter）、`regenerateToken(): String`；伴生对象 `DEFAULT_PORT=8765`
+ * [FROM] 依赖 `android.content.Context` + `getSharedPreferences("eyes_on_phone_pairing", MODE_PRIVATE)`、`java.util.UUID`
+ * [TO] 被 `PostureAIApp.onCreate()` 实例化；被 `ServiceRuntime` 读取 token 和端口启动 `McpHttpServer`
+ * [HERE] android/app/src/main/java/com/postureai/pairing/PairingManager.kt · 配对鉴权存储
+ */
 package com.postureai.pairing
 
 import android.content.Context

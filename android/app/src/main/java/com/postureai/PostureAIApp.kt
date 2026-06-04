@@ -1,3 +1,12 @@
+/**
+ * @file PostureAIApp.kt
+ * @description Application 入口，初始化 React Native、SoLoader、新架构入口，并装配 PairingManager + SpineBluetoothManager 模拟流。
+ *
+ * [WHO] 提供 PostureAIApp（Application 子类）、内部 `reactNativeHost`（`DefaultReactNativeHost`）、`pairingManager`、`bluetoothManager` 字段
+ * [FROM] 依赖 `com.facebook.react.*`（SoLoader / ReactHost / PackageList）、`com.postureai.pairing.PairingManager`、`com.postureai.bluetooth.SpineBluetoothManager`、`com.postureai.rn.PostureAIPackage`
+ * [TO] 被 Android 启动器（`android:name=".PostureAIApp"`）实例化；`pairingManager` 被 `ServiceRuntime` 读取；`PostureAIPackage` 被 `reactNativeHost.getPackages()` 注册
+ * [HERE] android/app/src/main/java/com/postureai/PostureAIApp.kt · 全局应用类 + 核心装配
+ */
 package com.postureai
 
 import android.app.Application

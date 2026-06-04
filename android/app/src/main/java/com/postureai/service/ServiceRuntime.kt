@@ -1,3 +1,12 @@
+/**
+ * @file ServiceRuntime.kt
+ * @description MCP 服务运行时编排：装配 PerceptionEngine/WatchdogManager/McpHttpServer/McpRequestHandler，聚合 buildStatus() JSON。
+ *
+ * [WHO] 提供 `class ServiceRuntime(context, pairingManager, lifecycleOwner)`、`start()` / `stop()` / `isRunning()` / `uptimeMs()`、private `buildStatus(): JsonObject`；lateinit 字段 `perceptionEngine` / `watchdogManager` / `mcpServer` / `requestHandler`
+ * [FROM] 依赖所有核心模块（Capture/Inference/MCP/Watchdog/Pairing）、`BatteryManager`、`SystemClock.elapsedRealtime()`
+ * [TO] 被 `McpForegroundService.onStartCommand` 创建并启动；`buildStatus()` 被 MCP 工具 `phone_status` 调用
+ * [HERE] android/app/src/main/java/com/postureai/service/ServiceRuntime.kt · MCP 服务运行时装配
+ */
 package com.postureai.service
 
 import android.content.Context
