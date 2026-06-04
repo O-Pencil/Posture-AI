@@ -1,3 +1,10 @@
+// @file utf8_stream_processor.hpp
+// @description Utf8StreamProcessor: 累积不完整字节，按 UTF-8 头字节切分完整字符后回调，处理多字节字符被打断的情况。
+//
+// [WHO] 定义 `class eyes::Utf8StreamProcessor`、`processStream(str, len)`、`static utf8CharLength(byte): int`
+// [FROM] 依赖 `<functional/string>`
+// [TO] 被 `eyes_llm_session.cpp` 在拿到 LLM 流式输出后做 UTF-8 切分
+// [HERE] android/app/src/main/cpp/utf8_stream_processor.hpp · UTF-8 流处理（header-only）
 #pragma once
 #include <functional>
 #include <string>

@@ -1,3 +1,10 @@
+// @file eyes_mnn_bridge.cpp
+// @description JNI 桥接层，把 Kotlin 侧的 runInference / nativeInit / nativeRelease / getLastError / getLastInferenceMetric / calculateSpineAnglesNative 路由到 C++ 实现；处理 byte[] 到 JPEG/PCM-WAV 文件落盘。
+//
+// [WHO] 定义 JNI 函数 Java_com_postureai_*** （nativeInit/nativeRelease/nativeAvailable/getLastError/runInference/getLastInferenceMetric/calculateSpineAnglesNative），全局 `eyes::EyesLlmSession g_session` + `std::string g_last_error`，私有 `writeBytesToFile` / `writePcmAsWav`
+// [FROM] 依赖 `jni.h`、`<fstream/mutex/string/vector>`、`eyes_llm_session.h`（EyesLlmSession）、`eyes_log.h`
+// [TO] 被 Kotlin 侧 `MnnPerceptionEngine` / `MainActivity` 通过 `external fun` 调用
+// [HERE] android/app/src/main/cpp/eyes_mnn_bridge.cpp · JNI 入口
 #include <jni.h>
 
 #include <fstream>

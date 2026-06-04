@@ -1,3 +1,10 @@
+// @file eyes_llm_session.cpp
+// @description EyesLlmSession 实现：把 MNN Llm 包装成 load/unload/infer/getMetric 接口，处理 <eop> 结束符、UTF-8 流回调、内嵌配置 JSON。
+//
+// [WHO] 实现 `eyes::EyesLlmSession::load/unload/isReady/lastError/infer/getMetric`，匿名 namespace 内 `restoreRunningIfNeeded` / `StreamState::processChunk/finalize` / `resolveEop` / `buildRuntimeConfig`
+// [FROM] 依赖 MNN Transformer 头（`llm/llm.hpp`）、`llm_stream_buffer.hpp`、`utf8_stream_processor.hpp`、`eyes_log.h`、`<chrono/fstream/sstream/utility/vector>`
+// [TO] 被 `eyes_mnn_bridge.cpp` 通过 `g_session` 单例调用
+// [HERE] android/app/src/main/cpp/eyes_llm_session.cpp · MNN LLM 会话封装
 #include "eyes_llm_session.h"
 
 #include <chrono>
