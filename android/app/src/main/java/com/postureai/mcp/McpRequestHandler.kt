@@ -1,3 +1,12 @@
+/**
+ * @file McpRequestHandler.kt
+ * @description JSON-RPC 2.0 请求路由：分发 initialize / tools/list / tools/call / ping，调用 10 个 MCP 工具实现并通过 onProgress 推送进度通知。
+ *
+ * [WHO] 提供 `class McpRequestHandler(scope, perceptionEngine, watchdogManager, statusProvider, onProgress, sessionManager)`、`handle(body, session)`、内部 `handleInitialize/handleToolsList/handleToolsCall/handlePhoneLook/handlePhoneListen/handlePhonePerceive`、`emitProgressNotification()`；伴生对象 `INFERENCE_TOOLS`
+ * [FROM] 依赖 `McpJson` / `McpToolRegistry`、`PerceptionEngine`、`WatchdogManager`、`KinematicsHub`（直接读 `getAsJson()`）
+ * [TO] 被 `McpHttpServer` 持有；MCP 客户端（PC 智能体）通过 POST/GET 与之交互
+ * [HERE] android/app/src/main/java/com/postureai/mcp/McpRequestHandler.kt · MCP 工具调用路由
+ */
 package com.postureai.mcp
 
 import com.postureai.inference.InferenceStatusHub

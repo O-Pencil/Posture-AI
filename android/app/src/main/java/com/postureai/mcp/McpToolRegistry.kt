@@ -1,3 +1,12 @@
+/**
+ * @file McpToolRegistry.kt
+ * @description 10 个 MCP 工具的 JSON Schema 定义（phone_look/listen/perceive/status/watch_*/look_raw + get_body_kinematics + trigger_vibration_feedback）。
+ *
+ * [WHO] 提供 `object McpToolRegistry.toolDefinitions: List<JsonObject>`、私有 `tool()` / `schema()` 辅助构造
+ * [FROM] 依赖 `kotlinx.serialization.json.buildJsonObject/put/JsonArray/JsonPrimitive`
+ * [TO] 被 `McpRequestHandler.handleToolsList()` 序列化返回；其工具名与 `handleToolsCall` 的 `when` 分支对应
+ * [HERE] android/app/src/main/java/com/postureai/mcp/McpToolRegistry.kt · MCP 工具清单
+ */
 package com.postureai.mcp
 
 import kotlinx.serialization.json.JsonObject

@@ -1,3 +1,12 @@
+/**
+ * @file McpHttpServer.kt
+ * @description 基于 Ktor CIO 的嵌入式 MCP HTTP 服务，监听 0.0.0.0:8765，POST /mcp 走 JSON-RPC 2.0，GET /mcp 走 SSE 流。
+ *
+ * [WHO] 提供 `class McpHttpServer(port, expectedToken, requestHandler, sessionManager)`、`start()` / `stop()`、内部 `authorize(header: String?): Boolean`、CORS 配置
+ * [FROM] 依赖 io.ktor（server-core/cio/cors/websockets/content-negotiation 2.3.12）、`McpRequestHandler`、`McpSessionManager`
+ * [TO] 被 `ServiceRuntime.start()` 启动；HTTP 客户端是 PC 端 LLM 智能体（Claude Code / Codex 等）
+ * [HERE] android/app/src/main/java/com/postureai/mcp/McpHttpServer.kt · MCP HTTP/SSE 入口
+ */
 package com.postureai.mcp
 
 import io.ktor.http.ContentType
