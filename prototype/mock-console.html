@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>演示控制台 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #0A0F1A; --color-surface-1: #111827; --color-surface-2: #1F2937; --color-surface-raised: #0F172A;
+    --color-border-subtle: #1E293B; --color-text-primary: #F1F5F9; --color-text-secondary: #94A3B8; --color-text-tertiary: #64748B;
+    --color-accent-warm: #F97316; --color-status-healthy: #10B981; --color-status-warning: #F59E0B; --color-status-alert: #EF4444; --color-status-offline: #6B7280; --color-status-active: #FBBF24;
+    --font-sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(16, 185, 129, 0.04), transparent 60%); background-attachment: fixed; }
+  }
+  /* 数字变化过渡 */
+  .num { transition: color 250ms ease-out, transform 200ms ease-out; }
+  .num.flash { transform: scale(1.08); }
+</style>
+</head>
+<body>
+<div class="min-h-screen flex items-center justify-center p-0 md:p-8">
+<div class="w-full md:w-[390px] md:rounded-[44px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas min-h-screen md:min-h-[844px] md:max-h-[844px] md:overflow-hidden relative">
+
+  <div class="flex items-center justify-between px-6 pt-3 pb-1 text-meta font-mono text-text-secondary">
+    <span>9:41</span><div class="flex items-center gap-1.5"><span>●●●</span><span>5G</span><span>89%</span></div>
+  </div>
+  <header class="px-6 pt-4 pb-3 flex items-center justify-between">
+    <a href="dashboard.html" class="size-9 rounded-full bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+    <div class="text-h3 font-semibold">演示控制台</div>
+    <span class="size-9 inline-flex items-center justify-center text-accent-warm font-mono text-meta">F7</span>
+  </header>
+  <main class="px-6 pb-6 space-y-4">
+    <div class="bg-status-warning/10 ring-1 ring-status-warning/30 rounded-2xl p-3 flex items-center gap-2">
+      <svg class="text-status-warning flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+      <div class="text-meta text-text-secondary">调试用：<span class="text-text-primary">不接真硬件</span>，直接模拟 3 节点姿态信号。点场景即生效。</div>
+    </div>
+
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">CHOOSE A SCENARIO</div>
+      <div class="space-y-2.5" id="scenarios">
+        <button data-scenario="NORMAL" data-c7="5" data-t12="2" data-l5="2" data-score="100" data-state="NORMAL" data-state-label="健康" class="scenario-btn w-full bg-status-healthy/5 ring-2 ring-status-healthy/40 rounded-2xl p-4 text-left flex items-center gap-3 transition-all">
+          <div class="size-11 rounded-xl bg-status-healthy/20 flex items-center justify-center flex-shrink-0"><span class="text-status-healthy font-mono text-meta font-bold">N</span></div>
+          <div class="flex-1">
+            <div class="text-body font-semibold text-status-healthy">NORMAL · 健康</div>
+            <div class="text-meta text-text-tertiary font-mono mt-0.5">C7 5° · T12 2° · L5 2°</div>
+          </div>
+          <span class="text-meta text-status-healthy font-medium selected-mark">已选</span>
+        </button>
+        <button data-scenario="SLUMPED" data-c7="10" data-t12="25" data-l5="18" data-score="42" data-state="SLUMPED" data-state-label="驼背" class="scenario-btn w-full bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-4 text-left flex items-center gap-3 transition-all">
+          <div class="size-11 rounded-xl bg-status-alert/15 flex items-center justify-center flex-shrink-0"><span class="text-status-alert font-mono text-meta font-bold">S</span></div>
+          <div class="flex-1">
+            <div class="text-body font-semibold">SLUMPED · 驼背</div>
+            <div class="text-meta text-text-tertiary font-mono mt-0.5">C7 10° · T12 25° · L5 18°</div>
+          </div>
+        </button>
+        <button data-scenario="TECH_NECK" data-c7="35" data-t12="5" data-l5="5" data-score="58" data-state="TECH_NECK" data-state-label="低头族" class="scenario-btn w-full bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-4 text-left flex items-center gap-3 transition-all">
+          <div class="size-11 rounded-xl bg-status-warning/15 flex items-center justify-center flex-shrink-0"><span class="text-status-warning font-mono text-meta font-bold">T</span></div>
+          <div class="flex-1">
+            <div class="text-body font-semibold">TECH_NECK · 低头族</div>
+            <div class="text-meta text-text-tertiary font-mono mt-0.5">C7 35° · T12 5° · L5 5°</div>
+          </div>
+        </button>
+        <button data-scenario="LEFT_LEAN" data-c7="5" data-t12="-10" data-l5="-15" data-score="63" data-state="LEFT_LEAN" data-state-label="左侧倾" class="scenario-btn w-full bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-4 text-left flex items-center gap-3 transition-all">
+          <div class="size-11 rounded-xl bg-status-alert/15 flex items-center justify-center flex-shrink-0"><span class="text-status-alert font-mono text-meta font-bold">L</span></div>
+          <div class="flex-1">
+            <div class="text-body font-semibold">LEFT_LEAN · 左侧倾</div>
+            <div class="text-meta text-text-tertiary font-mono mt-0.5">C7 5° · T12 -10° · L5 -15°</div>
+          </div>
+        </button>
+        <button data-scenario="OFFLINE" data-c7="--" data-t12="--" data-l5="--" data-score="--" data-state="OFFLINE" data-state-label="断开" class="scenario-btn w-full bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-4 text-left flex items-center gap-3 transition-all">
+          <div class="size-11 rounded-xl bg-status-offline/15 flex items-center justify-center flex-shrink-0"><span class="text-status-offline font-mono text-meta font-bold">O</span></div>
+          <div class="flex-1">
+            <div class="text-body font-semibold text-text-secondary">OFFLINE · 断开</div>
+            <div class="text-meta text-text-tertiary font-mono mt-0.5">3 节点均无信号</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-meta font-mono text-text-tertiary">CURRENT OUTPUT</div>
+        <span id="state-badge" class="inline-flex items-center gap-1.5 rounded-full bg-status-healthy/10 ring-1 ring-status-healthy/30 px-2.5 py-1 text-meta font-medium text-status-healthy">
+          <span class="size-1.5 rounded-full bg-status-healthy"></span>
+          <span id="state-label">NORMAL · 健康</span>
+        </span>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle text-center">
+          <div class="text-meta text-text-tertiary font-mono">C7</div>
+          <div id="out-c7" class="num font-mono text-body font-bold text-status-healthy">5°</div>
+        </div>
+        <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle text-center">
+          <div class="text-meta text-text-tertiary font-mono">T12</div>
+          <div id="out-t12" class="num font-mono text-body font-bold text-status-healthy">2°</div>
+        </div>
+        <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle text-center">
+          <div class="text-meta text-text-tertiary font-mono">L5</div>
+          <div id="out-l5" class="num font-mono text-body font-bold text-status-healthy">2°</div>
+        </div>
+      </div>
+      <div class="mt-3 text-meta text-text-tertiary text-center">
+        Posture Score
+        <span id="out-score" class="font-mono text-status-healthy font-medium ml-1 num">100</span>
+      </div>
+    </section>
+  </main>
+
+  <a href="index.html" class="hidden md:flex absolute top-3 -left-14 items-center gap-1 text-meta text-text-tertiary hover:text-accent-warm transition-colors">← 原型导航</a>
+</div>
+</div>
+
+<script>
+  // 演示控制台交互：点击场景 → 更新右侧输出
+  (function() {
+    const stateColor = {
+      NORMAL: 'status-healthy', SLUMPED: 'status-alert', TECH_NECK: 'status-warning',
+      LEFT_LEAN: 'status-alert', OFFLINE: 'status-offline',
+    };
+    const btns = document.querySelectorAll('.scenario-btn');
+    const c7 = document.getElementById('out-c7');
+    const t12 = document.getElementById('out-t12');
+    const l5 = document.getElementById('out-l5');
+    const score = document.getElementById('out-score');
+    const stateLabel = document.getElementById('state-label');
+    const stateBadge = document.getElementById('state-badge');
+    function flash(el) { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 200); }
+    function pickColor(state) {
+      const c = stateColor[state] || 'status-healthy';
+      return { text: c, bg: 'bg-' + c + '/10', ring: 'ring-' + c + '/30' };
+    }
+    function apply(btn) {
+      const s = btn.dataset.scenario;
+      btns.forEach(b => {
+        b.className = b.className.replace(/ring-(status-\w+|border-subtle).*?rounded-2xl p-4/g, 'ring-1 ring-border-subtle rounded-2xl p-4');
+        b.classList.remove('bg-status-healthy/5', 'bg-status-healthy/40', 'ring-2', 'ring-status-healthy/40');
+        const sm = b.querySelector('.selected-mark'); if (sm) sm.remove();
+        const dot = b.querySelector('.size-11');
+        if (dot) dot.className = 'size-11 rounded-xl bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center flex-shrink-0';
+      });
+      btn.className = btn.className.replace('ring-1 ring-border-subtle rounded-2xl p-4', 'ring-2 ring-' + stateColor[s] + '/40 rounded-2xl p-4');
+      btn.classList.add('bg-' + stateColor[s] + '/5');
+      const mark = document.createElement('span');
+      mark.className = 'text-meta text-' + stateColor[s] + ' font-medium selected-mark';
+      mark.textContent = '已选';
+      btn.querySelector('.flex-1').after(mark);
+      // 更新输出
+      c7.textContent = btn.dataset.c7 + '°'; t12.textContent = btn.dataset.t12 + '°'; l5.textContent = btn.dataset.l5 + '°';
+      score.textContent = btn.dataset.score;
+      const col = stateColor[s];
+      [c7, t12, l5, score].forEach(el => {
+        el.className = 'num font-mono text-body font-bold text-' + col;
+        flash(el);
+      });
+      stateLabel.textContent = btn.dataset.state + ' · ' + btn.dataset.stateLabel;
+      stateBadge.className = 'inline-flex items-center gap-1.5 rounded-full bg-' + col + '/10 ring-1 ring-' + col + '/30 px-2.5 py-1 text-meta font-medium text-' + col;
+      const dot = stateBadge.querySelector('span');
+      dot.className = 'size-1.5 rounded-full bg-' + col;
+    }
+    btns.forEach(b => b.addEventListener('click', () => apply(b)));
+  })();
+</script>
+</body>
+</html>

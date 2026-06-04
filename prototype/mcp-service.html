@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>MCP 服务 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #0A0F1A; --color-surface-1: #111827; --color-surface-2: #1F2937; --color-surface-raised: #0F172A;
+    --color-border-subtle: #1E293B; --color-text-primary: #F1F5F9; --color-text-secondary: #94A3B8; --color-text-tertiary: #64748B;
+    --color-accent-warm: #F97316; --color-status-healthy: #10B981; --color-status-warning: #F59E0B; --color-status-alert: #EF4444; --color-status-offline: #6B7280; --color-status-active: #FBBF24;
+    --font-sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(16, 185, 129, 0.04), transparent 60%); background-attachment: fixed; }
+  }
+</style>
+</head>
+<body>
+<div class="min-h-screen flex items-center justify-center p-0 md:p-8">
+<div class="w-full md:w-[390px] md:rounded-[44px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas min-h-screen md:min-h-[844px] md:max-h-[844px] md:overflow-hidden relative">
+
+<div class="flex items-center justify-between px-6 pt-3 pb-1 text-meta font-mono text-text-secondary">
+  <span>9:41</span><div class="flex items-center gap-1.5"><span>●●●</span><span>5G</span><span>89%</span></div>
+</div>
+<header class="px-6 pt-4 pb-3 flex items-center justify-between">
+  <a href="dashboard.html" class="size-9 rounded-full bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-secondary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </a>
+  <div class="text-h3 font-semibold">MCP 服务</div>
+  <a href="settings.html" class="size-9 rounded-full bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-secondary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>
+  </a>
+</header>
+<main class="px-6 pb-6 space-y-4">
+  <!-- 状态卡 -->
+  <section class="bg-status-healthy/5 ring-1 ring-status-healthy/30 rounded-3xl p-5">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="relative inline-block size-3">
+        <span class="absolute inset-0 rounded-full bg-status-healthy/40" style="animation: pulse 2s ease-in-out infinite"></span>
+        <span class="absolute inset-1 rounded-full bg-status-healthy"></span>
+      </span>
+      <div class="flex-1">
+        <div class="text-h3 font-semibold text-status-healthy">服务运行中</div>
+        <div class="text-meta text-text-tertiary font-mono">http://192.168.1.42:8765/mcp</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+      <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle text-center">
+        <div class="text-meta text-text-tertiary font-mono">客户端</div>
+        <div class="font-mono text-body font-bold text-status-healthy">1</div>
+      </div>
+      <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle text-center">
+        <div class="text-meta text-text-tertiary font-mono">工具</div>
+        <div class="font-mono text-body font-bold">10</div>
+      </div>
+      <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle text-center">
+        <div class="text-meta text-text-tertiary font-mono">已运行</div>
+        <div class="font-mono text-body font-bold">4h 12m</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QR 码 + Token -->
+  <section class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+    <div class="text-meta font-mono text-text-tertiary mb-3">扫码在 PC 端 Claude Code / Codex 连接</div>
+    <div class="flex gap-4 items-center">
+      <!-- QR 简笔（占位 12×12 网格） -->
+      <div class="size-32 bg-white p-2 rounded-xl ring-1 ring-border-subtle flex-shrink-0">
+        <div class="size-full grid grid-cols-12 gap-px">
+          <!-- 用一个简化的伪随机点阵 -->
+          <div class="col-span-12 row-span-12 grid grid-cols-12 gap-px">
+            <div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 min-w-0 space-y-2">
+        <div>
+          <div class="text-meta text-text-tertiary font-mono mb-1">URL</div>
+          <div class="text-meta font-mono bg-canvas rounded px-2 py-1.5 ring-1 ring-border-subtle truncate text-text-primary">http://192.168.1.42:8765/mcp</div>
+        </div>
+        <div>
+          <div class="text-meta text-text-tertiary font-mono mb-1">TOKEN</div>
+          <div class="flex items-center gap-1.5">
+            <div class="text-meta font-mono bg-canvas rounded px-2 py-1.5 ring-1 ring-border-subtle truncate flex-1 text-text-primary">eop_7f3a9b2e••••b9c2</div>
+            <button class="size-8 rounded-lg bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <a href="settings.html" class="text-meta text-accent-warm font-medium">重新生成 Token →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 可用工具（10 个） -->
+  <section>
+    <div class="text-meta font-mono text-text-tertiary mb-3">EXPOSED TOOLS · 10</div>
+    <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl divide-y divide-border-subtle/40">
+      <div class="px-4 py-2.5 flex items-center justify-between"><span class="font-mono text-meta">phone_look</span><span class="text-[10px] text-text-tertiary">VL 视觉</span></div>
+      <div class="px-4 py-2.5 flex items-center justify-between"><span class="font-mono text-meta">phone_listen</span><span class="text-[10px] text-text-tertiary">VL 听觉</span></div>
+      <div class="px-4 py-2.5 flex items-center justify-between"><span class="font-mono text-meta">phone_perceive</span><span class="text-[10px] text-text-tertiary">多模态</span></div>
+      <div class="px-4 py-2.5 flex items-center justify-between"><span class="font-mono text-meta text-status-warning">get_body_kinematics</span><span class="text-[10px] text-text-tertiary">姿态</span></div>
+      <div class="px-4 py-2.5 flex items-center justify-between"><span class="font-mono text-meta">phone_status</span><span class="text-[10px] text-text-tertiary">状态</span></div>
+      <div class="px-4 py-2.5 flex items-center justify-between"><span class="font-mono text-meta">phone_watch_*</span><span class="text-[10px] text-text-tertiary">巡检</span></div>
+    </div>
+  </section>
+
+  <button class="w-full bg-status-alert/10 hover:bg-status-alert/15 text-status-alert font-medium rounded-full px-6 py-3.5 ring-1 ring-status-alert/30 transition-colors">
+    停止 MCP 服务
+  </button>
+</main>
+<a href="index.html" class="hidden md:flex absolute top-3 -left-14 items-center gap-1 text-meta text-text-tertiary hover:text-accent-warm transition-colors">← 原型导航</a>
+</div>
+</div>
+</body>
+</html>

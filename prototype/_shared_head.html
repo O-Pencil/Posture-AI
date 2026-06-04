@@ -1,0 +1,45 @@
+<!-- Posture-AI 原型 · 共享 head 片段（被各页面复制使用） -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>__TITLE__ · Posture-AI 原型</title>
+<!-- Tailwind 4 浏览器 CDN -->
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<!-- Geist Sans + Geist Mono + Noto Sans SC -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<!-- 设计 Token（注入到 :root，Tailwind 4 风格用 @theme inline） -->
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #0A0F1A;
+    --color-surface-1: #111827;
+    --color-surface-2: #1F2937;
+    --color-surface-raised: #0F172A;
+    --color-border-subtle: #1E293B;
+    --color-text-primary: #F1F5F9;
+    --color-text-secondary: #94A3B8;
+    --color-text-tertiary: #64748B;
+    --color-accent-warm: #F97316;
+    --color-status-healthy: #10B981;
+    --color-status-warning: #F59E0B;
+    --color-status-alert: #EF4444;
+    --color-status-offline: #6B7280;
+    --color-status-active: #FBBF24;
+    --font-sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+  @layer base {
+    html, body {
+      font-family: var(--font-sans);
+      background: var(--color-canvas);
+      color: var(--color-text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      min-height: 100vh;
+      /* 极淡的冷色径向，模拟"仪表盘呼吸感" */
+      background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(16, 185, 129, 0.04), transparent 60%);
+      background-attachment: fixed;
+    }
+  }
+</style>

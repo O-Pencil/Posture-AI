@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>设备管理 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #0A0F1A; --color-surface-1: #111827; --color-surface-2: #1F2937; --color-surface-raised: #0F172A;
+    --color-border-subtle: #1E293B; --color-text-primary: #F1F5F9; --color-text-secondary: #94A3B8; --color-text-tertiary: #64748B;
+    --color-accent-warm: #F97316; --color-status-healthy: #10B981; --color-status-warning: #F59E0B; --color-status-alert: #EF4444; --color-status-offline: #6B7280; --color-status-active: #FBBF24;
+    --font-sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(249, 115, 22, 0.04), transparent 60%); background-attachment: fixed; }
+  }
+</style>
+</head>
+<body>
+<div class="min-h-screen flex items-center justify-center p-0 md:p-8">
+<div class="w-full md:w-[390px] md:rounded-[44px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas min-h-screen md:min-h-[844px] md:max-h-[844px] md:overflow-hidden relative">
+
+  <div class="flex items-center justify-between px-6 pt-3 pb-1 text-meta font-mono text-text-secondary">
+    <span>9:41</span><div class="flex items-center gap-1.5"><span>●●●</span><span>5G</span><span>89%</span></div>
+  </div>
+
+  <header class="px-6 pt-4 pb-3 flex items-center justify-between">
+    <a href="dashboard.html" class="size-9 rounded-full bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+    <div class="text-h3 font-semibold">设置</div>
+    <div class="size-9"></div>
+  </header>
+
+  <main class="px-6 pb-6 space-y-5">
+
+    <!-- ====== 1. 设备管理（置顶，2C 重点） ====== -->
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">DEVICE</div>
+
+      <!-- 当前连接设备 -->
+      <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+        <div class="flex items-start gap-3">
+          <div class="size-12 rounded-2xl bg-accent-warm/15 ring-1 ring-accent-warm/30 flex items-center justify-center flex-shrink-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><circle cx="8" cy="12" r="1.5" fill="#F97316"/><circle cx="16" cy="12" r="1.5" fill="#F97316"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-h3 font-semibold">PoseMaster-C6</span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-status-healthy/10 ring-1 ring-status-healthy/30 px-2 py-0.5 text-[10px] font-medium text-status-healthy">
+                <span class="size-1 rounded-full bg-status-healthy"></span>
+                已连接
+              </span>
+            </div>
+            <div class="text-meta text-text-tertiary font-mono mt-1">MAC · AA:BB:CC:11:22:33</div>
+
+            <!-- 设备指标 -->
+            <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle">
+                <div class="text-meta text-text-tertiary font-mono">电量</div>
+                <div class="text-body font-semibold font-mono mt-0.5">72%</div>
+                <div class="text-[10px] text-text-tertiary">~ 4h</div>
+              </div>
+              <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle">
+                <div class="text-meta text-text-tertiary font-mono">信号</div>
+                <div class="text-body font-semibold font-mono mt-0.5">-52</div>
+                <div class="text-[10px] text-text-tertiary">dBm</div>
+              </div>
+              <div class="bg-canvas rounded-lg p-2.5 ring-1 ring-border-subtle">
+                <div class="text-meta text-text-tertiary font-mono">固件</div>
+                <div class="text-body font-semibold font-mono mt-0.5">v1.2.3</div>
+                <div class="text-[10px] text-text-healthy">最新</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="grid grid-cols-3 gap-2 mt-4">
+          <a href="pairing.html" class="bg-surface-2 hover:bg-surface-1 text-text-primary text-meta font-medium rounded-xl py-2.5 text-center ring-1 ring-border-subtle transition-colors">重新配对</a>
+          <button class="bg-surface-2 hover:bg-surface-1 text-text-primary text-meta font-medium rounded-xl py-2.5 ring-1 ring-border-subtle transition-colors">校准</button>
+          <button class="bg-status-alert/10 hover:bg-status-alert/15 text-status-alert text-meta font-medium rounded-xl py-2.5 ring-1 ring-status-alert/30 transition-colors">解绑</button>
+        </div>
+      </div>
+
+      <!-- 3 节点详情 -->
+      <div class="mt-3 bg-surface-1 ring-1 ring-border-subtle rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-border-subtle/60 flex items-center justify-between">
+          <span class="text-meta text-text-secondary font-medium">3 节点状态</span>
+          <span class="text-meta text-status-healthy font-mono">全部在线</span>
+        </div>
+        <div class="divide-y divide-border-subtle/40">
+          <div class="px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="size-2 rounded-full bg-accent-warm"></div>
+              <div>
+                <div class="text-body font-medium">Node-C · 颈椎主控</div>
+                <div class="text-meta text-text-tertiary font-mono">ESP32-S3 · 72%</div>
+              </div>
+            </div>
+            <span class="text-meta text-text-tertiary">主</span>
+          </div>
+          <div class="px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="size-2 rounded-full bg-status-healthy"></div>
+              <div>
+                <div class="text-body font-medium">Node-T · 胸椎</div>
+                <div class="text-meta text-text-tertiary font-mono">BNO085 · 78%</div>
+              </div>
+            </div>
+            <span class="text-meta text-text-tertiary font-mono">-48dBm</span>
+          </div>
+          <div class="px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="size-2 rounded-full bg-status-healthy"></div>
+              <div>
+                <div class="text-body font-medium">Node-L · 腰椎</div>
+                <div class="text-meta text-text-tertiary font-mono">BNO085 + 马达 · 65%</div>
+              </div>
+            </div>
+            <span class="text-meta text-text-tertiary font-mono">-55dBm</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== 2. AI 模型 ====== -->
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">AI MODEL</div>
+      <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-4 flex items-center gap-3">
+        <div class="size-9 rounded-xl bg-accent-warm/10 ring-1 ring-accent-warm/30 flex items-center justify-center">
+          <span class="text-accent-warm font-mono font-bold text-meta">MNN</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-body font-medium">Qwen3-VL-2B</div>
+          <div class="text-meta text-text-tertiary font-mono">未安装 · 4 个必需权重文件</div>
+        </div>
+        <button class="text-meta text-accent-warm font-medium">安装</button>
+      </div>
+      <p class="text-meta text-text-tertiary mt-2 px-1">无模型时自动降级到启发式分析，<span class="text-text-secondary">MCP 仍可用</span>。</p>
+    </section>
+
+    <!-- ====== 3. MCP 服务 ====== -->
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">MCP</div>
+      <a href="mcp-service.html" class="block bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-4 transition-colors">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-body font-medium">MCP 服务</div>
+            <div class="text-meta text-text-tertiary mt-0.5">Token / 端口 / 客户端</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-meta text-status-offline font-mono">已停止</span>
+            <svg class="text-text-tertiary" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <!-- ====== 4. 通知与提醒 ====== -->
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">REMINDERS</div>
+      <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl divide-y divide-border-subtle/40">
+        <div class="px-4 py-3.5 flex items-center justify-between">
+          <div>
+            <div class="text-body font-medium">振动反馈</div>
+            <div class="text-meta text-text-tertiary mt-0.5">通过 L5 节点马达</div>
+          </div>
+          <button class="relative w-11 h-6 rounded-full bg-accent-warm transition-colors">
+            <span class="absolute right-0.5 top-0.5 size-5 rounded-full bg-white shadow"></span>
+          </button>
+        </div>
+        <div class="px-4 py-3.5 flex items-center justify-between">
+          <div>
+            <div class="text-body font-medium">系统通知</div>
+            <div class="text-meta text-text-tertiary mt-0.5">保持 30 分钟不驼背后</div>
+          </div>
+          <button class="relative w-11 h-6 rounded-full bg-accent-warm transition-colors">
+            <span class="absolute right-0.5 top-0.5 size-5 rounded-full bg-white shadow"></span>
+          </button>
+        </div>
+        <div class="px-4 py-3.5 flex items-center justify-between">
+          <div>
+            <div class="text-body font-medium">日终小结</div>
+            <div class="text-meta text-text-tertiary mt-0.5">每晚 22:00 推送</div>
+          </div>
+          <button class="relative w-11 h-6 rounded-full bg-surface-2 transition-colors">
+            <span class="absolute left-0.5 top-0.5 size-5 rounded-full bg-text-tertiary shadow"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== 5. 关于 ====== -->
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">ABOUT</div>
+      <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl divide-y divide-border-subtle/40">
+        <div class="px-4 py-3.5 flex items-center justify-between">
+          <span class="text-body">APP 版本</span>
+          <span class="text-meta text-text-tertiary font-mono">v0.1.0 · build 2026-06-05</span>
+        </div>
+        <div class="px-4 py-3.5 flex items-center justify-between">
+          <span class="text-body">隐私模式</span>
+          <span class="text-meta text-status-healthy font-mono">端侧</span>
+        </div>
+        <a class="px-4 py-3.5 flex items-center justify-between hover:bg-surface-2 transition-colors">
+          <span class="text-body">用户协议 / 隐私</span>
+          <svg class="text-text-tertiary" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <p class="text-meta text-text-tertiary text-center pt-2">
+      Posture-AI v0.1 · 2C MVP
+    </p>
+
+  </main>
+
+  <a href="index.html" class="hidden md:flex absolute top-3 -left-14 items-center gap-1 text-meta text-text-tertiary hover:text-accent-warm transition-colors">
+    ← 原型导航
+  </a>
+</div>
+</div>
+<script>
+  // 开关 toggle 交互
+  (function() {
+    document.querySelectorAll('button.relative.w-11.h-6').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const on = btn.classList.contains('bg-accent-warm');
+        const knob = btn.querySelector('span');
+        if (on) {
+          // 关闭
+          btn.classList.remove('bg-accent-warm');
+          btn.classList.add('bg-surface-2');
+          knob.classList.remove('right-0.5');
+          knob.classList.add('left-0.5');
+          knob.classList.remove('bg-white');
+          knob.classList.add('bg-text-tertiary');
+        } else {
+          // 打开
+          btn.classList.remove('bg-surface-2');
+          btn.classList.add('bg-accent-warm');
+          knob.classList.remove('left-0.5');
+          knob.classList.add('right-0.5');
+          knob.classList.remove('bg-text-tertiary');
+          knob.classList.add('bg-white');
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

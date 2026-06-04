@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>原型导航 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #0A0F1A; --color-surface-1: #111827; --color-surface-2: #1F2937; --color-surface-raised: #0F172A;
+    --color-border-subtle: #1E293B; --color-text-primary: #F1F5F9; --color-text-secondary: #94A3B8; --color-text-tertiary: #64748B;
+    --color-accent-warm: #F97316; --color-status-healthy: #10B981; --color-status-warning: #F59E0B; --color-status-alert: #EF4444; --color-status-offline: #6B7280; --color-status-active: #FBBF24;
+    --font-sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(249, 115, 22, 0.05), transparent 60%); background-attachment: fixed; }
+  }
+</style>
+</head>
+<body>
+  <header class="sticky top-0 z-10 bg-surface-raised/80 backdrop-blur ring-1 ring-border-subtle">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="size-9 rounded-xl bg-accent-warm/10 ring-1 ring-accent-warm/30 flex items-center justify-center">
+          <span class="text-accent-warm font-bold text-lg">P</span>
+        </div>
+        <div>
+          <div class="text-sm font-semibold tracking-tight">Posture-AI 原型</div>
+          <div class="text-meta text-text-tertiary">9 个核心页面 · 2C APP + 外接 3 节点传感器</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-meta text-text-secondary">
+        <span class="inline-block size-2 rounded-full bg-status-healthy"></span>
+        <span>设计 DNA 已加载</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-12 space-y-16">
+
+    <!-- Hero -->
+    <section>
+      <div class="text-meta font-mono text-text-tertiary mb-3">// DESIGN BRIEF · 2026-06-05 · 2C</div>
+      <h1 class="text-5xl font-bold tracking-tight leading-tight max-w-3xl">
+        一块<span class="text-accent-warm">3 节点背带板</span>，
+        <br/>一个<span class="text-accent-warm">手机 APP</span>。
+      </h1>
+      <p class="text-text-secondary text-lg mt-5 max-w-2xl leading-relaxed">
+        外接开发板（BOM ≈ ¥223，含 ESP32-S3 + 3 个 BNO085 IMU）通过 BLE 连接到 iOS / Android APP。APP 端做实时姿态打分、振动反馈、端侧 MNN 推理，并把姿态/视觉数据暴露为 MCP 工具供 PC 智能体远程调用。
+      </p>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="text-meta px-3 py-1.5 rounded-full bg-surface-1 ring-1 ring-border-subtle text-text-secondary">📦 外接硬件 · 颈椎/胸椎/腰椎 3 节点</span>
+        <span class="text-meta px-3 py-1.5 rounded-full bg-surface-1 ring-1 ring-border-subtle text-text-secondary">📱 2C APP · BLE 配对 + 实时仪表</span>
+        <span class="text-meta px-3 py-1.5 rounded-full bg-surface-1 ring-1 ring-border-subtle text-text-secondary">🤖 MCP Agent · PC 端 Claude Code 调用</span>
+        <span class="text-meta px-3 py-1.5 rounded-full bg-surface-1 ring-1 ring-border-subtle text-text-secondary">🔒 端侧 MNN · 隐私优先</span>
+      </div>
+    </section>
+
+    <!-- 用户旅程地图（2C 视角） -->
+    <section>
+      <h2 class="text-h2 font-semibold mb-2">用户旅程地图</h2>
+      <p class="text-text-secondary text-body mb-6">从开箱到日常使用的完整 2C 路径</p>
+      <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5 overflow-x-auto">
+        <div class="flex items-center gap-2 min-w-[760px]">
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <div class="size-10 rounded-full bg-status-healthy/15 ring-1 ring-status-healthy/30 flex items-center justify-center text-status-healthy">1</div>
+            <a href="dashboard-empty.html" class="text-meta text-center leading-tight max-w-[80px]">开箱 + 首次启动</a>
+          </div>
+          <div class="flex-1 h-px bg-border-subtle"></div>
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <div class="size-10 rounded-full bg-status-healthy/15 ring-1 ring-status-healthy/30 flex items-center justify-center text-status-healthy">2</div>
+            <a href="pairing.html" class="text-meta text-center leading-tight max-w-[80px]">BLE 配对板子</a>
+          </div>
+          <div class="flex-1 h-px bg-border-subtle"></div>
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <div class="size-10 rounded-full bg-status-healthy/15 ring-1 ring-status-healthy/30 flex items-center justify-center text-status-healthy">3</div>
+            <a href="calibration.html" class="text-meta text-center leading-tight max-w-[80px]">3 节点零位校准</a>
+          </div>
+          <div class="flex-1 h-px bg-border-subtle"></div>
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <div class="size-10 rounded-full bg-accent-warm/15 ring-1 ring-accent-warm/30 flex items-center justify-center text-accent-warm">4</div>
+            <a href="dashboard.html" class="text-meta text-center leading-tight max-w-[80px]">日常使用</a>
+          </div>
+          <div class="flex-1 h-px bg-border-subtle"></div>
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <div class="size-10 rounded-full bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-tertiary">5</div>
+            <a href="mcp-service.html" class="text-meta text-center leading-tight max-w-[80px]">进阶：MCP 远程</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页面索引 -->
+    <section>
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="text-h2 font-semibold">页面索引</h2>
+        <span class="text-meta text-text-tertiary font-mono">9 PAGES</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- 主仪表盘（大卡） -->
+        <a href="dashboard.html" class="md:col-span-2 group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-6 transition-colors">
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <div class="text-meta font-mono text-accent-warm mb-2">F1 · 日常主屏</div>
+              <div class="text-h2 font-semibold">实时姿态仪表盘</div>
+              <div class="text-text-secondary text-body mt-1.5 max-w-md">3 节点脊柱可视化 + Posture Score + 板子状态（电量/信号/佩戴）+ 振动反馈</div>
+            </div>
+            <span class="text-text-tertiary group-hover:text-accent-warm transition-colors">→</span>
+          </div>
+          <!-- 缩略预览：3 节点脊柱 -->
+          <div class="bg-canvas rounded-xl p-4 ring-1 ring-border-subtle flex items-center gap-6">
+            <svg width="40" height="120" viewBox="0 0 40 120" fill="none">
+              <line x1="20" y1="10" x2="20" y2="110" stroke="#1E293B" stroke-width="2"/>
+              <circle cx="20" cy="25" r="6" fill="#10B981"/>
+              <circle cx="20" cy="60" r="6" fill="#10B981"/>
+              <circle cx="20" cy="95" r="6" fill="#F59E0B"/>
+              <text x="32" y="28" fill="#94A3B8" font-family="Geist Mono" font-size="9">C7</text>
+              <text x="32" y="63" fill="#94A3B8" font-family="Geist Mono" font-size="9">T12</text>
+              <text x="32" y="98" fill="#94A3B8" font-family="Geist Mono" font-size="9">L5</text>
+            </svg>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between"><span class="text-meta text-text-tertiary font-mono">C7 NECK PITCH</span><span class="font-mono text-status-warning">12.4°</span></div>
+              <div class="flex items-center justify-between"><span class="text-meta text-text-tertiary font-mono">T12 ROLL</span><span class="font-mono text-status-healthy">3.1°</span></div>
+              <div class="flex items-center justify-between"><span class="text-meta text-text-tertiary font-mono">L5 ROLL</span><span class="font-mono text-status-warning">9.8°</span></div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-3xl font-bold text-status-healthy">87</div>
+              <div class="text-meta text-text-tertiary">SCORE</div>
+            </div>
+          </div>
+        </a>
+
+        <!-- 右上：空态 -->
+        <a href="dashboard-empty.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-text-tertiary mb-1.5">F1 · EMPTY</div>
+          <div class="text-h3 font-semibold mb-1.5">开箱首启</div>
+          <div class="text-meta text-text-secondary leading-relaxed">未配对板子 · 引导：装上背带 → 开机 → 靠近手机</div>
+          <div class="mt-5 inline-flex items-center gap-1.5 text-meta text-accent-warm font-medium">
+            开始配对 →
+          </div>
+        </a>
+
+        <!-- 第二行左：BLE 配对 -->
+        <a href="pairing.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-text-tertiary mb-1.5">F1 · PAIRING</div>
+          <div class="text-h3 font-semibold mb-1.5">BLE 配对板子</div>
+          <div class="text-meta text-text-secondary leading-relaxed">扫描 → 选 PoseMaster-C6 → 配对 → 验证 3 节点都通</div>
+          <div class="mt-5 space-y-1.5">
+            <div class="flex items-center gap-2 text-meta">
+              <span class="size-1.5 rounded-full bg-status-healthy"></span>
+              <span class="text-text-secondary">Node-C（主控）</span>
+            </div>
+            <div class="flex items-center gap-2 text-meta">
+              <span class="size-1.5 rounded-full bg-status-healthy"></span>
+              <span class="text-text-secondary">Node-T（胸椎）</span>
+            </div>
+            <div class="flex items-center gap-2 text-meta">
+              <span class="size-1.5 rounded-full bg-status-healthy"></span>
+              <span class="text-text-secondary">Node-L（腰椎）</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 第二行中：校准 -->
+        <a href="calibration.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-text-tertiary mb-1.5">F2</div>
+          <div class="text-h3 font-semibold mb-1.5">3 节点零位校准</div>
+          <div class="text-meta text-text-secondary leading-relaxed">直立基线 → 前屈 30° → 侧屈 15°，3 节点分别采集参考四元数</div>
+          <div class="mt-5 flex gap-1.5">
+            <span class="size-2 rounded-full bg-accent-warm"></span>
+            <span class="size-2 rounded-full bg-surface-2"></span>
+            <span class="size-2 rounded-full bg-surface-2"></span>
+          </div>
+        </a>
+
+        <!-- 第二行右：Settings -->
+        <a href="settings.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-text-tertiary mb-1.5">F8</div>
+          <div class="text-h3 font-semibold mb-1.5">设备管理</div>
+          <div class="text-meta text-text-secondary leading-relaxed">板子电量 · 固件版本 · 重新配对 · 解绑 · MNN 模型安装</div>
+        </a>
+
+        <!-- 第三行左：演示控制台 -->
+        <a href="mock-console.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-accent-warm mb-1.5">F7 · DEMO</div>
+          <div class="text-h3 font-semibold mb-1.5">演示控制台</div>
+          <div class="text-meta text-text-secondary leading-relaxed">5 种预设场景一键切换：NORMAL / SLUMPED / TECH_NECK / LEFT_LEAN / OFFLINE</div>
+          <div class="mt-5 flex flex-wrap gap-1.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-healthy/15 text-status-healthy">NORMAL</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-alert/15 text-status-alert">SLUMPED</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-warning/15 text-status-warning">TECH_NECK</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-alert/15 text-status-alert">LEFT_LEAN</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-offline/15 text-status-offline">OFFLINE</span>
+          </div>
+        </a>
+
+        <!-- 第三行中：MCP 服务（大卡） -->
+        <a href="mcp-service.html" class="md:col-span-2 group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-6 transition-colors">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="text-meta font-mono text-text-tertiary mb-2">F9 · AGENT GATEWAY</div>
+              <div class="text-h2 font-semibold">MCP 服务启动页</div>
+              <div class="text-text-secondary text-body mt-1.5">前台服务启动 · LAN URL + Bearer Token · QR 码配对 · 客户端连接状态</div>
+            </div>
+            <span class="text-text-tertiary group-hover:text-accent-warm transition-colors">→</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-canvas rounded-lg p-3 ring-1 ring-border-subtle">
+              <div class="text-meta text-text-tertiary font-mono">URL</div>
+              <div class="text-meta text-text-primary font-mono truncate">http://192.168.1.42:8765/mcp</div>
+            </div>
+            <div class="bg-canvas rounded-lg p-3 ring-1 ring-border-subtle">
+              <div class="text-meta text-text-tertiary font-mono">TOKEN</div>
+              <div class="text-meta text-text-primary font-mono truncate">eop_7f3a••••b9c2</div>
+            </div>
+            <div class="bg-canvas rounded-lg p-3 ring-1 ring-border-subtle">
+              <div class="text-meta text-text-tertiary font-mono">CLIENTS</div>
+              <div class="text-meta text-status-healthy font-mono">1 connected</div>
+            </div>
+          </div>
+        </a>
+
+        <!-- 第四行：Watchdog + Report -->
+        <a href="watchdog.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-text-tertiary mb-1.5">F9 · WATCH</div>
+          <div class="text-h3 font-semibold mb-1.5">周期感知</div>
+          <div class="text-meta text-text-secondary leading-relaxed">配置巡检任务，命中异常推 SSE 通知 + 落盘告警</div>
+        </a>
+        <a href="report.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors">
+          <div class="text-meta font-mono text-text-tertiary mb-1.5">F6</div>
+          <div class="text-h3 font-semibold mb-1.5">周报 / 月报</div>
+          <div class="text-meta text-text-secondary leading-relaxed">不驼背趋势图 + 异常分布 + AI 建议</div>
+        </a>
+        <a href="settings.html" class="group bg-surface-1 hover:bg-surface-2 ring-1 ring-border-subtle rounded-2xl p-5 transition-colors" style="visibility:hidden;">
+          <!-- 占位 -->
+        </a>
+      </div>
+    </section>
+
+    <!-- 设计 DNA 速览 -->
+    <section class="border-t border-border-subtle pt-12">
+      <h2 class="text-h2 font-semibold mb-6">设计 DNA 速览</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+          <div class="text-meta text-text-tertiary font-mono mb-3">COLOR · 状态</div>
+          <div class="flex gap-1.5 mb-2">
+            <div class="size-7 rounded-md bg-status-healthy"></div>
+            <div class="size-7 rounded-md bg-status-warning"></div>
+            <div class="size-7 rounded-md bg-status-alert"></div>
+            <div class="size-7 rounded-md bg-status-offline"></div>
+          </div>
+          <div class="text-meta text-text-secondary">4 状态色不混用</div>
+        </div>
+        <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+          <div class="text-meta text-text-tertiary font-mono mb-3">FONT</div>
+          <div class="text-h3 font-semibold">Geist</div>
+          <div class="text-meta text-text-secondary mt-1">Sans + Mono</div>
+        </div>
+        <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+          <div class="text-meta text-text-tertiary font-mono mb-3">PERSONALITY</div>
+          <div class="text-body">Restrained · Warm</div>
+          <div class="text-meta text-text-secondary mt-1">克制 · 微微暖意</div>
+        </div>
+        <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+          <div class="text-meta text-text-tertiary font-mono mb-3">AVOID</div>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">紫渐变</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">Inter</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">玻璃</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-meta text-text-tertiary text-center py-8">
+      Posture-AI · 设计原型 v0.2 · 2026-06-05 · 9 页面（2C + 3 节点板子视角）
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>周期感知 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #0A0F1A; --color-surface-1: #111827; --color-surface-2: #1F2937; --color-surface-raised: #0F172A;
+    --color-border-subtle: #1E293B; --color-text-primary: #F1F5F9; --color-text-secondary: #94A3B8; --color-text-tertiary: #64748B;
+    --color-accent-warm: #F97316; --color-status-healthy: #10B981; --color-status-warning: #F59E0B; --color-status-alert: #EF4444; --color-status-offline: #6B7280; --color-status-active: #FBBF24;
+    --font-sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(16, 185, 129, 0.04), transparent 60%); background-attachment: fixed; }
+  }
+</style>
+</head>
+<body>
+<div class="min-h-screen flex items-center justify-center p-0 md:p-8">
+<div class="w-full md:w-[390px] md:rounded-[44px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas min-h-screen md:min-h-[844px] md:max-h-[844px] md:overflow-hidden relative">
+
+<div class="flex items-center justify-between px-6 pt-3 pb-1 text-meta font-mono text-text-secondary">
+  <span>9:41</span><div class="flex items-center gap-1.5"><span>●●●</span><span>5G</span><span>89%</span></div>
+</div>
+<header class="px-6 pt-4 pb-3 flex items-center justify-between">
+  <a href="dashboard.html" class="size-9 rounded-full bg-surface-2 ring-1 ring-border-subtle flex items-center justify-center text-text-secondary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </a>
+  <div class="text-h3 font-semibold">周期感知</div>
+  <span class="size-9 inline-flex items-center justify-center text-text-tertiary font-mono text-meta">F9</span>
+</header>
+<main class="px-6 pb-6 space-y-4">
+  <section class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl p-5">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="size-9 rounded-xl bg-accent-warm/10 ring-1 ring-accent-warm/30 flex items-center justify-center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      </div>
+      <div>
+        <div class="text-body font-semibold">什么是周期感知？</div>
+      </div>
+    </div>
+    <p class="text-meta text-text-secondary leading-relaxed">后台定时拍照 + 调 MNN 推理，命中异常推 SSE 通知 + 落盘告警。可被 PC 端 MCP 智能体订阅。</p>
+  </section>
+
+  <section>
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-h3 font-semibold">运行中的任务</h3>
+      <span class="text-meta text-text-tertiary">2</span>
+    </div>
+    <div class="space-y-2.5">
+      <div class="bg-surface-1 ring-1 ring-status-healthy/30 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-status-healthy"></span>
+            <span class="font-mono text-meta text-status-healthy">watch_a3f8c2</span>
+          </div>
+          <span class="text-meta text-text-tertiary">已运行 2h</span>
+        </div>
+        <div class="text-body text-text-primary mb-1">监控工位姿态 60 秒一次</div>
+        <div class="text-meta text-text-tertiary font-mono">prompt: 监测久坐 · 触发: 低头超 30°</div>
+      </div>
+      <div class="bg-surface-1 ring-1 ring-status-healthy/30 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-status-healthy"></span>
+            <span class="font-mono text-meta text-status-healthy">watch_b7e1d4</span>
+          </div>
+          <span class="text-meta text-text-tertiary">已运行 18m</span>
+        </div>
+        <div class="text-body text-text-primary mb-1">视觉检测 30 秒一次</div>
+        <div class="text-meta text-text-tertiary font-mono">prompt: 看画面里有没有人离开</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-h3 font-semibold">最近告警</h3>
+      <span class="text-meta text-text-tertiary">3</span>
+    </div>
+    <div class="bg-surface-1 ring-1 ring-border-subtle rounded-2xl divide-y divide-border-subtle/40">
+      <div class="px-4 py-3 flex items-start gap-3">
+        <div class="size-1.5 rounded-full bg-status-alert mt-1.5 flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-body">C7 角度连续 5 分钟 &gt; 30°</div>
+          <div class="text-meta text-text-tertiary">12:43 · watch_a3f8c2</div>
+        </div>
+      </div>
+      <div class="px-4 py-3 flex items-start gap-3">
+        <div class="size-1.5 rounded-full bg-status-warning mt-1.5 flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-body">L5 侧倾 12°（预警）</div>
+          <div class="text-meta text-text-tertiary">11:20 · watch_a3f8c2</div>
+        </div>
+      </div>
+      <div class="px-4 py-3 flex items-start gap-3">
+        <div class="size-1.5 rounded-full bg-status-alert mt-1.5 flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-body">人脸不可见 &gt; 10 秒</div>
+          <div class="text-meta text-text-tertiary">10:15 · watch_b7e1d4</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <button class="w-full bg-accent-warm hover:bg-accent-warm/90 text-white font-medium rounded-full px-6 py-3.5 transition-colors">
+    新建巡检任务
+  </button>
+</main>
+<a href="index.html" class="hidden md:flex absolute top-3 -left-14 items-center gap-1 text-meta text-text-tertiary hover:text-accent-warm transition-colors">← 原型导航</a>
+</div>
+</div>
+</body>
+</html>
