@@ -8,7 +8,7 @@
 目标周期：**2 周初赛版**（2026-06-08 — 2026-06-19），面向 **6.22 初赛**  
 复赛周期：另行排期（待定）  
 团队规模：2 人（嵌入式+App / 产品+UI）  
-下游文档：`2人落地执行方案-含UIUX.md`（节奏与验收），`参赛效果优先-手机UI交互方案.md`（5 个核心高冲击页面）
+下游文档：`2人落地执行方案-含UIUX.md`（节奏与验收），`参赛效果优先-手机UI交互方案.md`（5 个核心高冲击页面），[技术规格文档.md](技术规格文档.md)（硬件/数据协议/AI 安全/研发拆分/部署笔记）
 
 ---
 
@@ -26,6 +26,7 @@
 | v1.7 | 2026-06-04 | 赛事技术栈对齐（根本性架构调整）：1) §2.1/2.2 产品定义改为端侧 Qwen + MNN + 云端 Qwen-VL 混合架构；2) §4.1 MVP 第1项从「规则化阈值，不引入端侧 ML」改为云+端混合；3) 新增 F9「端侧 Qwen3.5-2B MNN 推理」为 P0，F8 降为备选；4) F2 接入云端 Qwen3.6-Plus API；5) §5.4 删除与赛事冲突的 Out-of-Scope（端侧大模型）；6) §5.8 初赛必做新增端侧模型+云端 API；7) §5.9 赛事对齐改为 MNN + Qwen + 云+端混合；8) §10 AI 模块表新增端侧和云端模块；9) §12 研发任务表新增 MNN 集成和云端 API；10) §15 风险表新增 R16 云端 API 风险，R11/R13 改为 MNN 相关；11) §16 演示话术和答辩准备全面更新；12) §17 待确认问题更新；13) 新增 §19「Qwen + MNN 端侧部署笔记」 |
 | v1.8 | 2026-06-04 | Review 修复：1) §5.1 P0 拆为「演示 P0（6 项）」+「工程 P0（F9 + 云端 API）」，消除与 F9 矛盾；2) §13 D1-D10 日程新增 F9/MNN/云端 API 工作列；3) §5.4 标题改为「初赛 + 复赛均不做」；4) §5.3/§5.4 去重（端侧模型限制只保 §5.3 P2）；5) §10.2 安全链新增端侧路径（两段式：结构化字段 → 查表 → 禁词检查）；6) §5.9 加来源标注（基于赛事公开材料预判）；7) F9 验收拆为「首 token ≤ 1.5s + 完整 ≤ 3s」+ 写死回退路径；8) §16.2 演示脚本把端侧 AI 从「追问时用」升为主讲解词，加「关网演示」环节 |
 | v1.9 | 2026-06-04 | prd-universal + Agent Spec 优化：1) 新增 §0.5「Agent 实现规格」与文档导航；2) 统一 2 周初赛周期表述（修正 §1/§5.5/§6.1 等残留 4 周/5 分钟/小植物矛盾）；3) §11.2 页面优先级与 §5.8 初赛切片对齐；4) §14 验收拆分为初赛必达 vs 复赛；5) 补充 Executive Summary 与可度量 KPI 索引 |
+| v2.0 | 2026-06-05 | PRD 拆分：1) 技术细节（硬件/数据协议/AI 安全/研发模块拆分/ESP32-S3 适配/MNN 部署/JSON Schema）拆至 `技术规格文档.md`；2) 主文档保留产品定义、功能需求、里程碑、演示策略；3) 修正 §17 第 6 条重复编号 |
 
 ---
 
@@ -39,7 +40,7 @@
 | 写代码前的验收清单 | §0.5.4 P0 验收矩阵 → §14.4 |
 | 模块分工与目录约定 | §0.5.5 模块边界 |
 | 排期与每日交付 | §0.5.6 实施顺序 → §13 |
-| BLE / JSON 契约 | §9 + 附录 A |
+| BLE / JSON 契约 | [技术规格文档 §2](技术规格文档.md#2-数据与协议需求) |
 | 演示与答辩 | §16 |
 | 解决文档矛盾 | §0.5.2 权威裁决表（优先于旧段落） |
 
@@ -66,7 +67,7 @@
 | K4 | 演示连续成功 | 3 分钟脚本连跑 2 次 0 致命错误 | §16.2 彩排记录 |
 | K5 | Mock 兜底切换 | 硬件故障后 ≤30s 切 F7 控制台 | 现场演练 |
 | K6 | 端侧推理（F9） | 首 token ≤1.5s，完整文案 ≤3s（骁龙 7+） | D5 benchmark 报告 |
-| K7 | AI 安全链 | 风险输入集 0 条禁词泄漏 | §10.2 测试集 |
+| K7 | AI 安全链 | 风险输入集 0 条禁词泄漏 | [技术规格文档 §3.2](技术规格文档.md#32-安全限制安全链) 测试集 |
 | K8 | 核心流程崩溃 | 内测 30 次完整流程 0 崩溃 | §14.4 |
 
 ### 0.5.2 权威裁决表（消除历史版本残留）
@@ -123,10 +124,10 @@
 | App | UI、BLE、状态机、MNN | `app/`（React Native Android） |
 | 算法 | 四元数→角度、评分 | `app/lib/posture/` 或独立 `algo/` |
 | AI | Prompt、校验器、MNN 模型 | `assets/models/`、`assets/safety/` |
-| 协议 | JSON Schema | `docs/schemas/`（见附录 A） |
+| 协议 | JSON Schema | `docs/schemas/`（见[技术规格文档附录 A](技术规格文档.md#附录-a-json-schema-全文)） |
 | 演示数据 | Mock 与预置 | `assets/demo/{module}/{id}.json` |
 
-**接口契约**：所有跨模块 JSON 必须带 `schema_v`；App 端用 `json_schema` 校验（§9）。
+**接口契约**：所有跨模块 JSON 必须带 `schema_v`；App 端用 `json_schema` 校验（详见[技术规格文档 §2](技术规格文档.md#2-数据与协议需求)）。
 
 ### 0.5.6 Agent 实施顺序（与 §13 对齐）
 
@@ -143,13 +144,15 @@ D9-D10: 稳定性 + 3 分钟脚本彩排 ×2
 
 ### 0.5.7 Non-Goals（prd-universal，初赛生效）
 
-- 医疗诊断、疗效承诺、处方类建议（§5.4、§10）。
+- 医疗诊断、疗效承诺、处方类建议（§5.4、[技术规格文档 §3](技术规格文档.md#3-ai-与安全策略)）。
 - iOS / Web / 小程序 / 社交 / 订阅系统（§5.3 P2）。
 - 初赛阶段的植物、Streak、徽章、持续通知、桌面 Widget（§5.8.2）。
 - 3 节点算法联合判定、周报、训练计划 AI 生成（§5.8.2）。
 - 深蹲/硬拉等健身动作识别（§5.3 P2）。
 
 ### 0.5.8 数据契约快速索引
+
+> 完整 JSON Schema 详见 [技术规格文档 §2](技术规格文档.md#2-数据与协议需求) 与 [技术规格文档附录 A](技术规格文档.md#附录-a-json-schema-全文)。
 
 | 对象 | Schema 文件 | 生产者 → 消费者 |
 |---|---|---|
@@ -179,7 +182,7 @@ D9-D10: 稳定性 + 3 分钟脚本彩排 ×2
 1. 演示优先级高于算法精度（见 5.1 P0 内部排序）。
 2. Mock 模式与真实硬件一样属于 P0 交付（见 F7）。
 3. 演示现场所有故障都有兜底（见第 16 节）。
-4. AI 任何输出都必须经过安全链校验（见第 10 节）。
+4. AI 任何输出都必须经过安全链校验（见[技术规格文档 §3](技术规格文档.md#3-ai-与安全策略)）。
 
 ---
 
@@ -376,7 +379,7 @@ D9-D10: 稳定性 + 3 分钟脚本彩排 ×2
 - 多人 / 多设备协同。
 - 训练动作识别与跟练质量评分。
 - 端侧 **Qwen3-VL-2B 及以上**视觉大模型（初赛用 Qwen3.5-2B 文本模型，见 F9）。
-- 任何医疗级表述与承诺（见第 10 节安全链）。
+- 任何医疗级表述与承诺（见[技术规格文档 §3.2](技术规格文档.md#32-安全限制安全链)）。
 
 如果评审中有人提出扩展到「全姿态」或「健身动作监测」，按 §5.4 显式 Out-of-Scope 处理，并在 0 节变更记录中登记。
 
@@ -932,7 +935,7 @@ AI 文案必须使用辅助性表达：
 
 - 日报包含：不驼背分数、不驼背时长占比、驼背 / 头前倾事件次数、提醒次数、训练完成情况、今日建议。
 - 周报包含：不驼背分数趋势、ThorPitch 与 NeckPitch 平均偏移变化、训练完成次数、下周建议。
-- 「不驼背分数」范围 0-100，定义见 §9.2 `DailyReport.score` 计算公式。
+- 「不驼背分数」范围 0-100，定义见[技术规格文档 §2.2](技术规格文档.md#22-本地数据对象) `DailyReport.score` 计算公式。
 
 #### 研发任务
 
@@ -1082,7 +1085,7 @@ AI 文案必须使用辅助性表达：
 - 推理过程不产生网络请求（抓包验证）。
 - 推理内存峰值 ≤ 3GB（8GB RAM 设备不 OOM）。
 - 推理崩溃或超时（> 5s）时自动回退到规则化阈值，不影响主流程。
-- 本地反馈文案无医疗化表述：模型输出结构化字段 → 本地查表翻译 → 禁词检查（详见 §10.2 端侧路径）。
+- 本地反馈文案无医疗化表述：模型输出结构化字段 → 本地查表翻译 → 禁词检查（详见[技术规格文档 §3.2](技术规格文档.md#32-安全限制安全链)端侧路径）。
 
 #### 回退方案
 
@@ -1102,234 +1105,19 @@ AI 文案必须使用辅助性表达：
 
 ## 8. 硬件需求
 
-### 8.1 硬件组成
-
-| 部件 | 建议型号 | 作用 | 参考单价（元） | 小计（元） |
-|---|---|---|---:|---:|
-| 主控 | ESP32-S3-DevKitC-1（N16R8：16MB Flash + 8MB Octal PSRAM） | BLE 5 + WiFi 4、双核 Xtensa LX7、PSRAM 用于 BLE 环形缓冲与校准样本 | 30 | 30 |
-| IMU ×3 | BNO085 / BNO086 | 9 轴，内置传感器融合输出四元数 | 45 | 135 |
-| I2C 多路复用 | TCA9548A | 解决 3 个 BNO085 地址冲突 | 8 | 8 |
-| 振动马达 ×2 | 扁平纽扣马达 | 异常姿态提醒 | 5 | 10 |
-| 电池 | 3.7V 300mAh LiPo | 4-6 小时续航，USB 可充 | 15 | 15 |
-| 柔性连接线 | FPC 排线 / 硅胶线 | 连接三节点 | 10 | 10 |
-| 佩戴基材 | 弹性背带 + 魔术贴 | 固定三节点 | 20 | 20 |
-| **合计 BOM** |  |  |  | **≈ 223** |
-
-> 单板成本控制在 250 元以内，量产可进一步压到 150 元以内。
-
-> **主控选型变更（v1.2）**：原计划 ESP32-C6，实物到位 ESP32-S3-N16R8。具体影响与适配细节见第 18 节。简述：
-> - 协议栈不重写：I2C / TCA9548A / BNO085 / 震动马达 / BLE GATT 在两个平台上 API 一致。
-> - 必须重画：S3 GPIO 引脚分配表（`firmware/pinout.md`）。
-> - 必须验证：W4 D18 跑 60 分钟稳定性测试时同步记录电池曲线，确认 4h 续航目标。
-> - PSRAM 收益：BLE 环形缓冲最近 5 秒样本（约 3 × 50Hz × 5s × 32B ≈ 24KB），主 SRAM 留给协议栈与控制面。
-
-### 8.2 节点定义
-
-| 节点 | 位置 | 用途 |
-|---|---|---|
-| Node-C | 颈部/上背 | 头前倾、肩部倾斜 |
-| Node-T | 胸椎/中背 | 胸椎后凸、躯干角度 |
-| Node-L | 腰椎/下背 | 腰椎塌陷、骨盆相关趋势 |
-
-### 8.3 硬件验收
-
-- 三节点数据采样率单节点 >= 50Hz，目标 100Hz。
-- BLE 传输延迟 <= 100ms。
-- 连续工作 >= 4 小时。
-- 外设总重 ≤ 50g（含电池、背带）。
-- 背带适配腰围 60-110cm（S/M/L 三档可调）。
-- 用户能分辨正反和上下佩戴方向。
+> 详见 [技术规格文档 §1](技术规格文档.md#1-硬件需求)（BOM、节点定义、硬件验收标准）。
 
 ---
 
 ## 9. 数据与协议需求
 
-### 9.1 BLE 数据包契约
-
-- 协议版本：`posture-band/1`（升级时使用 `posture-band/2`，App 端按主版本号做兼容）。
-- 帧类型：`posture_sample`（姿态样本）、`device_status`（设备状态）、`vibration_cmd`（震动命令，App→设备）。
-- 传输层：BLE Notify，Characteristic UUID 见 `firmware/ble_gatt.md`（交付物）。
-- 单包长度限制：≤ 80 字节，超出后拆分。
-
-`posture_sample` JSON Schema：
-
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "posture-band/posture_sample/1",
-  "type": "object",
-  "required": ["v", "type", "ts", "battery", "rate", "nodes"],
-  "properties": {
-    "v":    { "const": 1 },
-    "type": { "const": "posture_sample" },
-    "ts":   { "type": "integer", "description": "设备本地时间戳（毫秒）" },
-    "battery":   { "type": "integer", "minimum": 0, "maximum": 100 },
-    "rate":      { "type": "integer", "enum": [25, 50, 100] },
-    "seq":       { "type": "integer", "description": "单调递增序列号，App 用于检测丢包" },
-    "nodes": {
-      "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
-      "items": {
-        "type": "object",
-        "required": ["id", "q", "quality"],
-        "properties": {
-          "id":  { "type": "string", "enum": ["C", "T", "L"] },
-          "q":   { "type": "array", "minItems": 4, "maxItems": 4,
-                   "description": "[qw, qx, qy, qz]", "items": { "type": "number" } },
-          "quality": { "type": "integer", "enum": [0, 1, 2, 3],
-                       "description": "BNO085 校准等级，3 = RV" }
-        }
-      }
-    }
-  }
-}
-```
-
-`device_status` 关键字段：
-
-```json
-{
-  "v": 1,
-  "type": "device_status",
-  "ts": 1717200000000,
-  "battery": 86,
-  "firmware": "0.1.0",
-  "nodes_online": ["C", "T", "L"],
-  "rate": 50
-}
-```
-
-`vibration_cmd`（App → 设备）：
-
-```json
-{
-  "v": 1,
-  "type": "vibration_cmd",
-  "pattern": "soft",
-  "duration_ms": 200,
-  "repeat": 1
-}
-```
-
-`pattern` 取值：`off` / `soft` / `medium` / `strong` / `pattern_kyphosis` / `pattern_lateral`。
-
-### 9.2 本地数据对象
-
-存储以 `mmkv` / `shared_preferences`（App 端）+ 应用私有目录 JSON 为主，不引入外部数据库。MVP 不上云。
-
-| 数据对象 | 必填字段 | 备注 |
-|---|---|---|
-| UserProfile | height_cm, goal, contraindications, alert_pref, schema_v | goal ∈ {office, posture_fix, rehab}；alert_pref 含强度 / 勿扰时段 |
-| CalibrationSession | ts, imu_baseline, visual_assessment?, schema_v | imu_baseline = {neck, thor, lum, roll, yaw, sigma}；visual_assessment 可为空 |
-| PostureSample | ts, angles, state, confidence | angles = {neck, thor, lum, roll, yaw}；state 见 F3 状态机 |
-| PostureEvent | type, t_start, t_end, max_offset, alerted | type ∈ {forward_head, kyphosis, lumbar_drop, lateral, sedentary, restless} |
-| TrainingPlan | date, actions, rationale, risk_note | actions = [{name, duration_s, reps, steps, cautions}] |
-| TrainingRecord | date, action, status, feedback, pain_flag | pain_flag = true 时该动作永久停推 |
-| DailyReport | date, score, wear_min, good_pct, top3_events, training_done, advice | score 0-100 |
-
-每个对象必须带 `schema_v: 1`，未来升级时按主版本号做迁移。次版本兼容只追加字段。
-
-`DailyReport.score` 计算公式（MVP 默认，可后续在设置页暴露权重）：
-
-```
-score = round( 0.5 * good_pct * 100
-             + 0.3 * (1 - alert_count / max(alert_count, 10)) * 100
-             + 0.2 * training_done_rate * 100 )
-```
-
-约束：`good_pct`、`alert_count`、`training_done_rate` 在评分前先夹到 [0, 1]。
-
-### 9.3 错误码定义
-
-| 错误码 | 含义 | 模块 | 处理方式 |
-|---|---|---|---|
-| `BLE_SCAN_TIMEOUT` | 10 秒内未发现设备 | App BLE | 引导用户检查外设电量/距离 |
-| `BLE_CONN_LOST` | 连接断开 | App BLE | 自动重连 3 次，失败后提示 |
-| `BLE_DATA_DECODE_ERR` | BLE 数据解析失败 | App BLE | 丢弃该帧，累计 10 帧提示重连 |
-| `IMU_NODE_OFFLINE` | 节点离线 | 固件/App | App 显示具体节点，引导检查 |
-| `IMU_CALIBRATION_FAIL` | 校准失败（σ 过大） | App 算法 | 提示用户保持自然坐姿重试 |
-| `AI_API_TIMEOUT` | 云端 API 超时（>10s） | App AI | 降级到预置结果 |
-| `AI_API_AUTH_FAIL` | 云端 API 鉴权失败 | App AI | 降级到预置结果，上报事件 |
-| `AI_OUTPUT_INVALID` | AI 输出校验不通过 | App 安全链 | 使用兜底回复，上报事件 |
-| `MNN_LOAD_FAIL` | MNN 模型加载失败 | App MNN | 回退到 F8 TFLite |
-| `MNN_INFERENCE_TIMEOUT` | MNN 推理超时（>5s） | App MNN | 回退到规则化阈值 |
-
-### 9.4 隐私要求
-
-- 照片处理前必须明确告知用途。
-- MVP 默认本地保存最近一次评估图，用户可删除。
-- 如果调用云端模型，必须在授权页明确说明数据会上传。
-- 报告导出前由用户主动触发。
+> 详见 [技术规格文档 §2](技术规格文档.md#2-数据与协议需求)（BLE 契约、本地数据对象、错误码、隐私要求）。
 
 ---
 
 ## 10. AI 与安全策略
 
-### 10.1 AI 模块
-
-| 模块 | 输入 | 输出 | 部署 |
-|---|---|---|---|
-| 端侧姿态分类（Qwen3.5-2B MNN） | BLE 角度序列 + 用户状态 | 姿态分类 + 置信度 + 本地反馈文案 | 手机本地，MNN 推理 |
-| 云端视觉评估（Qwen3.6-Plus） | 姿态照片、拍摄方向 | 结构化体态观察、置信度、建议 | 云端 API |
-| 云端报告生成（Qwen3.6-Plus） | 日/周姿态数据、训练记录 | 易懂总结和下一步建议 | 云端 API |
-| 训练计划 | 视觉评估、姿态历史、用户反馈、禁忌 | 每日训练计划 | 初赛走预置（§5.8.1 #7），复赛接 AI 生成（§5.8.2） |
-
-### 10.2 安全限制（安全链）
-
-AI 任何输出必须依次经过安全校验。安全链分**云端路径**和**端侧路径**两套，共用禁词表和兜底回复。
-
-#### 云端路径（Qwen3.6-Plus API 输出）
-
-适用于视觉评估、报告生成等云端 API 返回的结构化 JSON：
-
-1. **输入过滤**：用户输入若包含「疼痛 / 麻木 / 头晕 / 术后 / 急性 / 诊断 / 药物 / 手术」等高风险词，AI 训练计划模块直接走「就医建议」分支，不再生成动作。
-2. **Prompt 约束**：所有 prompt 模板都前置系统指令，明确禁止输出疾病诊断、药物建议、疗效保证、医美医械推荐。
-3. **输出校验器**（Output Validator）：对 AI 返回的结构化 JSON 做以下检查：
-   - 必填字段非空：`summary`、`recommendations`。
-   - `recommendations[]` 每条长度 5-80 字，不含「根治 / 治愈 / 100% / 保证」。
-   - 摘要不出现禁词列表（见 10.3）任一词根。
-   - 置信度 `confidence` ∈ [0, 1]，缺失时按 0.6 处理。
-4. **兜底回复**：校验失败时，不展示 AI 原文，使用预置的「中性建议」回复，并打点上报「AI 校验失败」事件。
-
-#### 端侧路径（Qwen3.5-2B MNN 本地输出）
-
-适用于端侧推理的姿态分类和反馈文案：
-
-1. **两段式输出**：MNN 模型输出结构化字段（`action_id` + `severity_level`），App 端**用本地查表**将字段翻译为自然语言反馈文案。查表内容由 PR review 控制，天然可审计。
-2. **查表后禁词检查**：对最终自然语言文案做禁词列表匹配（复用 10.3），命中时替换为预置兜底文案。
-3. **兜底回复**：MNN 推理崩溃或超时时，回退到规则化阈值判定 + 预置反馈文案，不影响主流程。
-
-#### 10.3 禁词列表（节选）
-
-| 类别 | 禁词示例 |
-|---|---|
-| 诊断 | 确诊、诊断为、患上、患有、综合征（作为结论）、上交叉 / 下交叉（作为疾病名） |
-| 治疗 | 治疗、治愈、康复成功、药、用药、手术、注射、贴片（医疗器械） |
-| 承诺 | 保证、一定、100%、彻底、永远 |
-| 营销 | 限时、优惠、推荐购买、扫码 |
-
-禁词列表维护在 `assets/safety/forbidden_words.json`，新增需要走 PR review。
-
-#### 10.4 AI 输出契约
-
-所有 AI 模块输出统一结构，便于校验器处理：
-
-```json
-{
-  "schema_v": 1,
-  "module": "visual_assessment | training_plan | report_summary",
-  "summary": "...",
-  "items": [
-    { "key": "head_forward", "level": 2, "confidence": 0.78, "note": "..." }
-  ],
-  "recommendations": ["..."],
-  "risk_note": "本产品为健康辅助工具，不提供医疗诊断。",
-  "raw_ref": "uid-2026-06-04-001"
-}
-```
-
-`level` ∈ {0, 1, 2, 3}，对应 {正常, 关注, 倾向明显, 持续}。
+> 详见 [技术规格文档 §3](技术规格文档.md#3-ai-与安全策略)（AI 模块、安全链、禁词列表、输出契约）。
 
 ---
 
@@ -1383,71 +1171,7 @@ AI 任何输出必须依次经过安全校验。安全链分**云端路径**和*
 
 ## 12. 研发模块拆分
 
-### 12.1 嵌入式
-
-| 任务 | 优先级 | 交付物 |
-|---|---|---|
-| ESP32-S3 工程初始化 | P0 | ESP-IDF 5.x 固件项目、烧录说明、PSRAM 启用（`CONFIG_SPIRAM=y`）、FreeRTOS 双核任务划分（核 0 跑 BLE，核 1 跑传感器采样） |
-| ESP32-S3 GPIO 分配 | P0 | `firmware/pinout.md`：I2C（SDA/SCL）、TCA9548A 复位、震动马达 A/B 引脚、状态 LED |
-| PSRAM 环形缓冲 | P0 | BLE 丢包时用 PSRAM 缓存最近 5 秒样本（≈ 24KB），重连后回放 |
-| BNO085 三节点读取 | P0 | 四元数采集代码 |
-| TCA9548A 多路复用 | P0 | 多通道读取稳定 |
-| BLE GATT 服务 | P0 | 姿态数据、设备状态、控制命令 |
-| 震动马达控制 | P0 | 震动模式协议 |
-| 电量读取 | P1 | 电池百分比 |
-| 固件版本与 OTA 预留 | P1 | 版本字段、升级设计 |
-
-### 12.2 移动端 App
-
-**最低要求**：Android 8.0（API 26，BLE 5 需要）、React Native 0.73+、目标 SDK 34。
-
-| 任务 | 优先级 | 交付物 |
-|---|---|---|
-| App 项目结构 | P0 | Android MVP 工程 |
-| BLE 设备管理 | P0 | 扫描、连接、重连、状态 |
-| 首次引导流程 | P0 | 欢迎、佩戴、拍摄、校准 |
-| 主仪表盘 | P0 | 实时状态和数据 |
-| 提醒系统 | P0 | 异常卡片、暂停提醒 |
-| AI 教练页 | P0 | 计划、动作、反馈 |
-| 报告页 | P0 | 日报、周报、趋势 |
-| 设置页 | P1 | 隐私、提醒、设备 |
-| 分享/导出 | P1 | 图片或 PDF 报告 |
-
-### 12.3 算法
-
-| 任务 | 优先级 | 交付物 |
-|---|---|---|
-| 四元数预处理 | P0 | 平滑、异常点过滤 |
-| 关节角度计算 | P0 | 颈胸腰关键角度 |
-| 姿态分类状态机 | P0 | 姿态类型和置信度 |
-| 阈值自适应 | P0 | 基于个人基线调整 |
-| 姿态评分 | P0 | 不驼背分数 0-100 计算逻辑 |
-| 端侧 TFLite 姿态分类器（备选） | P1 | 仅作为 MNN 集成遇阻时的回退方案（详见 F8） |
-| 动作跟练识别 | P2 | 训练动作质量反馈 |
-
-### 12.4 AI 工程
-
-| 任务 | 优先级 | 交付物 |
-|---|---|---|
-| **MNN 框架集成** | **P0** | Gradle 依赖 + .so 打包 + 模型加载（详见 F9） |
-| **Qwen3.5-2B 模型量化与部署** | **P0** | INT4 量化模型 + MNN 推理管线（详见 F9） |
-| **云端 Qwen3.6-Plus API 对接** | **P0** | 鉴权、调用、错误处理、预置兜底（详见 F2） |
-| 视觉评估 prompt | P0 | 结构化输出和安全文案 |
-| 训练计划 prompt | P0 | 动作库约束和禁忌处理 |
-| 报告总结 prompt | P0 | 日报/周报文案 |
-| AI 输出校验器 | P0 | 禁止诊断和危险建议 |
-| Prompt 测试集 | P1 | 正常/异常/风险输入案例 |
-
-### 12.5 测试
-
-| 任务 | 优先级 | 交付物 |
-|---|---|---|
-| 硬件连接测试 | P0 | 连接、断连、重连用例 |
-| 姿态识别测试 | P0 | 多姿态人工标注测试 |
-| 校准流程测试 | P0 | 成功、跳过、失败、重试 |
-| AI 安全测试 | P0 | 风险话术测试集 |
-| 性能测试 | P0 | 延迟、帧率、续航 |
-| 端到端测试 | P0 | 首次使用到日报生成 |
+> 详见 [技术规格文档 §4](技术规格文档.md#4-研发模块拆分)（嵌入式、移动端 App、算法、AI 工程、测试各模块任务与优先级）。
 
 ---
 
@@ -1662,214 +1386,13 @@ R1-R4、R8、R11、R13、R14、R15 为「P0 风险」，每周末必须在站会
 4. App 首发平台是否只做 Android；若包含 iOS，BLE 和模型部署需要重新评估。
 5. 外设形态是背带、贴片还是衣物集成；MVP 建议先用背带。
 6. 是否需要康复师后台；MVP 不做。
-6. 是否要申报医疗器械；当前 PRD 按健康辅助产品处理。
+7. 是否要申报医疗器械；当前 PRD 按健康辅助产品处理。
 
 ---
 
-## 18. ESP32-S3 适配笔记
-
-集中记录 ESP32-C6 → ESP32-S3-N16R8 的所有适配决策。
-
-### 18.1 选型变更影响一览
-
-| 影响项 | 评估 | 行动 |
-|---|---|---|
-| BLE 协议 | 不受影响 | 无 |
-| I2C / TCA9548A / BNO085 | 不受影响 | 无 |
-| 震动马达控制 | 不受影响 | 无 |
-| GPIO 引脚 | **必须重画** | D2 输出 `firmware/pinout.md` |
-| FreeRTOS 任务划分 | 升级为双核 | 核 0 跑 BLE，核 1 跑传感器采样（见 18.3） |
-| 内存 | 新增 8MB PSRAM | 启用 PSRAM 分配环形缓冲（见 18.4） |
-| 续航 | 略紧 | W4 D18 实测电池曲线 |
-| 开发框架 | ESP-IDF 5.x（S3 一等支持） | 不切换 Arduino，避免 P0 阶段双框架维护 |
-| 烧录 | S3 内置 USB-Serial/JTAG | 用 USB-C 直连，无需外部 FTDI |
-
-### 18.2 GPIO 引脚分配（初版，D2 定稿）
-
-> 以下为初版建议，D2 由嵌入式同学在 `firmware/pinout.md` 中按 S3-DevKitC-1 引脚图最终定稿。
-
-| 功能 | S3 GPIO | 备注 |
-|---|---|---|
-| I2C SDA | GPIO8 | 外接 4.7kΩ 上拉到 3.3V |
-| I2C SCL | GPIO9 | 外接 4.7kΩ 上拉到 3.3V |
-| TCA9548A RST | GPIO10 | 高电平使能 |
-| 震动马达 A | GPIO11 | PWM 驱动，经三极管 |
-| 震动马达 B | GPIO12 | PWM 驱动，经三极管 |
-| 状态 LED（绿） | GPIO13 | 已连接 |
-| 状态 LED（红） | GPIO14 | 异常 |
-| 电量 ADC | GPIO4 | 分压后接电池 + |
-| USB D+ / D- | GPIO19 / 20 | 烧录与 CDC 日志 |
-
-> BNO085 INT 引脚默认不接，使用轮询模式；如后期需要更低延迟，再启用 INT。
-
-### 18.3 FreeRTOS 双核任务划分
-
-```
-┌────────────────────────────────────────────┐
-│ Core 0 (PRO_CPU)                           │
-│  ├─ ble_gap_task    (BLE 广播 / 扫描)     │
-│  ├─ ble_gatts_task  (GATT 事件 / notify)  │
-│  └─ cmd_rx_task     (App → 设备命令)       │
-├────────────────────────────────────────────┤
-│ Core 1 (APP_CPU)                           │
-│  ├─ imu_poll_task   (TCA9548A 切换+读取) │
-│  ├─ posture_fuse    (四元数 → 角度)        │
-│  └─ vibration_drv   (震动模式调度)         │
-└────────────────────────────────────────────┘
-```
-
-跨核通信用 `xQueue`（PSRAM 分配），消息体为定长 POD，不超过 64 字节。
-
-### 18.4 PSRAM 环形缓冲设计
-
-- 大小：3 节点 × 50Hz × 5s × sizeof(Sample) = 3 × 250 × 32B ≈ 24KB
-- 数据结构：`ring_buffer_t`，head/tail 用原子变量或临界区
-- 用途：BLE 断连时把最近 5 秒样本暂存，重连后批量回放补齐
-- 关闭条件：BLE 连接稳定后，环形缓冲可降级为「最后 1 秒」用于抖动平滑
-
-启用 PSRAM 的 menuconfig 选项：
-
-```
-CONFIG_SPIRAM=y
-CONFIG_SPIRAM_MODE_OCT=y
-CONFIG_SPIRAM_SPEED_80M=y
-CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
-```
-
-### 18.5 续航与热设计
-
-- 目标 4 小时（300mAh @ 3.7V ≈ 1.1Wh）。
-- 实测电流预估：S3 active 60mA + 3 × BNO085 active 75mA = 135mA 满载，理论 ≈ 2.2 小时（300mAh / 135mA）；考虑间歇采样（非持续满载）、BLE notify 峰值与震动瞬时电流，预估实际可工作 4-5 小时（间歇模式平均功耗约 60-70mA）。需 W4 D18 实测验证。
-- W4 D18 必须用真机 + 外设跑 60 分钟稳定性测试，并记录 0/15/30/45/60 分钟电量百分比。
-- 兜底：若实测 < 3.5h，把采样率从 100Hz 降到 50Hz，或在 NORMAL 状态 30 秒后让 BNO085 进入「轻度休眠」（BNO085 自带 `BNO_REPORT_ID Motion Calibrator` 控制）。
-
-### 18.6 验证清单
-
-- [ ] D2 输出 `firmware/pinout.md`
-- [ ] D2 双核任务 demo：BLE notify 与 IMU 采样互不阻塞
-- [ ] D3 PSRAM 启用后能跑 `heap_caps_get_free_size(MALLOC_CAP_SPIRAM) > 7MB`
-- [ ] D5 BLE 通知连续 5 分钟无丢包（App 端 seq 校验）
-- [ ] D18 60 分钟稳定性 + 电池曲线，输出 `docs/test/battery_curve.md`
+> **§18（ESP32-S3 适配笔记）、§19（Qwen + MNN 端侧部署笔记）、附录 A（JSON Schema）已拆至 [技术规格文档.md](技术规格文档.md)**，分别对应 §5、§6、附录 A。
 
 ---
-
-## 19. Qwen + MNN 端侧部署笔记（v1.7）
-
-集中记录 Qwen3.5-2B + MNN 框架的端侧部署决策，类似 §18 ESP32-S3 适配笔记。
-
-### 19.1 模型选型
-
-| 模型 | 参数量 | 量化 | 模型大小 | 推理内存 | 目标延迟 | 适用场景 |
-|---|---|---|---|---|---|---|
-| **Qwen3.5-2B** | 2B | INT4 | ≈ 1.5GB | ≈ 2GB | 首 token ≤ 1.5s，完整 ≤ 3s | 初赛首选，姿态分类 + 本地反馈 |
-| Qwen3.5-0.8B | 0.8B | INT4 | ≈ 500MB | ≈ 800MB | 完整 ≤ 1.5s | 回退方案（2B 不达标时） |
-| Qwen3-VL-2B | 2B | INT4 | ≈ 2GB | ≈ 3GB | 首 token ≤ 2s，完整 ≤ 5s | 复赛升级（带视觉能力） |
-
-选 Qwen3.5-2B 的理由：
-- 赛事推荐 Qwen3.5 系列
-- 2B 参数能力足够做姿态分类 + 文案生成
-- INT4 量化后可在 8GB RAM Android 设备运行
-- 比 0.8B 有更好的语言理解能力，比 4B 更轻量
-
-### 19.2 MNN 框架集成
-
-MNN 是阿里开源的轻量推理框架，深度适配 Arm SME2 指令集，与赛事推荐完全匹配。
-
-**集成步骤**（React Native Android）：
-1. Gradle 依赖：`implementation 'com.taobao.android:mnn:2.x.x'`（D1 确定最新稳定版本）
-2. .so 打包：`arm64-v8a` 架构，约 5-10MB
-3. 模型加载：`MNN::Interpreter::createFromFile("qwen3.5-2b-int4.mnn")`
-4. Session 创建：配置线程数（建议 4）、精度（低精度模式）
-
-**Arm SME2 优化**：
-- MNN 自动检测设备是否支持 SME2
-- 支持时启用矩阵乘法加速，推理速度提升 30-50%
-- 不支持时回退到 NEON 指令集
-
-### 19.3 量化方案
-
-| 方案 | 精度损失 | 模型大小 | 推理速度 | 推荐 |
-|---|---|---|---|---|
-| INT4 | 可接受（分类任务影响小） | ≈ 1.5GB | 快 | 初赛首选 |
-| INT8 | 较小 | ≈ 3GB | 中 | INT4 不达标时 |
-| FP16 | 无 | ≈ 4GB | 慢 | 不推荐（太大） |
-
-### 19.4 内存预算
-
-Qwen3.5-2B INT4 推理时的内存分布：
-
-| 组件 | 内存占用 |
-|------|---------|
-| 模型权重（INT4） | ≈ 1.5GB |
-| KV Cache | ≈ 300MB |
-| 推理中间结果 | ≈ 200MB |
-| App 本身 + BLE + UI | ≈ 500MB |
-| **合计** | **≈ 2.5GB** |
-
-最低设备要求：8GB RAM Android（系统占用约 3GB，可用约 5GB，推理峰值约 2.5GB，余量约 2.5GB）。
-
-### 19.5 推理管线
-
-```
-BLE 角度序列 → 输入编码（prompt 构造）→ MNN 推理 → 输出解析 → 姿态分类 + 反馈文案
-     ↓
-  状态机（F3）← 分类结果 + 置信度
-```
-
-输入格式示例：
-```
-用户当前姿态数据：NeckPitch=14.2°, ThorPitch=8.1°, LumPitch=-2.3°, TrunkRoll=1.5°, TrunkYaw=0.8°
-持续时间：3分钟
-请判断姿态类型并给出简短反馈。
-```
-
-输出格式示例（结构化字段，App 端查表翻译为自然语言）：
-```json
-{
-  "classification": "forward_head",
-  "confidence": 0.87,
-  "action_id": "neck_retraction",
-  "severity_level": 2
-}
-```
-
-App 端查表翻译：`{action_id: "neck_retraction", severity_level: 2}` → 「头部有些前移，建议做颈部回缩。」→ 禁词检查 → 最终展示。
-
-### 19.6 回退方案
-
-| 触发条件 | 回退到 | 决策时机 |
-|---------|--------|---------|
-| MNN 框架集成遇阻（.so 打包、兼容性） | F8 TFLite 规则引擎 | D5 前 |
-| 2B 模型首 token > 1.5s 或完整推理 > 3s | Qwen3.5-0.8B INT4 | D5 benchmark |
-| 0.8B 完整推理 > 1.5s | F8 TFLite 规则引擎 | D5 benchmark |
-| 推理超时 > 5s（运行时） | 自动回退到规则化阈值 | 运行时自动 |
-| 内存峰值 > 3GB（8GB 设备） | Qwen3.5-0.8B INT4 | D9 内存测试 |
-
-### 19.7 验证清单
-
-- [ ] D3 MNN hello-world 集成成功（加载空模型 + 推理）
-- [ ] D5 Qwen3.5-2B INT4 模型加载成功，首 token ≤ 1.5s，完整推理 ≤ 3s
-- [ ] D7 端到端推理管线跑通（BLE 数据 → MNN → 状态机 → UI）
-- [ ] D8 真机 benchmark：骁龙 7 系推理延迟 ≤ 1s，内存峰值 ≤ 3GB
-- [ ] D9 推理崩溃回退到规则引擎验证
-
----
-
-## 附录 A. JSON Schema 全文
-
-完整 JSON Schema 见 `docs/schemas/`：
-
-- `posture_sample.schema.json`
-- `device_status.schema.json`
-- `vibration_cmd.schema.json`
-- `calibration_session.schema.json`
-- `posture_event.schema.json`
-- `training_plan.schema.json`
-- `training_record.schema.json`
-- `daily_report.schema.json`
-- `ai_output.schema.json`
-
-App 端用 `ajv` 或 `zod` 做运行时校验（React Native）；固件侧用最小的字段长度校验即可。
 
 ## 附录 B. 演示预置数据
 
