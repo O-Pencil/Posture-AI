@@ -11,16 +11,57 @@
  * @format
  */
 
-import 'react-native';
 import React from 'react';
-import App from '../App';
 
 // Note: import explicitly to use the types shipped with jest.
-import {it} from '@jest/globals';
+import {it, jest} from '@jest/globals';
+
+jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter', () =>
+  jest.fn().mockImplementation(() => ({
+    addListener: jest.fn(() => ({remove: jest.fn()})),
+    removeAllListeners: jest.fn(),
+  })),
+);
+
+jest.mock('react-native', () => {
+  const ReactNative = jest.requireActual<typeof import('react-native')>(
+    'react-native',
+  );
+  const MockNativeEventEmitter = jest.fn().mockImplementation(() => ({
+    addListener: jest.fn(() => ({remove: jest.fn()})),
+    removeAllListeners: jest.fn(),
+  }));
+  ReactNative.NativeModules.KinematicsModule = {
+    getLatestState: jest.fn(() =>
+      Promise.resolve({
+        neckPitch: 0,
+        lumbarRoll: 0,
+        posture: 'NORMAL',
+        postureLabel: 'Normal',
+        score: 100,
+      }),
+    ),
+    setSimulationScenario: jest.fn(),
+    addListener: jest.fn(),
+    removeListeners: jest.fn(),
+  };
+  return new Proxy(ReactNative, {
+    get(target, prop, receiver) {
+      if (prop === 'NativeEventEmitter') return MockNativeEventEmitter;
+      if (prop === 'useColorScheme') return jest.fn(() => 'dark');
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+});
+
+import 'react-native';
+import App from '../App';
 
 // Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
+import renderer, {act} from 'react-test-renderer';
 
-it('renders correctly', () => {
-  renderer.create(<App />);
+it('renders correctly', async () => {
+  await act(async () => {
+    renderer.create(<App />);
+  });
 });

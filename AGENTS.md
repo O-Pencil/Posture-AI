@@ -106,13 +106,11 @@ Posture-AI/
 │   ├── PostureAI/                # AppDelegate / Info.plist / PrivacyInfo
 │   └── PostureAITests/           # RN 内置测试
 ├── PRD/
-│   ├── AI姿态矫正康复产品PRD.md  # v1.9 完整产品需求
-│   └── 技术规格文档.md            # 硬件 / 数据协议 / AI 安全 / 研发模块拆分
+│   └── AI姿态矫正康复产品PRD.md  # 唯一 PRD：产品需求 / 功能 / 验收
 ├── docs/
-│   ├── 技术草案.md               # 软硬件结合技术方案
-│   └── README-Native.md          # Android 构建/首次运行指南
-├── README.md                     # 项目英文总览
-├── README-RN.md                  # RN 脚手架英文说明
+│   ├── 技术实现文档.md            # 唯一技术实现：架构 / 数据 / 安全 / 构建 / 模型
+│   └── 硬件采购与小白使用指南.md  # 唯一硬件指南：采购 / 接线 / 通电 / 佩戴
+├── README.md                     # 项目总览与唯一入口
 └── AGENTS.md                     # P1 根地图（CLAUDE.md 是其软链，供 Claude Code 自动加载）
 ```
 

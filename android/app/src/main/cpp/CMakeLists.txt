@@ -1,7 +1,7 @@
 # @file CMakeLists.txt
 # @description CMake 3.22.1 配置：构建 posture_ai_bridge 共享库，链接外部 IMPORTED 的 libMNN.so。
 #
-# [WHO] cmake_minimum_required(3.22.1) + project("posture_ai_bridge") + add_library(posture_ai_bridge SHARED posture_ai_bridge.cpp eyes_llm_session.cpp) + add_library(MNN SHARED IMPORTED)
+# [WHO] cmake_minimum_required(3.22.1) + project("posture_ai_bridge") + add_library(posture_ai_bridge SHARED eyes_mnn_bridge.cpp eyes_llm_session.cpp) + add_library(MNN SHARED IMPORTED)
 # [FROM] 依赖 `MNN_SOURCE_ROOT` 头文件目录、`jniLibs/${ANDROID_ABI}/libMNN.so`、`log-lib`、`android`
 # [TO] 被 `android/app/build.gradle` 的 `externalNativeBuild { cmake { path "src/main/cpp/CMakeLists.txt" } }` 调用
 # [HERE] android/app/src/main/cpp/CMakeLists.txt · 原生构建配置
@@ -13,7 +13,7 @@ set(MNN_SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../Template-gith
 set(MNN_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}")
 
 add_library(posture_ai_bridge SHARED
-        posture_ai_bridge.cpp
+        eyes_mnn_bridge.cpp
         eyes_llm_session.cpp
 )
 
