@@ -5,9 +5,9 @@
  * [WHO] 提供 `object KinematicsHub`、`enum Posture(NORMAL/SLUMPED/TECH_NECK/LEFT_LEAN/OFFLINE)`、`data class State(neckPitch, lumbarRoll, posture, score, abnormalDurationMinutes)`、`update(neck, lumbar)`、`setOffline()`、`getAsJson()`
  * [FROM] 依赖 `kotlinx.coroutines.flow.MutableStateFlow`、`kotlinx.serialization.json.buildJsonObject`
  * [TO] 被 `KinematicsModule` RN 桥接订阅；被 `SpineBluetoothManager.processIncomingData()` 写入；被 MCP 工具 `get_body_kinematics` 通过 `getAsJson()` 读取
- * [HERE] android/app/src/main/java/com/postureai/inference/mnn/KinematicsHub.kt · 姿态状态枢纽（RN/BLE/MCP 共享）
+ * [HERE] android/app/src/main/java/com/catune/inference/mnn/KinematicsHub.kt · 姿态状态枢纽（RN/BLE/MCP 共享）
  */
-package com.postureai.inference.mnn
+package com.catune.inference.mnn
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -5,24 +5,24 @@
  * [WHO] 提供 `class ServiceRuntime(context, pairingManager, lifecycleOwner)`、`start()` / `stop()` / `isRunning()` / `uptimeMs()`、private `buildStatus(): JsonObject`；lateinit 字段 `perceptionEngine` / `watchdogManager` / `mcpServer` / `requestHandler`
  * [FROM] 依赖所有核心模块（Capture/Inference/MCP/Watchdog/Pairing）、`BatteryManager`、`SystemClock.elapsedRealtime()`
  * [TO] 被 `McpForegroundService.onStartCommand` 创建并启动；`buildStatus()` 被 MCP 工具 `phone_status` 调用
- * [HERE] android/app/src/main/java/com/postureai/service/ServiceRuntime.kt · MCP 服务运行时装配
+ * [HERE] android/app/src/main/java/com/catune/service/ServiceRuntime.kt · MCP 服务运行时装配
  */
-package com.postureai.service
+package com.catune.service
 
 import android.content.Context
 import android.os.BatteryManager
 import android.os.SystemClock
-import com.postureai.capture.AudioCaptureManager
-import com.postureai.capture.CameraCaptureManager
-import com.postureai.inference.DefaultPerceptionEngine
-import com.postureai.inference.PerceptionEngine
-import com.postureai.inference.mnn.InferenceExecutor
-import com.postureai.mcp.McpHttpServer
-import com.postureai.mcp.McpRequestHandler
-import com.postureai.mcp.McpSessionManager
-import com.postureai.pairing.PairingManager
-import com.postureai.watchdog.PendingAlertStore
-import com.postureai.watchdog.WatchdogManager
+import com.catune.capture.AudioCaptureManager
+import com.catune.capture.CameraCaptureManager
+import com.catune.inference.DefaultPerceptionEngine
+import com.catune.inference.PerceptionEngine
+import com.catune.inference.mnn.InferenceExecutor
+import com.catune.mcp.McpHttpServer
+import com.catune.mcp.McpRequestHandler
+import com.catune.mcp.McpSessionManager
+import com.catune.pairing.PairingManager
+import com.catune.watchdog.PendingAlertStore
+import com.catune.watchdog.WatchdogManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

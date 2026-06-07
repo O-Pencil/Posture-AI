@@ -5,14 +5,14 @@
  * [WHO] 提供 `class McpRequestHandler(scope, perceptionEngine, watchdogManager, statusProvider, onProgress, sessionManager)`、`handle(body, session)`、内部 `handleInitialize/handleToolsList/handleToolsCall/handlePhoneLook/handlePhoneListen/handlePhonePerceive`、`emitProgressNotification()`；伴生对象 `INFERENCE_TOOLS`
  * [FROM] 依赖 `McpJson` / `McpToolRegistry`、`PerceptionEngine`、`WatchdogManager`、`KinematicsHub`（直接读 `getAsJson()`）
  * [TO] 被 `McpHttpServer` 持有；MCP 客户端（PC 智能体）通过 POST/GET 与之交互
- * [HERE] android/app/src/main/java/com/postureai/mcp/McpRequestHandler.kt · MCP 工具调用路由
+ * [HERE] android/app/src/main/java/com/catune/mcp/McpRequestHandler.kt · MCP 工具调用路由
  */
-package com.postureai.mcp
+package com.catune.mcp
 
-import com.postureai.inference.InferenceStatusHub
-import com.postureai.inference.PerceptionEngine
-import com.postureai.inference.PerceptionRequest
-import com.postureai.watchdog.WatchdogManager
+import com.catune.inference.InferenceStatusHub
+import com.catune.inference.PerceptionEngine
+import com.catune.inference.PerceptionRequest
+import com.catune.watchdog.WatchdogManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
@@ -114,7 +114,7 @@ class McpRequestHandler(
                 "phone_look_raw" -> perceptionEngine.lookRaw(
                     arguments.stringArg("prompt") ?: "Describe capture",
                 ).toJson()
-                "get_body_kinematics" -> com.postureai.inference.mnn.KinematicsHub.getAsJson().toString()
+                "get_body_kinematics" -> com.catune.inference.mnn.KinematicsHub.getAsJson().toString()
                 "trigger_vibration_feedback" -> {
                     val target = arguments.stringArg("node_target") ?: "C"
                     val pattern = arguments.stringArg("pattern") ?: "success_buzz"

@@ -5,9 +5,9 @@
  * [WHO] 提供 `class McpSession(sessionId, notificationFlow: MutableSharedFlow<String>)`、`class McpSessionManager`、`createSession()` / `getSession(id)` / `removeSession(id)` / `broadcastNotification(json)`
  * [FROM] 依赖 `kotlinx.coroutines.flow.MutableSharedFlow(extraBufferCapacity=64)`、`java.util.UUID`、`ConcurrentHashMap`
  * [TO] 被 `McpHttpServer` 在 POST/GET 路由中获取或创建 session；被 `McpRequestHandler.emitProgressNotification` / `WatchdogManager.pushNotification` 广播消息
- * [HERE] android/app/src/main/java/com/postureai/mcp/McpSessionManager.kt · MCP 会话存储
+ * [HERE] android/app/src/main/java/com/catune/mcp/McpSessionManager.kt · MCP 会话存储
  */
-package com.postureai.mcp
+package com.catune.mcp
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow

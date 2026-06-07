@@ -5,9 +5,9 @@
  * [WHO] 提供 `object QrCodeGenerator`、`generate(text: String, size: Int = 512): Bitmap`
  * [FROM] 依赖 com.google.zxing.core 3.5.3（QRCodeWriter / BarcodeFormat）、`android.graphics.Bitmap` / `Color`
  * [TO] 被 Android 配对 UI 渲染二维码；与 PairingManager 输出配对
- * [HERE] android/app/src/main/java/com/postureai/ui/QrCodeGenerator.kt · 二维码生成
+ * [HERE] android/app/src/main/java/com/catune/ui/QrCodeGenerator.kt · 二维码生成
  */
-package com.postureai.ui
+package com.catune.ui
 
 import android.graphics.Bitmap
 import android.graphics.Color

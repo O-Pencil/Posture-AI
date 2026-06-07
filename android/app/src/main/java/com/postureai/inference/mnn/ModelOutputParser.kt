@@ -5,12 +5,12 @@
  * [WHO] 提供 `object ModelOutputParser`、`data class ParsedModelOutput`、`extractJsonPayload(raw: String): String`、`parse(raw: String): ParsedModelOutput`
  * [FROM] 依赖 `kotlinx.serialization.json.Json { ignoreUnknownKeys = true }`、`StructuredPerception` / `PerceivedObject` 模型
  * [TO] 被 `MnnPerceptionEngine.analyze()` 在拿到 raw 输出后解析
- * [HERE] android/app/src/main/java/com/postureai/inference/mnn/ModelOutputParser.kt · MNN 输出 JSON 解析器
+ * [HERE] android/app/src/main/java/com/catune/inference/mnn/ModelOutputParser.kt · MNN 输出 JSON 解析器
  */
-package com.postureai.inference.mnn
+package com.catune.inference.mnn
 
-import com.postureai.inference.PerceivedObject
-import com.postureai.inference.StructuredPerception
+import com.catune.inference.PerceivedObject
+import com.catune.inference.StructuredPerception
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject

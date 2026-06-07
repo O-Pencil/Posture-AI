@@ -1,13 +1,13 @@
 /**
- * @file PostureAIApp.kt
+ * @file CatuneApp.kt
  * @description Application 入口，初始化 React Native、SoLoader、新架构入口，并装配 PairingManager + SpineBluetoothManager 模拟流。
  *
- * [WHO] 提供 PostureAIApp（Application 子类）、内部 `reactNativeHost`（`DefaultReactNativeHost`）、`pairingManager`、`bluetoothManager` 字段
- * [FROM] 依赖 `com.facebook.react.*`（SoLoader / ReactHost / PackageList）、`com.postureai.pairing.PairingManager`、`com.postureai.bluetooth.SpineBluetoothManager`、`com.postureai.rn.PostureAIPackage`
- * [TO] 被 Android 启动器（`android:name=".PostureAIApp"`）实例化；`pairingManager` 被 `ServiceRuntime` 读取；`PostureAIPackage` 被 `reactNativeHost.getPackages()` 注册
- * [HERE] android/app/src/main/java/com/postureai/PostureAIApp.kt · 全局应用类 + 核心装配
+ * [WHO] 提供 CatuneApp（Application 子类）、内部 `reactNativeHost`（`DefaultReactNativeHost`）、`pairingManager`、`bluetoothManager` 字段
+ * [FROM] 依赖 `com.facebook.react.*`（SoLoader / ReactHost / PackageList）、`com.catune.pairing.PairingManager`、`com.catune.bluetooth.SpineBluetoothManager`、`com.catune.rn.CatunePackage`
+ * [TO] 被 Android 启动器（`android:name=".CatuneApp"`）实例化；`pairingManager` 被 `ServiceRuntime` 读取；`CatunePackage` 被 `reactNativeHost.getPackages()` 注册
+ * [HERE] android/app/src/main/java/com/catune/CatuneApp.kt · 全局应用类 + 核心装配
  */
-package com.postureai
+package com.catune
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -20,12 +20,12 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
-import com.postureai.rn.PostureAIPackage
-import com.postureai.pairing.PairingManager
-import com.postureai.bluetooth.SpineBluetoothManager
+import com.catune.rn.CatunePackage
+import com.catune.pairing.PairingManager
+import com.catune.bluetooth.SpineBluetoothManager
 import kotlinx.coroutines.MainScope
 
-class PostureAIApp : Application(), ReactApplication {
+class CatuneApp : Application(), ReactApplication {
 
   lateinit var pairingManager: PairingManager
     private set
@@ -36,7 +36,7 @@ class PostureAIApp : Application(), ReactApplication {
       object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
-              add(PostureAIPackage())
+              add(CatunePackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -63,7 +63,7 @@ class PostureAIApp : Application(), ReactApplication {
     // Start Bluetooth Simulation automatically for now
     bluetoothManager = SpineBluetoothManager(this, MainScope()) { raw ->
         // Direct call to JNI for calculation
-        com.postureai.MainActivity.calculateSpineAnglesStatic(raw)
+        com.catune.MainActivity.calculateSpineAnglesStatic(raw)
     }
     bluetoothManager.startSimulation()
   }

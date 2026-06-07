@@ -1,6 +1,6 @@
-# com.postureai · AGENTS.md
+# com.catune · AGENTS.md
 
-> 模块：Android 原生主体（Kotlin / `com.postureai`）
+> 模块：Android 原生主体（Kotlin / `com.catune`）
 > 协议层级：DIP · P2（模块地图）
 > 父文档：[../../../AGENTS.md](../../../../../../AGENTS.md)
 
@@ -8,12 +8,12 @@
 
 ---
 
-## 1. 顶层入口（com.postureai）
+## 1. 顶层入口（com.catune）
 
 | 文件 | 责任 | 技术要点 |
 | --- | --- | --- |
 | `MainActivity.kt` | RN Activity 宿主，启用新架构/Fabric，**`System.loadLibrary("MNN")` + `loadLibrary("posture_ai_bridge")`**，暴露 `calculateSpineAnglesNative(rawQuaternions)` 静态方法 | `DefaultReactActivityDelegate`、JNI 入口、SP 关键方法 |
-| `PostureAIApp.kt` | `Application` 子类，初始化 `SoLoader`、新架构 `load()`、`PairingManager`、**自动启动 `SpineBluetoothManager.startSimulation()`** | `ReactApplication`、协程 `MainScope`、Provider 装配 |
+| `CatuneApp.kt` | `Application` 子类，初始化 `SoLoader`、新架构 `load()`、`PairingManager`、**自动启动 `SpineBluetoothManager.startSimulation()`** | `ReactApplication`、协程 `MainScope`、Provider 装配 |
 
 ---
 
@@ -74,7 +74,7 @@
 
 | 文件 | 责任 | 技术要点 |
 | --- | --- | --- |
-| `PairingManager.kt` | 持久化 Bearer Token（`eop_<uuid>`）与端口（默认 8765），首次访问 token 自动生成并落 `SharedPreferences` | `SecureRandom` 替代为 UUID、prefs key `eyes_on_phone_pairing` |
+| `PairingManager.kt` | 持久化 Bearer Token（`cat_<uuid>`）与端口（默认 8765），首次访问 token 自动生成并落 `SharedPreferences` | `SecureRandom` 替代为 UUID、prefs key `catune_pairing` |
 
 ---
 
@@ -83,7 +83,7 @@
 | 文件 | 责任 | 技术要点 |
 | --- | --- | --- |
 | `KinematicsModule.kt` | `KinematicsModule` RN 桥接：`init` 订阅 `KinematicsHub.state` 通过 `DeviceEventManagerModule.RCTDeviceEventEmitter` 发 `onKinematicsUpdate` 事件；`@ReactMethod` 暴露 `getLatestState(promise)`、`setSimulationScenario(scenario)`（F7 Mock Console 用） | `ReactContextBaseJavaModule`、`addListener/removeListeners` 桩方法 |
-| `PostureAIPackage.kt` | RN `ReactPackage` 实现，把 `KinematicsModule` 注册到 RN runtime | `createNativeModules`、`createViewManagers` 返回空 |
+| `CatunePackage.kt` | RN `ReactPackage` 实现，把 `KinematicsModule` 注册到 RN runtime | `createNativeModules`、`createViewManagers` 返回空 |
 
 ---
 
@@ -104,7 +104,7 @@
 | `NetworkUtils.kt` | `getLanIpAddress()`（遍历 `NetworkInterface` 找 IPv4）、`isOnWifi(context)` | `Inet4Address`、`ConnectivityManager` |
 | `QrCodeGenerator.kt` | ZXing 二维码生成（用于 MCP URL+Token 一键扫码） | `QRCodeWriter` |
 | `SpineVisualizer.kt` | `WebView` 加载 `file:///android_asset/threejs_spine/index.html`，`updateSpineAngles(neck, lumbar)` 通过 `evaluateJavascript` 推实时角度 | `AndroidView`、`WebChromeClient` |
-| `theme/Theme.kt` | `PostureAITheme` 顶层 Composable + 私有 `DarkColors`（深色配色：主色 6EE7B7、次色 38BDF8、背景 0F172A、表面 1E293B） | `androidx.compose.material3.MaterialTheme` |
+| `theme/Theme.kt` | `CatuneTheme` 顶层 Composable + 私有 `DarkColors`（深色配色：主色 6EE7B7、次色 38BDF8、背景 0F172A、表面 1E293B） | `androidx.compose.material3.MaterialTheme` |
 
 ---
 

@@ -5,9 +5,9 @@
  * [WHO] 提供 `object McpJson`（共享 `Json` 解析器）、`data class JsonRpcRequest/Response/Error/Notification`、函数 `jsonRpcResult()` / `jsonRpcError()` / `jsonRpcNotification()`、扩展 `JsonObject.stringArg/intArg/boolArg`、`toolTextContent(text)`、`requestIdString(id)`
  * [FROM] 依赖 `kotlinx.serialization.json.*`
  * [TO] 被 `McpRequestHandler`、`McpToolRegistry`、`WatchdogManager.pushNotification()` 复用
- * [HERE] android/app/src/main/java/com/postureai/mcp/McpJson.kt · MCP JSON-RPC 序列化工具
+ * [HERE] android/app/src/main/java/com/catune/mcp/McpJson.kt · MCP JSON-RPC 序列化工具
  */
-package com.postureai.mcp
+package com.catune.mcp
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

@@ -5,9 +5,9 @@
  * [WHO] 提供 `object NetworkUtils`、函数 `getLanIpAddress(): String`、`isOnWifi(context: Context): Boolean`
  * [FROM] 依赖 `android.net.ConnectivityManager` / `NetworkCapabilities`、`java.net.NetworkInterface` / `Inet4Address`
  * [TO] 被 Android UI 读取用于显示配对二维码 URL；可被 ServiceRuntime 扩展
- * [HERE] android/app/src/main/java/com/postureai/ui/NetworkUtils.kt · 网络工具
+ * [HERE] android/app/src/main/java/com/catune/ui/NetworkUtils.kt · 网络工具
  */
-package com.postureai.ui
+package com.catune.ui
 
 import android.content.Context
 import android.net.ConnectivityManager

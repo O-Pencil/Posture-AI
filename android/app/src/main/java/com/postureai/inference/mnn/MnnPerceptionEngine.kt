@@ -5,13 +5,13 @@
  * [WHO] 提供 `class MnnPerceptionEngine`、`analyze(imageJpeg, audioPcm, sampleRate, systemPrompt, onDecoding): MnnAnalyzeResult?`、`analyzeWatchdog(jpeg, systemPrompt, alertRules): WatchdogAnalysis?`、`data class InferenceMetrics` / `MnnAnalyzeResult`；伴生对象 `tryCreate()` / `isNativeLibLoaded()` / `loadNativeLibs()` / `isModelDirReady()` / `nativeInit/Release/Available/getLastError`
  * [FROM] 依赖 `InferenceExecutor.run`（单线程调度）、JNI `runInference` / `getLastInferenceMetric` / `nativeInit/Release`、libMNN + libeyes_mnn_bridge
  * [TO] 被 `DefaultPerceptionEngine` 持有；JNI 错误会触发降级到 `HeuristicAnalyzer`
- * [HERE] android/app/src/main/java/com/postureai/inference/mnn/MnnPerceptionEngine.kt · MNN 推理 Kotlin/JNI 桥
+ * [HERE] android/app/src/main/java/com/catune/inference/mnn/MnnPerceptionEngine.kt · MNN 推理 Kotlin/JNI 桥
  */
-package com.postureai.inference.mnn
+package com.catune.inference.mnn
 
 import android.content.Context
-import com.postureai.inference.PerceptionResult
-import com.postureai.inference.WatchdogAnalysis
+import com.catune.inference.PerceptionResult
+import com.catune.inference.WatchdogAnalysis
 import java.io.File
 
 data class InferenceMetrics(

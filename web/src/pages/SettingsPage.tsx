@@ -221,7 +221,7 @@ function AboutSection() {
             className="text-lg font-bold text-[#141414]"
             style={{ fontFamily: "'Fredoka', sans-serif" }}
           >
-            Posture-AI
+            Catune
           </div>
           <div className="text-[10px] text-[#9B9590] font-mono mt-1">v0.1.0 · On-device Posture Detection</div>
         </div>

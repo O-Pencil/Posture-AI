@@ -5,9 +5,9 @@
  * [WHO] 提供 `object HeuristicAnalyzer`、`data class HeuristicResult`、`analyze(jpeg, prompt, alertRules, hasAudio): HeuristicResult`、`analyzeAudio(pcm, prompt): HeuristicResult`
  * [FROM] 依赖 `android.graphics.BitmapFactory`；纯计算无其他模块依赖
  * [TO] 被 `DefaultPerceptionEngine.buildHeuristicResult()` 和 `analyzeWatchdogFrame()` 降级路径调用
- * [HERE] android/app/src/main/java/com/postureai/inference/HeuristicAnalyzer.kt · 启发式降级分析
+ * [HERE] android/app/src/main/java/com/catune/inference/HeuristicAnalyzer.kt · 启发式降级分析
  */
-package com.postureai.inference
+package com.catune.inference
 
 import android.graphics.BitmapFactory
 import kotlin.math.abs

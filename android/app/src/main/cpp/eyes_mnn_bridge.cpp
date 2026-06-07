@@ -1,7 +1,7 @@
 // @file eyes_mnn_bridge.cpp
 // @description JNI 桥接层，把 Kotlin 侧的 runInference / nativeInit / nativeRelease / getLastError / getLastInferenceMetric / calculateSpineAnglesNative 路由到 C++ 实现；处理 byte[] 到 JPEG/PCM-WAV 文件落盘。
 //
-// [WHO] 定义 JNI 函数 Java_com_postureai_*** （nativeInit/nativeRelease/nativeAvailable/getLastError/runInference/getLastInferenceMetric/calculateSpineAnglesNative），全局 `eyes::EyesLlmSession g_session` + `std::string g_last_error`，私有 `writeBytesToFile` / `writePcmAsWav`
+// [WHO] 定义 JNI 函数 Java_com_catune_*** （nativeInit/nativeRelease/nativeAvailable/getLastError/runInference/getLastInferenceMetric/calculateSpineAnglesNative），全局 `eyes::EyesLlmSession g_session` + `std::string g_last_error`，私有 `writeBytesToFile` / `writePcmAsWav`
 // [FROM] 依赖 `jni.h`、`<fstream/mutex/string/vector>`、`eyes_llm_session.h`（EyesLlmSession）、`eyes_log.h`
 // [TO] 被 Kotlin 侧 `MnnPerceptionEngine` / `MainActivity` 通过 `external fun` 调用
 // [HERE] android/app/src/main/cpp/eyes_mnn_bridge.cpp · JNI 入口
@@ -79,13 +79,13 @@ jstring stdToJstring(JNIEnv* env, const std::string& value) {
 extern "C" {
 
 JNIEXPORT jboolean JNICALL
-Java_com_postureai_inference_mnn_MnnPerceptionEngine_nativeAvailable(JNIEnv*, jclass) {
+Java_com_catune_inference_mnn_MnnPerceptionEngine_nativeAvailable(JNIEnv*, jclass) {
     std::lock_guard<std::mutex> lock(g_mutex);
     return g_session.isReady() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_postureai_inference_mnn_MnnPerceptionEngine_nativeInit(
+Java_com_catune_inference_mnn_MnnPerceptionEngine_nativeInit(
     JNIEnv* env,
     jclass,
     jstring configPath,
@@ -107,14 +107,14 @@ Java_com_postureai_inference_mnn_MnnPerceptionEngine_nativeInit(
 }
 
 JNIEXPORT void JNICALL
-Java_com_postureai_inference_mnn_MnnPerceptionEngine_nativeRelease(JNIEnv*, jclass) {
+Java_com_catune_inference_mnn_MnnPerceptionEngine_nativeRelease(JNIEnv*, jclass) {
     std::lock_guard<std::mutex> lock(g_mutex);
     g_session.unload();
     g_last_error.clear();
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_postureai_inference_mnn_MnnPerceptionEngine_runInference(
+Java_com_catune_inference_mnn_MnnPerceptionEngine_runInference(
     JNIEnv* env,
     jobject,
     jstring modelPath,
@@ -170,7 +170,7 @@ Java_com_postureai_inference_mnn_MnnPerceptionEngine_runInference(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_postureai_inference_mnn_MnnPerceptionEngine_getLastInferenceMetric(
+Java_com_catune_inference_mnn_MnnPerceptionEngine_getLastInferenceMetric(
     JNIEnv* env,
     jobject,
     jstring key) {
@@ -182,14 +182,14 @@ Java_com_postureai_inference_mnn_MnnPerceptionEngine_getLastInferenceMetric(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_postureai_inference_mnn_MnnPerceptionEngine_getLastError(JNIEnv* env, jclass) {
+Java_com_catune_inference_mnn_MnnPerceptionEngine_getLastError(JNIEnv* env, jclass) {
     std::lock_guard<std::mutex> lock(g_mutex);
     if (g_last_error.empty()) return nullptr;
     return stdToJstring(env, g_last_error);
 }
 
 extern "C" JNIEXPORT jfloatArray JNICALL
-Java_com_postureai_MainActivity_calculateSpineAnglesNative(JNIEnv* env, jclass clazz, jfloatArray raw_quaternions) {
+Java_com_catune_MainActivity_calculateSpineAnglesNative(JNIEnv* env, jclass clazz, jfloatArray raw_quaternions) {
     // 1. 获取四元数
     jfloat* q = env->GetFloatArrayElements(raw_quaternions, NULL);
 

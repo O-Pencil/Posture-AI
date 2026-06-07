@@ -4,10 +4,10 @@
  *
  * [WHO] 提供 MainActivity（默认 RN 入口）、`calculateSpineAnglesStatic(rawQuaternions: FloatArray): FloatArray`、private `external fun calculateSpineAnglesNative`
  * [FROM] 依赖 `com.facebook.react.*`（Activity / Delegate）、`libMNN` + `libposture_ai_bridge`（`System.loadLibrary`）
- * [TO] 被 Android 启动器（`<action android:name="android.intent.action.MAIN" />`）拉起；`calculateSpineAnglesStatic` 被 `PostureAIApp` 注入到 `SpineBluetoothManager` 回调链
- * [HERE] android/app/src/main/java/com/postureai/MainActivity.kt · RN 宿主 + JNI 桩
+ * [TO] 被 Android 启动器（`<action android:name="android.intent.action.MAIN" />`）拉起；`calculateSpineAnglesStatic` 被 `CatuneApp` 注入到 `SpineBluetoothManager` 回调链
+ * [HERE] android/app/src/main/java/com/catune/MainActivity.kt · RN 宿主 + JNI 桩
  */
-package com.postureai
+package com.catune
 
 import android.os.Bundle
 import android.util.Log
@@ -22,7 +22,7 @@ class MainActivity : ReactActivity() {
      * Returns the name of the main component registered from JavaScript. This is used to schedule
      * rendering of the component.
      */
-    override fun getMainComponentName(): String = "PostureAI"
+    override fun getMainComponentName(): String = "Catune"
 
     /**
      * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]

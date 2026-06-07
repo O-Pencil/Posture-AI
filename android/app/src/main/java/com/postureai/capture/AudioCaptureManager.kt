@@ -5,9 +5,9 @@
  * [WHO] 提供 AudioCaptureManager、`start()` / `stop()`、`suspend sliceRecentPcm(durationSec: Int): ByteArray`、`getSampleRate(): Int`
  * [FROM] 依赖 `android.media.AudioRecord`（MIC、16kHz、PCM_16BIT）、`kotlinx.coroutines.Dispatchers.IO`
  * [TO] 被 `DefaultPerceptionEngine.analyze()`（LOOK/LISTEN/PERCEIVE 三种模式）、`ServiceRuntime.audioCaptureManager` 持有
- * [HERE] android/app/src/main/java/com/postureai/capture/AudioCaptureManager.kt · 音频采集与环形缓冲
+ * [HERE] android/app/src/main/java/com/catune/capture/AudioCaptureManager.kt · 音频采集与环形缓冲
  */
-package com.postureai.capture
+package com.catune.capture
 
 import android.media.AudioFormat
 import android.media.AudioRecord

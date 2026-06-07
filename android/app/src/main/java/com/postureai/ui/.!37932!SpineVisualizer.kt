@@ -42,11 +42,3 @@ fun SpineVisualizer(angles: FloatArray, modifier: Modifier = Modifier) {
             }
         },
         update = { webView ->
-            // 将角度数据实时传�?JS
-            val neck = if (angles.isNotEmpty()) angles[0] else 0f
-            val lumbar = if (angles.size > 1) angles[1] else 0f
-            webView.evaluateJavascript("updateSpineAngles($neck, $lumbar)", null)
-        },
-        modifier = modifier.fillMaxSize()
-    )
-}

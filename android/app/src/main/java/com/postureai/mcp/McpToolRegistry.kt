@@ -5,9 +5,9 @@
  * [WHO] 提供 `object McpToolRegistry.toolDefinitions: List<JsonObject>`、私有 `tool()` / `schema()` 辅助构造
  * [FROM] 依赖 `kotlinx.serialization.json.buildJsonObject/put/JsonArray/JsonPrimitive`
  * [TO] 被 `McpRequestHandler.handleToolsList()` 序列化返回；其工具名与 `handleToolsCall` 的 `when` 分支对应
- * [HERE] android/app/src/main/java/com/postureai/mcp/McpToolRegistry.kt · MCP 工具清单
+ * [HERE] android/app/src/main/java/com/catune/mcp/McpToolRegistry.kt · MCP 工具清单
  */
-package com.postureai.mcp
+package com.catune.mcp
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject

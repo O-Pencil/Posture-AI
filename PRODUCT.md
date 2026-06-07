@@ -10,7 +10,7 @@ Office workers and remote knowledge workers aged 22–45 who sit at a desk 6–1
 
 ## Product Purpose
 
-Posture-AI is a real-time posture coach that pairs a phone-mounted IMU/AI perception system with a calm, glanceable app. The app surface shows three things: live posture state, a gentle habit-reward (the plant), and device/config control. Success means: the user opens the app, gets a one-glance read on whether they are sitting well, and returns to work. The app itself should never be a place to dwell.
+Catune is a real-time posture coach that pairs a phone-mounted IMU/AI perception system with a calm, glanceable app. The app surface shows three things: live posture state, a gentle habit-reward (the plant), and device/config control. Success means: the user opens the app, gets a one-glance read on whether they are sitting well, and returns to work. The app itself should never be a place to dwell.
 
 ## Brand Personality
 

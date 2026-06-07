@@ -5,9 +5,9 @@
  * [WHO] 提供 `class McpHttpServer(port, expectedToken, requestHandler, sessionManager)`、`start()` / `stop()`、内部 `authorize(header: String?): Boolean`、CORS 配置
  * [FROM] 依赖 io.ktor（server-core/cio/cors/websockets/content-negotiation 2.3.12）、`McpRequestHandler`、`McpSessionManager`
  * [TO] 被 `ServiceRuntime.start()` 启动；HTTP 客户端是 PC 端 LLM 智能体（Claude Code / Codex 等）
- * [HERE] android/app/src/main/java/com/postureai/mcp/McpHttpServer.kt · MCP HTTP/SSE 入口
+ * [HERE] android/app/src/main/java/com/catune/mcp/McpHttpServer.kt · MCP HTTP/SSE 入口
  */
-package com.postureai.mcp
+package com.catune.mcp
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -61,7 +61,7 @@ class McpHttpServer(
 
             routing {
                 get("/") {
-                    call.respondText("Eyes-on-Phone MCP Server", ContentType.Text.Plain)
+                    call.respondText("Catune MCP Server", ContentType.Text.Plain)
                 }
 
                 route("/mcp") {

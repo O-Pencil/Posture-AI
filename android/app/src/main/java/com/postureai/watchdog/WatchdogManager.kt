@@ -5,15 +5,15 @@
  * [WHO] 提供 `class WatchdogManager(scope, perceptionEngine, cameraCaptureManager, sessionManager, alertStore)`、`data class WatchTask(watchId, intervalSec, prompt, alertRules, job)`、`startWatch(intervalSec, prompt, alertRules): String` / `stopWatch(watchId): String` / `listWatches(): String` / `stopAll()`、private `runWatchCycle(task)` / `pushNotification(alert)`
  * [FROM] 依赖 `CameraCaptureManager`、`PerceptionEngine`、`McpSessionManager`、`PendingAlertStore`、`kotlinx.coroutines.delay/launch/Job`
  * [TO] 被 MCP 工具 `phone_watch_start/stop/list` 通过 `McpRequestHandler` 调用
- * [HERE] android/app/src/main/java/com/postureai/watchdog/WatchdogManager.kt · 周期感知调度
+ * [HERE] android/app/src/main/java/com/catune/watchdog/WatchdogManager.kt · 周期感知调度
  */
-package com.postureai.watchdog
+package com.catune.watchdog
 
-import com.postureai.capture.CameraCaptureManager
-import com.postureai.inference.PerceptionEngine
-import com.postureai.inference.StructuredPerception
-import com.postureai.mcp.McpSessionManager
-import com.postureai.mcp.jsonRpcNotification
+import com.catune.capture.CameraCaptureManager
+import com.catune.inference.PerceptionEngine
+import com.catune.inference.StructuredPerception
+import com.catune.mcp.McpSessionManager
+import com.catune.mcp.jsonRpcNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

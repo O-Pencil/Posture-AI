@@ -3,11 +3,11 @@
  * @description 前台 Service（specialUse 类型），保活 MCP HTTP 服务；通过 LifecycleRegistry 暴露给 ServiceRuntime。
  *
  * [WHO] 提供 `class McpForegroundService: Service, LifecycleOwner`、`onCreate/onStartCommand/onDestroy/onBind`、`getRuntimeOrNull()`、private `createNotificationChannel()` / `buildNotification()` / `stopServiceInternal()`；伴生对象 `ACTION_STOP` / `CHANNEL_ID` / `NOTIFICATION_ID`
- * [FROM] 依赖 androidx.lifecycle（LifecycleRegistry）、NotificationCompat、PostureAIApp、ServiceRuntime、R.drawable.ic_notification
+ * [FROM] 依赖 androidx.lifecycle（LifecycleRegistry）、NotificationCompat、CatuneApp、ServiceRuntime、R.drawable.ic_notification
  * [TO] 被 Android 启动器（`<service android:name=".service.McpForegroundService" />`）调度；`runtime` 被外部读取调 `getRuntimeOrNull()`
- * [HERE] android/app/src/main/java/com/postureai/service/McpForegroundService.kt · MCP 前台服务
+ * [HERE] android/app/src/main/java/com/catune/service/McpForegroundService.kt · MCP 前台服务
  */
-package com.postureai.service
+package com.catune.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -16,8 +16,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.postureai.PostureAIApp
-import com.postureai.R
+import com.catune.CatuneApp
+import com.catune.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -49,7 +49,7 @@ class McpForegroundService : Service(), androidx.lifecycle.LifecycleOwner {
         lifecycleRegistry.currentState = androidx.lifecycle.Lifecycle.State.STARTED
         lifecycleRegistry.currentState = androidx.lifecycle.Lifecycle.State.RESUMED
 
-        val app = application as PostureAIApp
+        val app = application as CatuneApp
         if (runtime == null) {
             runtime = ServiceRuntime(this, app.pairingManager, this)
             serviceScope.launch {
@@ -78,7 +78,7 @@ class McpForegroundService : Service(), androidx.lifecycle.LifecycleOwner {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Eyes-on-Phone MCP",
+            "Catune MCP",
             NotificationManager.IMPORTANCE_LOW,
         )
         val nm = getSystemService(NotificationManager::class.java)
@@ -94,7 +94,7 @@ class McpForegroundService : Service(), androidx.lifecycle.LifecycleOwner {
             .build()
 
     companion object {
-        const val ACTION_STOP = "com.postureai.STOP"
+        const val ACTION_STOP = "com.catune.STOP"
         private const val CHANNEL_ID = "mcp_service"
         private const val NOTIFICATION_ID = 1001
     }

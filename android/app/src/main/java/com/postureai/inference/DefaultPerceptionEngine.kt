@@ -5,16 +5,16 @@
  * [WHO] 提供 `class DefaultPerceptionEngine(perceptionEngine)`、`analyze(PerceptionRequest)` / `lookRaw(String)` / `analyzeWatchdogFrame(JPEG, prompt, rules)`、`buildSystemPrompt(userPrompt)`、`loadAssetPrompt(path)`
  * [FROM] 依赖 `CameraCaptureManager`、`AudioCaptureManager`、`MnnPerceptionEngine`（尝试加载）、`HeuristicAnalyzer`（降级）、`InferenceStatusHub`、assets 资源 `prompts/safety_prefix.txt` + `prompts/vl_system.txt`
  * [TO] 被 `ServiceRuntime.perceptionEngine` 实例化；被 `McpRequestHandler` 在 `phone_look/listen/perceive/look_raw/watch_*` 路径调用
- * [HERE] android/app/src/main/java/com/postureai/inference/DefaultPerceptionEngine.kt · 推理编排器（含启发式降级）
+ * [HERE] android/app/src/main/java/com/catune/inference/DefaultPerceptionEngine.kt · 推理编排器（含启发式降级）
  */
-package com.postureai.inference
+package com.catune.inference
 
 import android.content.Context
 import android.util.Base64
-import com.postureai.capture.AudioCaptureManager
-import com.postureai.capture.CameraCaptureManager
-import com.postureai.inference.mnn.InferenceExecutor
-import com.postureai.inference.mnn.MnnPerceptionEngine
+import com.catune.capture.AudioCaptureManager
+import com.catune.capture.CameraCaptureManager
+import com.catune.inference.mnn.InferenceExecutor
+import com.catune.inference.mnn.MnnPerceptionEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

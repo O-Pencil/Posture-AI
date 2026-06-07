@@ -4,16 +4,16 @@
  *
  * [WHO] 提供 `class KinematicsModule(reactContext: ReactApplicationContext)`、`getName()`、`init` 协程订阅、private `sendEvent()`、`@ReactMethod getLatestState(promise)` / `setSimulationScenario(scenario)` / `addListener()` / `removeListeners()`
  * [FROM] 依赖 `com.facebook.react.bridge.*`、`KinematicsHub`、`kotlinx.coroutines.flow.collectLatest`
- * [TO] 被 `PostureAIPackage.createNativeModules` 注册；JS 端 `NativeModules.KinematicsModule` 与 `NativeEventEmitter` 调用
- * [HERE] android/app/src/main/java/com/postureai/rn/KinematicsModule.kt · RN 桥接层
+ * [TO] 被 `CatunePackage.createNativeModules` 注册；JS 端 `NativeModules.KinematicsModule` 与 `NativeEventEmitter` 调用
+ * [HERE] android/app/src/main/java/com/catune/rn/KinematicsModule.kt · RN 桥接层
  */
-package com.postureai.rn
+package com.catune.rn
 
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.postureai.inference.mnn.KinematicsHub
+import com.catune.inference.mnn.KinematicsHub
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -1,6 +1,6 @@
 # Figma Make 提示词 v3 · Haptic 拟物化 × 前卫大胆英文版
 
-> 用途：在 Figma Make 中生成 Posture-AI App 完整 UI
+> 用途：在 Figma Make 中生成 Catune App 完整 UI
 > 风格：**项目自有 Haptic 设计系统**（17 个组件、oklch 配色、4 级圆角层级） × **Editorial Avant-Garde**（编辑式前卫大胆排版）
 > 界面语言：**English-first**，Chinese 作为 secondary toggle
 > 中心角色：黑猫坐在白桌前（来自用户提供的 Image #1）
@@ -509,7 +509,7 @@ Mobile portrait, 390×844. **Status bar at top (9:41 left, ████ 5G 89% r
 - One **HapticAccordion item** (frame radius, white bg, soft shadow, 1px border)
 - Inside, label-value rows in JetBrains Mono:
   - URL: `http://192.168.1.5:8765/mcp`
-  - TOKEN: `eop_****...a3f2` (with **HapticIconButton** copy icon next to it)
+  - TOKEN: `cat_****...a3f2` (with **HapticIconButton** copy icon next to it)
   - PROTOCOL: `SSE + POST` (as a **HapticChip** color=blue tone=light)
 
 **Tools section:**

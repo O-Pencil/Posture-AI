@@ -1,11 +1,11 @@
 /**
- * @file PostureAITests.m
+ * @file CatuneTests.m
  * @description RN 内置 iOS 集成测试：等待根 View 出现含 "Welcome to React" 的子视图，超时 600s。
  *
- * [WHO] `@implementation PostureAITests`、`- (BOOL)findSubviewInView:matching:`、`- (void)testRendersWelcomeScreen`
+ * [WHO] `@implementation CatuneTests`、`- (BOOL)findSubviewInView:matching:`、`- (void)testRendersWelcomeScreen`
  * [FROM] 依赖 `<UIKit/UIKit.h>`、`<XCTest/XCTest.h>`、`<React/RCTLog.h>`、`<React/RCTRootView.h>`
  * [TO] 被 XCTest 在 `npm run ios -- --config=Debug` 测试时调用；通过 `RCTSetLogFunction` 拦截 RN RedBox
- * [HERE] ios/PostureAITests/PostureAITests.m · RN 默认集成测试（脚手架）
+ * [HERE] ios/CatuneTests/CatuneTests.m · RN 默认集成测试（脚手架）
  */
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
@@ -16,11 +16,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface PostureAITests : XCTestCase
+@interface CatuneTests : XCTestCase
 
 @end
 
-@implementation PostureAITests
+@implementation CatuneTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL (^)(UIView *view))test
 {

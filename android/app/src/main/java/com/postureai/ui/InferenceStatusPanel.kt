@@ -5,9 +5,9 @@
  * [WHO] 提供 `@Composable ModelStatusCard(state: ModelInstallState)`、`@Composable InferenceStatusCard(status: InferenceStatus)`、private `InferencePhase.toDisplayName()`
  * [FROM] 依赖 androidx.compose.material3（Card / MaterialTheme / Text）、`ModelInstallState` / `InferenceStatus` / `InferencePhase`
  * [TO] 被 RN 端（未来 Compose 嵌入）或 Android 独立 Activity 引用；当前主要用于演示和调试
- * [HERE] android/app/src/main/java/com/postureai/ui/InferenceStatusPanel.kt · 推理状态可视化
+ * [HERE] android/app/src/main/java/com/catune/ui/InferenceStatusPanel.kt · 推理状态可视化
  */
-package com.postureai.ui
+package com.catune.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,9 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.postureai.inference.InferencePhase
-import com.postureai.inference.InferenceStatus
-import com.postureai.inference.ModelInstallState
+import com.catune.inference.InferencePhase
+import com.catune.inference.InferenceStatus
+import com.catune.inference.ModelInstallState
 
 @Composable
 fun ModelStatusCard(model: ModelInstallState) {

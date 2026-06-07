@@ -5,9 +5,9 @@
  * [WHO] 提供 `class PendingAlertStore(context)`、`data class PendingAlert(alertKey, watchId, summary, structuredJson, timestampMs)`、方法 `addAlert(alert)` / `loadAll(): List<PendingAlert>` / `clear()` / `toJson(): String`
  * [FROM] 依赖 `kotlinx.serialization.builtins.ListSerializer` + `Json`
  * [TO] 被 `WatchdogManager.runWatchCycle` 命中异常时调 `addAlert`；被 `ServiceRuntime.buildStatus` 通过 `toJson()` 读
- * [HERE] android/app/src/main/java/com/postureai/watchdog/PendingAlertStore.kt · 告警持久化
+ * [HERE] android/app/src/main/java/com/catune/watchdog/PendingAlertStore.kt · 告警持久化
  */
-package com.postureai.watchdog
+package com.catune.watchdog
 
 import android.content.Context
 import kotlinx.serialization.Serializable

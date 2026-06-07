@@ -7,8 +7,14 @@ import { GaugeIcon, type GaugeIconHandle } from "@/components/icons/GaugeIcon"
 import { FanIcon, type FanIconHandle } from "@/components/icons/FanIcon"
 import { SettingsIcon, type SettingsIconHandle } from "@/components/icons/SettingsIcon"
 
+function getInitialTab() {
+  const tab = new URLSearchParams(window.location.search).get("tab")
+  if (tab === "desk" || tab === "plant" || tab === "settings") return tab
+  return "desk"
+}
+
 function App() {
-  const [activeTab, setActiveTab] = useState("desk")
+  const [activeTab, setActiveTab] = useState(getInitialTab)
   const deskIconRef = useRef<GaugeIconHandle>(null)
   const plantIconRef = useRef<FanIconHandle>(null)
   const settingsIconRef = useRef<SettingsIconHandle>(null)
@@ -82,7 +88,7 @@ function App() {
           className="text-3xl font-bold tracking-tight text-[#fb4b00]"
           style={{ fontFamily: "'Fredoka', sans-serif" }}
         >
-          Posture-AI
+          Catune
         </h1>
       </div>
 

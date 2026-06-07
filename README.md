@@ -1,10 +1,10 @@
-# Posture-AI · Omni-Posture Master
+# Catune · Omni-Posture Master
 
-> Android 包名：`com.postureai`
+> Android 包名：`com.catune`
 > 参赛方向：TONGYI LAB x Arm 手机端挑战赛
 > 文档语言：中文
 
-Posture-AI 是一个完整的 React Native Android 手机 App，不是小程序、H5 或纯演示页。它把 IMU 姿态采集、端侧 Qwen + MNN 本地 CPU 推理、Android 原生能力和 RN 仪表盘放在同一个 App 进程内，面向 2026-06-22 初赛交付“不驼背坐姿助手”的可演示闭环。
+Catune 是一个完整的 React Native Android 手机 App，不是小程序、H5 或纯演示页。它把 IMU 姿态采集、端侧 Qwen + MNN 本地 CPU 推理、Android 原生能力和 RN 仪表盘放在同一个 App 进程内，面向 2026-06-22 初赛交付“不驼背坐姿助手”的可演示闭环。
 
 核心产品诉求来自 [PRD/AI姿态矫正康复产品PRD.md](PRD/AI姿态矫正康复产品PRD.md)：持续检测久坐用户的驼背/头前倾，异常时给出震动和 App 提醒，并串起训练与复盘。最新技术口径以 [docs/技术实现文档.md](docs/技术实现文档.md) 为准。
 
@@ -54,7 +54,7 @@ cd android
 初赛主路径要求 Qwen + MNN 本地推理。当前代码默认扫描：
 
 ```text
-/data/data/com.postureai/files/mnn_models/qwen3-vl-2b/
+/data/data/com.catune/files/mnn_models/qwen3-vl-2b/
 ```
 
 目录需包含：

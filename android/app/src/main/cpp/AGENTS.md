@@ -3,7 +3,7 @@
 > 模块：C++ / JNI 桥接层
 > 协议层级：DIP · P2（模块地图）
 > 父文档：[../../../../../../AGENTS.md](../../../../../../AGENTS.md)
-> 命名空间：`eyes`（来自 "Eyes-on-Phone" 历史代号，保留兼容）
+> 命名空间：`eyes`（来自 "Catune" 历史代号，保留兼容）
 > 共享库产物：`libeyes_mnn_bridge.so`（+ 已预置的 `libMNN.so` 在 `jniLibs/arm64-v8a/`）
 
 7 个源文件，分三层：JNI 桥接 → LLM 会话封装 → 流式处理工具。
@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | `llm_stream_buffer.hpp` | `LlmStreamBuffer : std::streambuf`，把 MNN LLM 的 `std::ostream` 输出重定向到 `std::function<void(const char*, size_t)>` 回调 | 单 `xsputn` 重写 |
 | `utf8_stream_processor.hpp` | `Utf8StreamProcessor`：累积不完整字节，按 UTF-8 头字节切分完整字符后回调，处理多字节字符不被打断 | `utf8CharLength()` 头字节判断 |
-| `eyes_log.h` | Android `__android_log_print` 宏：`EYES_LOGD` / `EYES_LOGE`，tag `"EyesMNN"` | 仅头文件、零运行时开销 |
+| `eyes_log.h` | Android `__android_log_print` 宏：`EYES_LOGD` / `EYES_LOGE`，tag `"CatuneMNN"` | 仅头文件、零运行时开销 |
 
 ---
 

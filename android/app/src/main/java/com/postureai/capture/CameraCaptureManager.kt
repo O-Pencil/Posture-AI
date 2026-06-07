@@ -5,9 +5,9 @@
  * [WHO] 提供 CameraCaptureManager、`suspend bind(lifecycleOwner)` / `unbind()`、`suspend captureFrame(maxLongEdge: Int = 768): ByteArray`、`getLatestWatchdogFrame(): ByteArray?`
  * [FROM] 依赖 androidx.camera（core/camera2/lifecycle/view 1.4.0）、`android.graphics.YuvImage`、`kotlinx.coroutines.sync.Mutex`
  * [TO] 被 `DefaultPerceptionEngine.analyze()` 调 `captureFrame()`；被 `WatchdogManager.runWatchCycle()` 调 `getLatestWatchdogFrame()`；被 `ServiceRuntime` 持有
- * [HERE] android/app/src/main/java/com/postureai/capture/CameraCaptureManager.kt · 摄像头双流采集
+ * [HERE] android/app/src/main/java/com/catune/capture/CameraCaptureManager.kt · 摄像头双流采集
  */
-package com.postureai.capture
+package com.catune.capture
 
 import android.content.Context
 import android.graphics.Bitmap
