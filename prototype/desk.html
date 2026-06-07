@@ -1,0 +1,802 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>主仪表盘 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=LXGW+WenKai:wght@400;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #FFF8F0;
+    --color-surface-1: #FFFFFF;
+    --color-surface-2: #F5F0E8;
+    --color-surface-raised: #FFFCF7;
+    --color-border-subtle: #E8E0D4;
+    --color-border-warm: #FFD9B3;
+    --color-text-primary: #2D2A26;
+    --color-text-secondary: #6B6560;
+    --color-text-tertiary: #9B9590;
+    --color-accent-warm: #FF6B35;
+    --color-accent-cute: #FF9F45;
+    --color-status-healthy: #58CC02;
+    --color-status-warning: #FFC800;
+    --color-status-alert: #FF4B4B;
+    --color-status-offline: #AFA8A0;
+    --color-duo-purple: #CE82FF;
+    --color-duo-blue: #1CB0F6;
+    --font-sans: "Geist", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+    --font-serif-zh: "LXGW WenKai", "Noto Serif SC", serif;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; }
+  }
+  .serif-zh { font-family: var(--font-serif-zh); }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fade-up 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.10s; } .d3 { animation-delay: 0.15s; }
+  .d4 { animation-delay: 0.20s; } .d5 { animation-delay: 0.25s; } .d6 { animation-delay: 0.30s; }
+  @keyframes plant-breathe { 0%, 100% { transform: scale(1) rotate(-0.5deg); } 50% { transform: scale(1.02) rotate(0.5deg); } }
+  .plant-breathe { animation: plant-breathe 4s ease-in-out infinite; transform-origin: 50% 95%; }
+  @keyframes plant-droop { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(-2deg) scale(0.99); } }
+  .plant-droop { animation: plant-droop 5s ease-in-out infinite; transform-origin: 50% 95%; }
+  @keyframes node-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.18); opacity: 0.85; } }
+  .node-pulse { animation: node-pulse 2.4s ease-in-out infinite; transform-origin: center; }
+  .node-pulse-2 { animation-delay: 0.4s; }
+  .node-pulse-3 { animation-delay: 0.8s; }
+  @keyframes warn-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.7; } }
+  .warn-pulse { animation: warn-pulse 1s ease-in-out infinite; }
+  @keyframes alert-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.5; } }
+  .alert-pulse { animation: alert-pulse 0.6s ease-in-out infinite; }
+  @keyframes sun-shine { 0%, 100% { opacity: 0.5; transform: rotate(0deg); } 50% { opacity: 0.7; transform: rotate(8deg); } }
+  .sun-shine { animation: sun-shine 6s ease-in-out infinite; transform-origin: 200px 60px; }
+  .cute-shadow { box-shadow: 0 2px 8px rgba(45, 42, 38, 0.06), 0 0 0 1px var(--color-border-subtle); }
+  .card-hover { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease-out; }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(45, 42, 38, 0.1); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--color-accent-warm); outline-offset: 3px; border-radius: 12px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .score-display { font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace; font-weight: 800; }
+  .state-btn { transition: all 0.2s ease-out; }
+  .state-btn:hover { transform: translateY(-1px); }
+  .state-btn.active { background: var(--color-accent-warm); color: white; border-color: var(--color-accent-warm); }
+  @keyframes modal-in { from { opacity: 0; transform: scale(0.92) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-in { animation: modal-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .haptic-on { animation: haptic-shake 0.4s ease-out; }
+  @keyframes haptic-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+  @keyframes wave { 0% { transform: scale(0.5); opacity: 0.8; } 100% { transform: scale(2.4); opacity: 0; } }
+  .wave { animation: wave 1.4s ease-out infinite; transform-origin: center; }
+  .wave-2 { animation-delay: 0.5s; }
+  .lang-btn { transition: background-color 0.2s, color 0.2s, transform 0.15s; }
+  .lang-btn:hover { transform: scale(1.05); }
+  .lang-btn.active { background-color: var(--color-accent-warm); color: white; }
+  .aside-card { animation: fade-up 0.5s ease-out 0.3s both; }
+</style>
+</head>
+<body>
+
+<div class="min-h-screen flex items-stretch md:items-center justify-center md:gap-8 p-0 md:p-8 bg-canvas">
+
+<div class="w-full md:w-[400px] md:rounded-[48px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas md:overflow-hidden relative" style="min-height:100vh;max-height:1024px;">
+
+  <div class="flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-mono text-text-tertiary">
+    <span>9:41</span>
+    <div class="flex items-center gap-1.5"><span>████</span><span>5G</span><span>89%</span></div>
+  </div>
+
+  <header class="px-5 pt-3 pb-3 fade-up d1">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider">POSTURE-AI</div>
+        <div class="text-lg font-bold tracking-tight serif-zh">
+          <span data-lang-zh>下午好,<span class="text-accent-warm">小宇</span></span>
+          <span data-lang-en style="display:none">Good afternoon, <span class="text-accent-warm">Xiao Yu</span></span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-0.5 bg-surface-2 rounded-full p-0.5">
+          <button onclick="setLang('zh')" class="lang-btn active px-2 py-0.5 rounded-full text-[10px] font-bold" id="lang-zh">中</button>
+          <button onclick="setLang('en')" class="lang-btn px-2 py-0.5 rounded-full text-[10px] font-bold text-text-tertiary" id="lang-en">EN</button>
+        </div>
+        <a href="settings.html" class="size-9 rounded-2xl bg-surface-2 border border-border-subtle flex items-center justify-center text-text-secondary hover:border-accent-warm transition-colors" aria-label="设置">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <a href="pairing.html" class="card-hover flex items-center gap-3 bg-surface-1 border border-border-subtle rounded-2xl px-4 py-2.5 transition-colors hover:border-border-warm">
+      <div class="size-8 rounded-xl bg-accent-warm/10 border border-accent-warm/20 flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><circle cx="8" cy="12" r="1.5" fill="#FF6B35"/><circle cx="16" cy="12" r="1.5" fill="#FF6B35"/></svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-sm font-bold">PoseMaster-C6</span>
+          <span class="inline-block size-2 rounded-full bg-status-healthy" id="device-dot"></span>
+        </div>
+        <div class="text-[10px] text-text-tertiary font-mono"><span data-lang-zh>3 节点</span><span data-lang-en style="display:none">3 Nodes</span> · -52dBm · v1.2.3</div>
+      </div>
+      <div class="flex flex-col items-end">
+        <div class="flex items-center gap-1">
+          <svg width="18" height="10" viewBox="0 0 22 12" fill="none">
+            <rect x="0.5" y="0.5" width="18" height="11" rx="2" stroke="#9B9590"/>
+            <rect x="20" y="4" width="2" height="4" rx="1" fill="#9B9590"/>
+            <rect x="2" y="2" width="13" height="8" rx="1" fill="#58CC02"/>
+          </svg>
+          <span class="text-[11px] font-mono font-bold">72%</span>
+        </div>
+      </div>
+    </a>
+  </header>
+
+  <main class="px-5 pb-24 space-y-3">
+
+    <section class="fade-up d2 bg-gradient-to-b from-canvas to-surface-2 rounded-3xl p-4 border border-border-subtle overflow-hidden relative" style="height: 380px;">
+
+      <div class="absolute top-3 left-3 z-10">
+        <span id="status-pill" class="inline-flex items-center gap-1.5 rounded-full bg-status-healthy/15 border border-status-healthy/40 px-2.5 py-1 text-[11px] font-bold text-status-healthy">
+          <span class="size-1.5 rounded-full bg-status-healthy"></span>
+          <span data-lang-zh>标准坐姿</span>
+          <span data-lang-en style="display:none">NORMAL</span>
+        </span>
+      </div>
+
+      <div class="absolute top-3 right-3 z-10 text-right">
+        <div class="text-[9px] font-mono text-text-tertiary font-bold tracking-wider">SCORE</div>
+        <div id="scene-score" class="score-display text-4xl text-status-healthy leading-none">92</div>
+      </div>
+
+      <svg viewBox="0 0 400 340" class="w-full h-full" id="scene-svg">
+        <defs>
+          <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFFCF7"/>
+            <stop offset="100%" stop-color="#F5F0E8"/>
+          </linearGradient>
+          <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0%" stop-color="#FFE066" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#FFE066" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="400" height="340" fill="url(#wallGrad)"/>
+
+        <g class="sun-shine">
+          <rect x="240" y="20" width="130" height="100" rx="6" fill="#E0F2FE" stroke="#94A3B8" stroke-width="1.5"/>
+          <line x1="305" y1="20" x2="305" y2="120" stroke="#94A3B8" stroke-width="1.5"/>
+          <line x1="240" y1="70" x2="370" y2="70" stroke="#94A3B8" stroke-width="1.5"/>
+          <circle cx="325" cy="50" r="14" fill="#FFC800" opacity="0.85"/>
+          <circle cx="325" cy="50" r="22" fill="url(#sunGlow)"/>
+          <ellipse cx="260" cy="45" rx="14" ry="5" fill="white" opacity="0.7"/>
+          <ellipse cx="270" cy="42" rx="10" ry="4" fill="white" opacity="0.7"/>
+        </g>
+
+        <g opacity="0.6">
+          <rect x="30" y="40" width="60" height="48" rx="3" fill="none" stroke="#9B9590" stroke-width="1.2"/>
+          <line x1="60" y1="40" x2="60" y2="88" stroke="#9B9590" stroke-width="1.2"/>
+          <path d="M 40 80 L 50 60 L 60 75 L 70 50 L 80 80" fill="none" stroke="#65A30D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+
+        <g>
+          <rect x="20" y="260" width="360" height="14" rx="2" fill="#D4A574"/>
+          <rect x="20" y="260" width="360" height="3" fill="#E8C39E"/>
+          <rect x="40" y="274" width="6" height="60" fill="#A0764A"/>
+          <rect x="354" y="274" width="6" height="60" fill="#A0764A"/>
+        </g>
+
+        <g transform="translate(40, 235)">
+          <rect x="0" y="20" width="40" height="6" fill="#FF6B35"/>
+          <rect x="0" y="0" width="40" height="22" rx="2" fill="#FFFFFF" stroke="#E8E0D4" stroke-width="1"/>
+          <rect x="2" y="3" width="36" height="2" fill="#E8E0D4"/>
+          <rect x="2" y="8" width="28" height="1.5" fill="#E8E0D4"/>
+          <rect x="2" y="12" width="32" height="1.5" fill="#E8E0D4"/>
+        </g>
+
+        <g transform="translate(95, 240)">
+          <ellipse cx="10" cy="20" rx="10" ry="2" fill="#000" opacity="0.1"/>
+          <path d="M 2 0 L 18 0 L 16 18 Q 10 20 4 18 Z" fill="#FFFFFF" stroke="#E8E0D4" stroke-width="1"/>
+          <ellipse cx="10" cy="0" rx="8" ry="1.5" fill="#6B4226"/>
+          <path d="M 18 4 Q 24 4 24 10 Q 24 14 18 14" fill="none" stroke="#E8E0D4" stroke-width="1.5"/>
+        </g>
+
+        <g transform="translate(170, 220)">
+          <rect x="0" y="0" width="80" height="40" rx="3" fill="#2D2A26"/>
+          <rect x="3" y="3" width="74" height="34" rx="1" fill="#1F2937"/>
+          <rect x="0" y="40" width="80" height="3" rx="1" fill="#9B9590"/>
+          <rect x="3" y="6" width="20" height="3" rx="0.5" fill="#58CC02" opacity="0.7"/>
+          <rect x="3" y="12" width="14" height="2" rx="0.5" fill="#94A3B8" opacity="0.5"/>
+          <rect x="3" y="17" width="22" height="2" rx="0.5" fill="#94A3B8" opacity="0.5"/>
+          <rect x="3" y="22" width="18" height="2" rx="0.5" fill="#94A3B8" opacity="0.5"/>
+        </g>
+
+        <g id="plant-group" transform="translate(290, 170)" class="plant-breathe">
+          <ellipse cx="40" cy="93" rx="28" ry="3" fill="#000" opacity="0.12"/>
+          <path d="M 14 70 L 22 92 L 58 92 L 66 70 Z" fill="#C2725A"/>
+          <path d="M 14 70 L 66 70 L 64 73 L 16 73 Z" fill="#A0563D"/>
+          <rect x="14" y="67" width="52" height="4" rx="1" fill="#D4886F"/>
+          <rect x="18" y="78" width="44" height="2" fill="#A0563D" opacity="0.5"/>
+          <ellipse cx="40" cy="70" rx="24" ry="2.5" fill="#5C3D24"/>
+
+          <g id="plant-stem-0" style="display:none">
+            <ellipse cx="40" cy="68" rx="3" ry="1.5" fill="#84CC16"/>
+          </g>
+          <g id="plant-stem-1" style="display:none">
+            <path d="M 40 68 L 40 50" stroke="#84CC16" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="36" cy="55" rx="6" ry="2.5" fill="#A3E635" transform="rotate(-25 36 55)"/>
+            <ellipse cx="44" cy="52" rx="6" ry="2.5" fill="#A3E635" transform="rotate(25 44 52)"/>
+          </g>
+          <g id="plant-stem-2" style="display:">
+            <path d="M 40 68 L 40 35" stroke="#65A30D" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="32" cy="50" rx="9" ry="3.5" fill="#84CC16" transform="rotate(-25 32 50)"/>
+            <ellipse cx="48" cy="45" rx="9" ry="3.5" fill="#84CC16" transform="rotate(25 48 45)"/>
+            <ellipse cx="34" cy="62" rx="7" ry="3" fill="#A3E635" transform="rotate(-15 34 62)"/>
+            <ellipse cx="46" cy="58" rx="7" ry="3" fill="#A3E635" transform="rotate(15 46 58)"/>
+            <circle cx="40" cy="35" r="2" fill="#84CC16"/>
+          </g>
+          <g id="plant-stem-3" style="display:none">
+            <path d="M 40 68 L 40 22" stroke="#15803D" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="28" cy="50" rx="11" ry="4" fill="#22C55E" transform="rotate(-30 28 50)"/>
+            <ellipse cx="52" cy="44" rx="11" ry="4" fill="#22C55E" transform="rotate(30 52 44)"/>
+            <ellipse cx="30" cy="62" rx="9" ry="3.5" fill="#4ADE80" transform="rotate(-15 30 62)"/>
+            <ellipse cx="50" cy="56" rx="9" ry="3.5" fill="#4ADE80" transform="rotate(15 50 56)"/>
+            <ellipse cx="40" cy="22" rx="8" ry="10" fill="#CE82FF"/>
+            <ellipse cx="40" cy="22" rx="5" ry="7" fill="#E9B0FF"/>
+          </g>
+          <g id="plant-stem-4" style="display:none">
+            <path d="M 40 68 L 40 14" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="25" cy="50" rx="13" ry="4.5" fill="#16A34A" transform="rotate(-30 25 50)"/>
+            <ellipse cx="55" cy="45" rx="13" ry="4.5" fill="#16A34A" transform="rotate(30 55 45)"/>
+            <ellipse cx="30" cy="64" rx="10" ry="4" fill="#22C55E" transform="rotate(-15 30 64)"/>
+            <ellipse cx="50" cy="60" rx="10" ry="4" fill="#22C55E" transform="rotate(15 50 60)"/>
+            <circle cx="32" cy="40" r="4" fill="#FF4B4B"/>
+            <circle cx="48" cy="38" r="4" fill="#FFC800"/>
+            <circle cx="40" cy="22" r="3.5" fill="#FF4B4B"/>
+            <circle cx="36" cy="30" r="3" fill="#FFC800"/>
+          </g>
+
+          <g id="plant-thirsty" style="display:none">
+            <path d="M 40 68 L 40 35" stroke="#A16207" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="34" cy="55" rx="8" ry="3" fill="#FCD34D" transform="rotate(-50 34 55)"/>
+            <ellipse cx="46" cy="50" rx="8" ry="3" fill="#FCD34D" transform="rotate(50 46 50)"/>
+            <ellipse cx="36" cy="63" rx="6" ry="2.5" fill="#FDE68A" transform="rotate(-30 36 63)"/>
+            <text x="40" y="25" text-anchor="middle" font-size="10">💧</text>
+          </g>
+        </g>
+
+        <g id="person-group">
+          <!-- 椅子 -->
+          <g>
+            <rect x="118" y="235" width="58" height="30" rx="6" fill="#9B9590" opacity="0.4"/>
+            <rect x="118" y="235" width="58" height="6" fill="#6B6560" opacity="0.4"/>
+            <line x1="125" y1="235" x2="125" y2="260" stroke="#6B6560" stroke-width="2" opacity="0.5"/>
+            <line x1="169" y1="235" x2="169" y2="260" stroke="#6B6560" stroke-width="2" opacity="0.5"/>
+          </g>
+
+          <!-- 猫身体 -->
+          <g id="person-body">
+            <!-- 尾巴 -->
+            <path d="M 108 245 Q 90 230 85 210 Q 82 200 88 198" fill="none" stroke="#FFB347" stroke-width="6" stroke-linecap="round"/>
+            <!-- 身体 -->
+            <ellipse cx="147" cy="228" rx="28" ry="24" fill="#FFB347"/>
+            <ellipse cx="147" cy="232" rx="20" ry="14" fill="#FFD9A0"/>
+            <!-- 前爪 -->
+            <ellipse cx="130" cy="248" rx="8" ry="5" fill="#FFB347"/>
+            <ellipse cx="164" cy="248" rx="8" ry="5" fill="#FFB347"/>
+            <ellipse cx="130" cy="250" rx="6" ry="3" fill="#FFD9A0"/>
+            <ellipse cx="164" cy="250" rx="6" ry="3" fill="#FFD9A0"/>
+
+            <!-- 头 -->
+            <circle id="head" cx="147" cy="185" r="24" fill="#FFB347"/>
+            <!-- 耳朵 -->
+            <path d="M 128 170 L 122 148 L 140 164 Z" fill="#FFB347"/>
+            <path d="M 131 168 L 126 153 L 138 165 Z" fill="#FFD9A0"/>
+            <path d="M 166 170 L 172 148 L 154 164 Z" fill="#FFB347"/>
+            <path d="M 163 168 L 168 153 L 156 165 Z" fill="#FFD9A0"/>
+            <!-- 脸 -->
+            <circle cx="138" cy="182" r="3.5" fill="#2D2A26"/>
+            <circle cx="156" cy="182" r="3.5" fill="#2D2A26"/>
+            <circle cx="139" cy="181" r="1.2" fill="white"/>
+            <circle cx="157" cy="181" r="1.2" fill="white"/>
+            <ellipse cx="147" cy="190" rx="3" ry="2" fill="#FF8C94"/>
+            <path d="M 144 193 Q 147 196 150 193" fill="none" stroke="#2D2A26" stroke-width="1" stroke-linecap="round"/>
+            <!-- 胡须 -->
+            <line x1="122" y1="186" x2="134" y2="188" stroke="#2D2A26" stroke-width="0.8" opacity="0.5"/>
+            <line x1="122" y1="190" x2="134" y2="190" stroke="#2D2A26" stroke-width="0.8" opacity="0.5"/>
+            <line x1="160" y1="188" x2="172" y2="186" stroke="#2D2A26" stroke-width="0.8" opacity="0.5"/>
+            <line x1="160" y1="190" x2="172" y2="190" stroke="#2D2A26" stroke-width="0.8" opacity="0.5"/>
+          </g>
+
+          <!-- 脊柱节点 -->
+          <g id="spine-nodes">
+            <g id="node-c7-group" transform="translate(162, 208)">
+              <circle r="11" fill="none" stroke="#58CC02" stroke-width="1.5" opacity="0.35" class="node-pulse"/>
+              <circle id="node-c7-ring" r="9" fill="none" stroke="#58CC02" stroke-width="2.5"/>
+              <circle id="node-c7" r="5" fill="#58CC02" class="node-pulse"/>
+              <text x="14" y="2" font-family="Geist Mono" font-size="7" font-weight="700" fill="#9B9590">C7</text>
+            </g>
+            <g id="node-t12-group" transform="translate(158, 228)">
+              <circle r="11" fill="none" stroke="#58CC02" stroke-width="1.5" opacity="0.35" class="node-pulse node-pulse-2"/>
+              <circle id="node-t12-ring" r="9" fill="none" stroke="#58CC02" stroke-width="2.5"/>
+              <circle id="node-t12" r="5" fill="#58CC02" class="node-pulse node-pulse-2"/>
+              <text x="14" y="2" font-family="Geist Mono" font-size="7" font-weight="700" fill="#9B9590">T12</text>
+            </g>
+            <g id="node-l5-group" transform="translate(153, 248)">
+              <circle r="11" fill="none" stroke="#58CC02" stroke-width="1.5" opacity="0.35" class="node-pulse node-pulse-3"/>
+              <circle id="node-l5-ring" r="9" fill="none" stroke="#58CC02" stroke-width="2.5"/>
+              <circle id="node-l5" r="5" fill="#58CC02" class="node-pulse node-pulse-3"/>
+              <text x="14" y="2" font-family="Geist Mono" font-size="7" font-weight="700" fill="#9B9590">L5</text>
+            </g>
+          </g>
+
+          <g id="vibration-wave" style="display:none">
+            <circle cx="153" cy="252" r="6" fill="none" stroke="#FF6B35" stroke-width="2" class="wave"/>
+            <circle cx="153" cy="252" r="6" fill="none" stroke="#FF6B35" stroke-width="2" class="wave wave-2"/>
+          </g>
+        </g>
+      </svg>
+
+      <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-mono text-text-tertiary tracking-wider">
+        <span data-lang-zh">书桌场景 · 实时姿态可视化</span>
+        <span data-lang-en style="display:none">DESK · LIVE</span>
+      </div>
+    </section>
+
+    <section class="fade-up d3 bg-surface-1 cute-shadow rounded-3xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider">SPINE · 3 NODES</div>
+          <div class="text-sm font-bold serif-zh" data-lang-zh>3 节脊柱</div>
+          <div class="text-sm font-bold serif-zh" data-lang-en style="display:none">3-Node Spine</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-mono text-text-tertiary">100Hz · BLE</div>
+        </div>
+      </div>
+      <div class="space-y-2.5">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+              <span id="dot-c7" class="size-2 rounded-full bg-status-healthy"></span>
+              <span class="text-xs font-bold font-mono">C7 · 颈部前倾</span>
+            </div>
+            <span id="val-c7" class="text-sm font-mono font-bold text-status-healthy">5.2°</span>
+          </div>
+          <div class="h-1.5 bg-surface-2 rounded-full overflow-hidden">
+            <div id="bar-c7" class="h-full bg-status-healthy rounded-full transition-all duration-500" style="width: 12%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+              <span id="dot-t12" class="size-2 rounded-full bg-status-healthy"></span>
+              <span class="text-xs font-bold font-mono">T12 · 胸椎侧倾</span>
+            </div>
+            <span id="val-t12" class="text-sm font-mono font-bold text-status-healthy">2.1°</span>
+          </div>
+          <div class="h-1.5 bg-surface-2 rounded-full overflow-hidden">
+            <div id="bar-t12" class="h-full bg-status-healthy rounded-full transition-all duration-500" style="width: 6%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+              <span id="dot-l5" class="size-2 rounded-full bg-status-healthy"></span>
+              <span class="text-xs font-bold font-mono">L5 · 腰椎侧倾</span>
+            </div>
+            <span id="val-l5" class="text-sm font-mono font-bold text-status-healthy">3.4°</span>
+          </div>
+          <div class="h-1.5 bg-surface-2 rounded-full overflow-hidden">
+            <div id="bar-l5" class="h-full bg-status-healthy rounded-full transition-all duration-500" style="width: 9%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fade-up d4 bg-gradient-to-br from-duo-blue/5 to-accent-warm/5 border border-duo-blue/20 rounded-3xl p-4">
+      <div class="flex items-start gap-3">
+        <div class="size-10 rounded-2xl bg-duo-blue/15 border border-duo-blue/30 flex items-center justify-center flex-shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1CB0F6" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] font-mono text-duo-blue font-bold">Qwen3-VL · 端侧</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-duo-blue/10 text-duo-blue font-bold">MNN</span>
+          </div>
+          <div id="ai-advice" class="text-sm text-text-primary leading-relaxed font-medium">
+            继续保持当前坐姿,你的颈部与腰椎都在健康范围内。
+          </div>
+          <div class="text-[10px] text-text-tertiary mt-1.5 font-mono">
+            <span data-lang-zh">首 token</span> 0.4s · <span data-lang-zh">完整</span> 1.2s · <span data-lang-zh">本地推理</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fade-up d5">
+      <div class="flex items-center justify-between mb-2.5">
+        <div>
+          <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider">DEMO · 切换模拟</div>
+          <div class="text-sm font-bold serif-zh" data-lang-zh">5 种姿态现场切换</div>
+          <div class="text-sm font-bold serif-zh" data-lang-en style="display:none">5 Posture States</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-5 gap-1.5" id="state-buttons">
+        <button data-state="NORMAL" class="state-btn active flex flex-col items-center py-2.5 px-1 rounded-2xl bg-status-healthy text-white">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh>标准</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-en style="display:none">NORMAL</span>
+        </button>
+        <button data-state="TECH_NECK" class="state-btn flex flex-col items-center py-2.5 px-1 rounded-2xl bg-surface-1 border border-border-subtle text-status-warning">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh>颈前倾</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-en style="display:none">NECK</span>
+        </button>
+        <button data-state="SLUMPED" class="state-btn flex flex-col items-center py-2.5 px-1 rounded-2xl bg-surface-1 border border-border-subtle text-status-alert">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh>驼背</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-en style="display:none">HUNCH</span>
+        </button>
+        <button data-state="LEFT_LEAN" class="state-btn flex flex-col items-center py-2.5 px-1 rounded-2xl bg-surface-1 border border-border-subtle text-duo-purple">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/></svg>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh>左倾</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-en style="display:none">LEAN</span>
+        </button>
+        <button data-state="OFFLINE" class="state-btn flex flex-col items-center py-2.5 px-1 rounded-2xl bg-surface-1 border border-border-subtle text-status-offline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.58 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh>断连</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-en style="display:none">OFF</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="fade-up d6 grid grid-cols-4 gap-2">
+      <a href="plant.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-2 flex flex-col items-center gap-1.5">
+        <span class="text-2xl">🪴</span>
+        <span class="text-[10px] text-text-secondary font-bold" data-lang-zh>养成</span>
+        <span class="text-[10px] text-text-secondary font-bold" data-lang-en style="display:none">PLANT</span>
+      </a>
+      <a href="demo.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-2 flex flex-col items-center gap-1.5">
+        <svg class="text-text-secondary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span class="text-[10px] text-text-secondary font-bold" data-lang-zh>闭环</span>
+        <span class="text-[10px] text-text-secondary font-bold" data-lang-en style="display:none">LOOP</span>
+      </a>
+      <a href="agent.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-2 flex flex-col items-center gap-1.5">
+        <svg class="text-text-secondary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span class="text-[10px] text-text-secondary font-bold">MCP</span>
+      </a>
+      <a href="report.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-2 flex flex-col items-center gap-1.5">
+        <svg class="text-text-secondary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+        <span class="text-[10px] text-text-secondary font-bold" data-lang-zh>报告</span>
+        <span class="text-[10px] text-text-secondary font-bold" data-lang-en style="display:none">REPORT</span>
+      </a>
+    </section>
+
+  </main>
+
+  <nav class="fixed md:absolute bottom-0 inset-x-0 md:rounded-b-[48px] bg-surface-raised/95 backdrop-blur-md border-t border-border-subtle z-10">
+    <div class="grid grid-cols-4 max-w-md md:max-w-none mx-auto">
+      <a href="desk.html" class="flex flex-col items-center py-2.5 gap-0.5 text-accent-warm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="text-[10px] font-bold" data-lang-zh>主页</span>
+        <span class="text-[10px] font-bold" data-lang-en style="display:none">HOME</span>
+      </a>
+      <a href="plant.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <span class="text-base">🪴</span>
+        <span class="text-[10px] font-bold" data-lang-zh>盆栽</span>
+        <span class="text-[10px] font-bold" data-lang-en style="display:none">PLANT</span>
+      </a>
+      <a href="demo.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span class="text-[10px] font-bold" data-lang-zh>演示</span>
+        <span class="text-[10px] font-bold" data-lang-en style="display:none">DEMO</span>
+      </a>
+      <a href="agent.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span class="text-[10px] font-bold">MCP</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<aside class="hidden md:flex flex-col w-[420px] bg-surface-1 cute-shadow rounded-3xl p-6 self-start sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto aside-card">
+  <div class="text-[10px] font-mono text-accent-warm font-bold tracking-wider mb-3">// SCENE LEGEND · 给设计师看</div>
+  <h2 class="text-xl font-bold serif-zh mb-3" data-lang-zh>这个画面在表达什么？</h2>
+  <h2 class="text-xl font-bold serif-zh mb-3" data-lang-en style="display:none">What this scene tells</h2>
+  <p class="text-sm text-text-secondary leading-relaxed mb-4" data-lang-zh">
+    一只猫坐在书桌前,腰带上的 3 个 IMU 节点(C7 颈椎、T12 胸椎、L5 腰椎)每 100ms 上报一次角度。主仪表盘把抽象数字翻译成三个东西:
+  </p>
+  <p class="text-sm text-text-secondary leading-relaxed mb-4" data-lang-en style="display:none">
+    The belt's 3 IMU nodes (C7, T12, L5) report angles 10/sec. This dashboard translates raw data into three things:
+  </p>
+  <ol class="space-y-2.5 text-sm text-text-primary mb-5">
+    <li class="flex items-start gap-2">
+      <span class="size-5 rounded-full bg-accent-warm/15 text-accent-warm text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+      <span data-lang-zh><b>脊柱上的彩色节点</b>——绿黄红三色,一眼看到哪里出问题</span>
+      <span data-lang-en style="display:none"><b>Colored spine nodes</b> — green/yellow/red, instantly shows the problem</span>
+    </li>
+    <li class="flex items-start gap-2">
+      <span class="size-5 rounded-full bg-accent-warm/15 text-accent-warm text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+      <span data-lang-zh><b>桌面上的盆栽</b>——Forest 风格养成游戏,坐姿好就长得好</span>
+      <span data-lang-en style="display:none"><b>Plant on the desk</b> — Forest-style: good posture = thriving plant</span>
+    </li>
+    <li class="flex items-start gap-2">
+      <span class="size-5 rounded-full bg-accent-warm/15 text-accent-warm text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+      <span data-lang-zh><b>端侧 Qwen VL 的中文建议</b>——不只是数字,是"怎么改"</span>
+      <span data-lang-en style="display:none"><b>On-device Qwen advice</b> — not just numbers, but how to fix</span>
+    </li>
+  </ol>
+
+  <div class="border-t border-border-subtle pt-4">
+    <div class="text-[10px] font-mono text-duo-blue font-bold tracking-wider mb-3">// USAGE · 给用户看</div>
+    <h3 class="text-base font-bold serif-zh mb-3" data-lang-zh">3 步看懂 / 3 秒上手</h3>
+    <h3 class="text-base font-bold serif-zh mb-3" data-lang-en style="display:none">3 steps · 3 seconds</h3>
+    <div class="space-y-3 text-sm text-text-secondary">
+      <div class="flex items-start gap-3">
+        <span class="text-xl flex-shrink-0">👀</span>
+        <div>
+          <div class="font-bold text-text-primary" data-lang-zh>看颜色</div>
+          <div class="text-[12px]" data-lang-zh>绿=好、黄=注意、红=改</div>
+          <div class="font-bold text-text-primary" data-lang-en style="display:none">Look at color</div>
+          <div class="text-[12px]" data-lang-en style="display:none">Green=good · Yellow=warn · Red=fix</div>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-xl flex-shrink-0">🪴</span>
+        <div>
+          <div class="font-bold text-text-primary" data-lang-zh>养盆栽</div>
+          <div class="text-[12px]" data-lang-zh">好坐姿 = 盆栽长叶子 / 开花 / 结果</div>
+          <div class="font-bold text-text-primary" data-lang-en style="display:none">Grow plant</div>
+          <div class="text-[12px]" data-lang-en style="display:none">Good posture = plant grows leaves/flowers/fruits</div>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-xl flex-shrink-0">💡</span>
+        <div>
+          <div class="font-bold text-text-primary" data-lang-zh>看建议</div>
+          <div class="text-[12px]" data-lang-zh">AI 用猫话告诉你怎么调,下方 5 个按钮可现场切换</div>
+          <div class="font-bold text-text-primary" data-lang-en style="display:none">Read advice</div>
+          <div class="text-[12px]" data-lang-en style="display:none">AI tells you in plain language · 5 buttons switch live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-border-subtle pt-4 mt-5">
+    <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-2">// COMPETITION · 比赛要求映射</div>
+    <div class="space-y-1.5 text-[12px] text-text-secondary">
+      <div class="flex items-start gap-2">
+        <span class="text-status-healthy font-bold">●</span>
+        <span data-lang-zh><b>端侧优先</b> · Qwen3-VL MNN 推理,本地首 token 0.4s</span>
+        <span data-lang-en style="display:none"><b>On-device first</b> · Qwen3-VL MNN, first token 0.4s locally</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-status-healthy font-bold">●</span>
+        <span data-lang-zh><b>隐私优先</b> · 姿态数据不离开手机</span>
+        <span data-lang-en style="display:none"><b>Privacy first</b> · posture data never leaves phone</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-status-healthy font-bold">●</span>
+        <span data-lang-zh"><b>IMU 动捕</b> · 3 节点 100Hz 实时追踪脊柱</span>
+        <span data-lang-en style="display:none"><b>IMU mocap</b> · 3 nodes 100Hz real-time spine tracking</span>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="text-status-healthy font-bold">●</span>
+        <span data-lang-zh><b>MCP 远程</b> · PC 端 LLM 智能体可调用姿态数据</span>
+        <span data-lang-en style="display:none"><b>MCP remote</b> · PC LLM agents can call posture data</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+</div>
+
+<script>
+const STATES = {
+  NORMAL: {
+    c7: 5.2, t12: 2.1, l5: 3.4,
+    score: 92,
+    c7Color: '#58CC02', t12Color: '#58CC02', l5Color: '#58CC02',
+    plantStage: 2, plantThirsty: false,
+    pill: { text: '标准坐姿', en: 'NORMAL', color: '#58CC02' },
+    advice: '继续保持当前坐姿,你的颈部与腰椎都在健康范围内。',
+    vibration: false
+  },
+  TECH_NECK: {
+    c7: 28.5, t12: 4.2, l5: 5.1,
+    score: 73,
+    c7Color: '#FFC800', t12Color: '#58CC02', l5Color: '#58CC02',
+    plantStage: 1, plantThirsty: false,
+    pill: { text: '颈前倾警告', en: 'TECH NECK', color: '#FFC800' },
+    advice: '检测到颈椎前倾 28.5°,长时间会引发颈椎间盘突出。请把下巴回缩,眼睛平视屏幕。',
+    vibration: false
+  },
+  SLUMPED: {
+    c7: 32.1, t12: 18.4, l5: 12.7,
+    score: 41,
+    c7Color: '#FF4B4B', t12Color: '#FF4B4B', l5Color: '#FF4B4B',
+    plantStage: 0, plantThirsty: true,
+    pill: { text: '严重驼背', en: 'SLUMPED', color: '#FF4B4B' },
+    advice: '【触觉反馈已触发】三节脊柱同时超出阈值。立刻挺胸,把肩膀向后向下沉,3 次深呼吸。',
+    vibration: true
+  },
+  LEFT_LEAN: {
+    c7: 6.3, t12: 8.7, l5: 16.2,
+    score: 64,
+    c7Color: '#58CC02', t12Color: '#FFC800', l5Color: '#FF4B4B',
+    plantStage: 1, plantThirsty: false,
+    pill: { text: '左倾侧弯', en: 'LEFT LEAN', color: '#CE82FF' },
+    advice: 'L5 腰椎左偏 16.2°,可能椅子高度不合适或习惯性侧坐。建议调整坐姿居中。',
+    vibration: false
+  },
+  OFFLINE: {
+    c7: null, t12: null, l5: null,
+    score: 0,
+    c7Color: '#AFA8A0', t12Color: '#AFA8A0', l5Color: '#AFA8A0',
+    plantStage: 2, plantThirsty: false,
+    pill: { text: '设备断连', en: 'OFFLINE', color: '#AFA8A0' },
+    advice: '腰带信号丢失。请检查蓝牙是否开启,电量 12%。最近一次连接:3 分钟前。',
+    vibration: false
+  }
+};
+
+const CBG = { '#58CC02':'bg-status-healthy','#FFC800':'bg-status-warning','#FF4B4B':'bg-status-alert','#AFA8A0':'bg-status-offline','#CE82FF':'bg-duo-purple' };
+const CTX = { '#58CC02':'text-status-healthy','#FFC800':'text-status-warning','#FF4B4B':'text-status-alert','#AFA8A0':'text-status-offline','#CE82FF':'text-duo-purple' };
+const PILL_BG = { '#58CC02':'bg-status-healthy/15 border-status-healthy/40','#FFC800':'bg-status-warning/15 border-status-warning/40','#FF4B4B':'bg-status-alert/15 border-status-alert/40','#AFA8A0':'bg-status-offline/15 border-status-offline/40','#CE82FF':'bg-duo-purple/15 border-duo-purple/40' };
+
+let cur = 'NORMAL';
+let lang = 'zh';
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('[data-lang-zh]').forEach(el => el.style.display = l === 'zh' ? '' : 'none');
+  document.querySelectorAll('[data-lang-en]').forEach(el => el.style.display = l === 'en' ? '' : 'none');
+  document.getElementById('lang-zh').classList.toggle('active', l === 'zh');
+  document.getElementById('lang-zh').classList.toggle('text-text-tertiary', l !== 'zh');
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-en').classList.toggle('text-text-tertiary', l !== 'en');
+  document.documentElement.lang = l === 'zh' ? 'zh-CN' : 'en';
+  applyPillText();
+}
+
+function applyPillText() {
+  const s = STATES[cur];
+  const pill = document.getElementById('status-pill');
+  pill.innerHTML = '<span class="size-1.5 rounded-full" style="background:' + s.pill.color + '"></span>' +
+    '<span style="display:' + (lang === 'zh' ? '' : 'none') + '">' + s.pill.text + '</span>' +
+    '<span style="display:' + (lang === 'en' ? '' : 'none') + '">' + s.pill.en + '</span>';
+}
+
+function applyState(name) {
+  const s = STATES[name];
+  cur = name;
+  const isOff = name === 'OFFLINE';
+
+  const scoreEl = document.getElementById('scene-score');
+  const oldScore = parseInt(scoreEl.textContent) || 0;
+  const newScore = s.score;
+  const dur = 600, start = performance.now();
+  function tick(t) {
+    const k = Math.min(1, (t - start) / dur);
+    scoreEl.textContent = Math.round(oldScore + (newScore - oldScore) * k);
+    if (k < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  const scoreColor = isOff ? '#AFA8A0' : (s.score >= 85 ? '#58CC02' : s.score >= 65 ? '#FFC800' : '#FF4B4B');
+  scoreEl.className = 'score-display text-4xl leading-none ' + CTX[scoreColor];
+
+  const pill = document.getElementById('status-pill');
+  pill.className = 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ' + PILL_BG[s.pill.color] + ' ' + CTX[s.pill.color];
+  applyPillText();
+
+  document.getElementById('device-dot').className = 'inline-block size-2 rounded-full ' + CBG[s.c7Color];
+
+  ['c7','t12','l5'].forEach(k => {
+    const node = document.getElementById('node-' + k);
+    const ring = document.getElementById('node-' + k + '-ring');
+    const group = document.getElementById('node-' + k + '-group');
+    const color = s[k + 'Color'];
+    const v = s[k];
+    node.setAttribute('fill', color);
+    ring.setAttribute('stroke', color);
+    node.classList.remove('alert-pulse','warn-pulse');
+    ring.classList.remove('alert-pulse','warn-pulse');
+    if (name === 'SLUMPED') { node.classList.add('alert-pulse'); ring.classList.add('alert-pulse'); }
+    else if (name === 'TECH_NECK' && k === 'c7') { node.classList.add('warn-pulse'); ring.classList.add('warn-pulse'); }
+    else if (name === 'LEFT_LEAN' && k === 'l5') { node.classList.add('warn-pulse'); ring.classList.add('warn-pulse'); }
+    // 节点位置：随姿态变化
+    let x, y;
+    if (name === 'SLUMPED') { x = k==='c7'?168:k==='t12'?162:158; y = k==='c7'?200:k==='t12'?228:255; }
+    else if (name === 'LEFT_LEAN') { x = k==='c7'?154:k==='t12'?150:144; y = k==='c7'?198:k==='t12'?225:252; }
+    else if (name === 'TECH_NECK') { x = k==='c7'?168:k==='t12'?156:153; y = k==='c7'?200:k==='t12'?225:252; }
+    else { x = k==='c7'?160:k==='t12'?156:153; y = k==='c7'?198:k==='t12'?225:252; }
+    group.setAttribute('transform', 'translate(' + x + ', ' + y + ')');
+    if (isOff) { node.style.opacity = '0.4'; ring.style.opacity = '0.4'; }
+    else { node.style.opacity = '1'; ring.style.opacity = '1'; }
+  });
+
+  const head = document.getElementById('head');
+  const shoulders = document.getElementById('shoulders');
+  if (name === 'SLUMPED' || name === 'TECH_NECK') {
+    head.setAttribute('transform', 'translate(6, 4)');
+    shoulders.setAttribute('d', 'M 110 220 Q 110 195 135 192 L 163 192 Q 188 195 188 220 L 188 260 L 110 260 Z');
+  } else if (name === 'LEFT_LEAN') {
+    head.setAttribute('transform', 'translate(-3, 2)');
+    shoulders.setAttribute('d', 'M 105 220 Q 105 195 130 192 L 158 192 Q 183 195 183 220 L 183 260 L 105 260 Z');
+  } else {
+    head.setAttribute('transform', 'translate(0, 0)');
+    shoulders.setAttribute('d', 'M 110 220 Q 110 195 135 192 L 163 192 Q 188 195 188 220 L 188 260 L 110 260 Z');
+  }
+
+  ['c7','t12','l5'].forEach(k => {
+    const dot = document.getElementById('dot-' + k);
+    const valEl = document.getElementById('val-' + k);
+    const bar = document.getElementById('bar-' + k);
+    const color = s[k + 'Color'];
+    const v = s[k];
+    dot.className = 'size-2 rounded-full ' + CBG[color];
+    if (v === null) {
+      valEl.textContent = '--';
+      valEl.className = 'text-sm font-mono font-bold ' + CTX[color];
+      bar.style.width = '0%';
+    } else {
+      valEl.textContent = v.toFixed(1) + '°';
+      valEl.className = 'text-sm font-mono font-bold ' + CTX[color];
+      bar.style.width = Math.min(100, v * 3) + '%';
+      bar.className = 'h-full rounded-full transition-all duration-500 ' + CBG[color];
+    }
+  });
+
+  for (let i = 0; i < 5; i++) {
+    const el = document.getElementById('plant-stem-' + i);
+    if (el) el.style.display = i === s.plantStage ? '' : 'none';
+  }
+  const thirsty = document.getElementById('plant-thirsty');
+  if (thirsty) thirsty.style.display = s.plantThirsty ? '' : 'none';
+  const group = document.getElementById('plant-group');
+  if (group) {
+    if (s.plantThirsty) { group.classList.add('plant-droop'); group.classList.remove('plant-breathe'); }
+    else { group.classList.add('plant-breathe'); group.classList.remove('plant-droop'); }
+  }
+
+  document.getElementById('ai-advice').textContent = s.advice;
+
+  const wave = document.getElementById('vibration-wave');
+  if (wave) wave.style.display = s.vibration ? '' : 'none';
+  if (s.vibration) {
+    const main = document.querySelector('main');
+    if (main) { main.classList.add('haptic-on'); setTimeout(() => main.classList.remove('haptic-on'), 400); }
+  }
+
+  document.querySelectorAll('.state-btn').forEach(b => {
+    if (b.dataset.state === name) {
+      b.classList.add('active');
+      b.classList.remove('bg-surface-1','border','border-border-subtle');
+    } else {
+      b.classList.remove('active');
+      b.classList.add('bg-surface-1','border','border-border-subtle');
+    }
+  });
+}
+
+document.querySelectorAll('.state-btn').forEach(b => {
+  b.addEventListener('click', () => applyState(b.dataset.state));
+});
+
+(function() {
+  function jitter(v, r) { return Math.max(0, +(v + (Math.random() - 0.5) * r).toFixed(1)); }
+  setInterval(() => {
+    const s = STATES[cur];
+    if (cur === 'OFFLINE' || s.c7 === null) return;
+    if (cur === 'NORMAL') {
+      document.getElementById('val-c7').textContent = jitter(s.c7, 0.3).toFixed(1) + '°';
+      document.getElementById('val-t12').textContent = jitter(s.t12, 0.2).toFixed(1) + '°';
+      document.getElementById('val-l5').textContent = jitter(s.l5, 0.3).toFixed(1) + '°';
+    }
+  }, 1800);
+})();
+
+applyState('NORMAL');
+</script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>3 分钟演示 · 闭环 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=LXGW+WenKai:wght@400;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #FFF8F0;
+    --color-surface-1: #FFFFFF;
+    --color-surface-2: #F5F0E8;
+    --color-surface-raised: #FFFCF7;
+    --color-border-subtle: #E8E0D4;
+    --color-text-primary: #2D2A26;
+    --color-text-secondary: #6B6560;
+    --color-text-tertiary: #9B9590;
+    --color-accent-warm: #FF6B35;
+    --color-status-healthy: #58CC02;
+    --color-status-warning: #FFC800;
+    --color-status-alert: #FF4B4B;
+    --color-status-offline: #AFA8A0;
+    --color-duo-purple: #CE82FF;
+    --color-duo-blue: #1CB0F6;
+    --font-sans: "Geist", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+    --font-serif-zh: "LXGW WenKai", "Noto Serif SC", serif;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; }
+  }
+  .serif-zh { font-family: var(--font-serif-zh); }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fade-up 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.10s; } .d3 { animation-delay: 0.15s; }
+  @keyframes step-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.5); } 50% { box-shadow: 0 0 0 8px rgba(255, 107, 53, 0); } }
+  .step-active { animation: step-pulse 1.4s ease-out infinite; }
+  .step-done { background: var(--color-status-healthy) !important; color: white !important; border-color: var(--color-status-healthy) !important; }
+  .cute-shadow { box-shadow: 0 2px 8px rgba(45, 42, 38, 0.06), 0 0 0 1px var(--color-border-subtle); }
+  .card-hover { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease-out; }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(45, 42, 38, 0.1); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--color-accent-warm); outline-offset: 3px; border-radius: 12px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .score-display { font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace; font-weight: 800; }
+  @keyframes flash { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+  .flash { animation: flash 0.5s ease-out; }
+  .lang-btn { transition: background-color 0.2s, color 0.2s, transform 0.15s; }
+  .lang-btn:hover { transform: scale(1.05); }
+  .lang-btn.active { background-color: var(--color-accent-warm); color: white; }
+  @keyframes plant-glow { 0%, 100% { filter: drop-shadow(0 0 4px rgba(88, 204, 2, 0.4)); } 50% { filter: drop-shadow(0 0 16px rgba(88, 204, 2, 0.8)); } }
+  .plant-glow { animation: plant-glow 2s ease-in-out infinite; }
+  .timeline-bar { background: linear-gradient(90deg, #58CC02 0%, #FFC800 60%, #FF4B4B 100%); }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+  @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .step-circle { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+</style>
+</head>
+<body>
+<div class="min-h-screen flex items-stretch md:items-center justify-center md:gap-8 p-0 md:p-8 bg-canvas">
+
+<div class="w-full md:w-[400px] md:rounded-[48px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas md:overflow-hidden relative" style="min-height:100vh;max-height:1024px;">
+
+  <div class="flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-mono text-text-tertiary">
+    <span>9:41</span>
+    <div class="flex items-center gap-1.5"><span>████</span><span>5G</span><span>89%</span></div>
+  </div>
+
+  <header class="px-5 pt-3 pb-3 flex items-center justify-between fade-up d1">
+    <a href="desk.html" class="size-9 rounded-2xl bg-surface-2 border border-border-subtle flex items-center justify-center text-text-secondary hover:border-accent-warm transition-colors" aria-label="返回">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+    <div class="text-center">
+      <div class="text-lg font-bold serif-zh" data-lang-zh">3 分钟闭环</div>
+      <div class="text-lg font-bold serif-zh" data-lang-en style="display:none">3-min Loop</div>
+      <div class="text-[10px] font-mono text-text-tertiary">DEMO SCRIPT</div>
+    </div>
+    <div class="flex items-center gap-0.5 bg-surface-2 rounded-full p-0.5">
+      <button onclick="setLang('zh')" class="lang-btn active px-2 py-0.5 rounded-full text-[10px] font-bold" id="lang-zh">中</button>
+      <button onclick="setLang('en')" class="lang-btn px-2 py-0.5 rounded-full text-[10px] font-bold text-text-tertiary" id="lang-en">EN</button>
+    </div>
+  </header>
+
+  <main class="px-5 pb-24 space-y-3">
+
+    <section class="fade-up d2 bg-gradient-to-r from-accent-warm/10 to-duo-blue/10 border border-accent-warm/20 rounded-2xl p-4">
+      <div class="text-[10px] font-mono text-accent-warm font-bold tracking-wider mb-1">// §16.2 DEMO SCRIPT</div>
+      <div class="text-sm font-bold serif-zh" data-lang-zh">现场演示剧本（评委口径）</div>
+      <div class="text-sm font-bold serif-zh" data-lang-en style="display:none">On-stage Demo Script</div>
+      <div class="text-xs text-text-secondary mt-1" data-lang-zh">6.22 初赛 · 3 分钟 · 全闭环一句话讲完</div>
+      <div class="text-xs text-text-secondary mt-1" data-lang-en style="display:none">June 22 prelims · 3 min · Full loop in one sentence</div>
+    </section>
+
+    <section class="fade-up d3 bg-surface-1 cute-shadow rounded-3xl p-4">
+      <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-3" data-lang-zh">5 步闭环 · 1 张图</div>
+      <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-3" data-lang-en style="display:none">5-STEP CLOSED LOOP</div>
+
+      <div class="grid grid-cols-5 gap-1.5 mb-3" id="step-circles">
+        <div class="step-circle flex flex-col items-center gap-1">
+          <div id="step-1" class="size-10 rounded-2xl bg-accent-warm text-white flex items-center justify-center font-bold text-sm">1</div>
+          <div class="text-[9px] font-bold text-center" data-lang-zh>检测</div>
+          <div class="text-[9px] font-bold text-center" data-lang-en style="display:none">SENSE</div>
+        </div>
+        <div class="step-circle flex flex-col items-center gap-1">
+          <div id="step-2" class="size-10 rounded-2xl bg-surface-2 text-text-tertiary flex items-center justify-center font-bold text-sm">2</div>
+          <div class="text-[9px] font-bold text-center" data-lang-zh">触发</div>
+          <div class="text-[9px] font-bold text-center" data-lang-en style="display:none">TRIG</div>
+        </div>
+        <div class="step-circle flex flex-col items-center gap-1">
+          <div id="step-3" class="size-10 rounded-2xl bg-surface-2 text-text-tertiary flex items-center justify-center font-bold text-sm">3</div>
+          <div class="text-[9px] font-bold text-center" data-lang-zh">反馈</div>
+          <div class="text-[9px] font-bold text-center" data-lang-en style="display:none">HAPTIC</div>
+        </div>
+        <div class="step-circle flex flex-col items-center gap-1">
+          <div id="step-4" class="size-10 rounded-2xl bg-surface-2 text-text-tertiary flex items-center justify-center font-bold text-sm">4</div>
+          <div class="text-[9px] font-bold text-center" data-lang-zh">推理</div>
+          <div class="text-[9px] font-bold text-center" data-lang-en style="display:none">VL</div>
+        </div>
+        <div class="step-circle flex flex-col items-center gap-1">
+          <div id="step-5" class="size-10 rounded-2xl bg-surface-2 text-text-tertiary flex items-center justify-center font-bold text-sm">5</div>
+          <div class="text-[9px] font-bold text-center" data-lang-zh">成长</div>
+          <div class="text-[9px] font-bold text-center" data-lang-en style="display:none">PLANT</div>
+        </div>
+      </div>
+
+      <div class="timeline-bar h-1 rounded-full mb-3 opacity-30" id="timeline-bar"></div>
+
+      <div id="step-detail" class="bg-canvas rounded-2xl p-3 border border-border-subtle min-h-[120px]">
+        <div class="flex items-center gap-2 mb-2">
+          <span id="step-num" class="size-6 rounded-full bg-accent-warm text-white text-xs font-bold flex items-center justify-center">1</span>
+          <span id="step-title" class="text-sm font-bold" data-lang-zh">检测 · SENSE</span>
+          <span id="step-title" class="text-sm font-bold" data-lang-en" style="display:none">SENSE</span>
+        </div>
+        <div id="step-desc" class="text-xs text-text-secondary leading-relaxed" data-lang-zh">
+          腰带 3 节点 IMU 以 100Hz 上报 C7/T12/L5 实时四元数。KinematicsHub 计算偏差角，状态机判定 NORMAL / TECH_NECK / SLUMPED / LEFT_LEAN。
+        </div>
+        <div id="step-desc" class="text-xs text-text-secondary leading-relaxed" data-lang-en" style="display:none">
+          3-node IMU belt reports C7/T12/L5 quaternions at 100Hz. KinematicsHub computes deviation angles; state machine classifies posture.
+        </div>
+        <div class="mt-2 flex items-center gap-2 text-[10px] font-mono text-text-tertiary">
+          <span data-lang-zh">延迟</span>
+          <span data-lang-en" style="display:none">Latency</span>
+          <span id="step-latency" class="text-status-healthy font-bold">≤ 10ms</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="fade-up d3 bg-surface-1 cute-shadow rounded-3xl p-4">
+      <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-2" data-lang-zh">现场切换 5 种姿态</div>
+      <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-3" data-lang-en style="display:none">SWITCH 5 STATES LIVE</div>
+      <div class="grid grid-cols-5 gap-1.5" id="scenarios">
+        <button data-sc="NORMAL" class="scenario-btn flex flex-col items-center py-2 rounded-2xl bg-status-healthy/15 border-2 border-status-healthy text-status-healthy">
+          <span class="text-base">✓</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh">标准</span>
+        </button>
+        <button data-sc="TECH_NECK" class="scenario-btn flex flex-col items-center py-2 rounded-2xl bg-surface-2 border-2 border-transparent text-status-warning">
+          <span class="text-base">📱</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh">颈前倾</span>
+        </button>
+        <button data-sc="SLUMPED" class="scenario-btn flex flex-col items-center py-2 rounded-2xl bg-surface-2 border-2 border-transparent text-status-alert">
+          <span class="text-base">😞</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh">驼背</span>
+        </button>
+        <button data-sc="LEFT_LEAN" class="scenario-btn flex flex-col items-center py-2 rounded-2xl bg-surface-2 border-2 border-transparent text-duo-purple">
+          <span class="text-base">↖</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh">左倾</span>
+        </button>
+        <button data-sc="OFFLINE" class="scenario-btn flex flex-col items-center py-2 rounded-2xl bg-surface-2 border-2 border-transparent text-status-offline">
+          <span class="text-base">⊘</span>
+          <span class="text-[10px] font-bold mt-0.5" data-lang-zh">断连</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="fade-up d3 bg-surface-1 cute-shadow rounded-3xl p-4" id="demo-scene">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider" data-lang-zh">当前演示 · 实时反馈</div>
+          <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider" data-lang-en" style="display:none">LIVE FEEDBACK</div>
+        </div>
+        <div class="flex items-center gap-1.5 text-[10px] font-mono text-text-tertiary">
+          <span class="size-1.5 rounded-full bg-status-alert pulse-soft" id="live-dot"></span>
+          <span data-lang-zh">录制中</span>
+          <span data-lang-en" style="display:none">REC</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <div class="bg-canvas rounded-2xl p-3 border border-border-subtle">
+          <div class="text-[10px] font-mono text-text-tertiary mb-1.5" data-lang-zh">IMU 数据</div>
+          <div class="text-[10px] font-mono text-text-tertiary mb-1.5" data-lang-en" style="display:none">IMU DATA</div>
+          <div class="space-y-1.5 font-mono text-[11px]">
+            <div class="flex justify-between"><span class="text-text-tertiary">C7</span><span id="d-c7" class="text-status-healthy font-bold">5.2°</span></div>
+            <div class="flex justify-between"><span class="text-text-tertiary">T12</span><span id="d-t12" class="text-status-healthy font-bold">2.1°</span></div>
+            <div class="flex justify-between"><span class="text-text-tertiary">L5</span><span id="d-l5" class="text-status-healthy font-bold">3.4°</span></div>
+          </div>
+        </div>
+        <div class="bg-canvas rounded-2xl p-3 border border-border-subtle">
+          <div class="text-[10px] font-mono text-text-tertiary mb-1.5" data-lang-zh">Posture Score</div>
+          <div class="text-[10px] font-mono text-text-tertiary mb-1.5" data-lang-en" style="display:none">SCORE</div>
+          <div class="font-mono font-bold text-3xl text-status-healthy" id="d-score">92</div>
+          <div class="text-[10px] font-mono text-text-tertiary" id="d-state" data-lang-zh">NORMAL</div>
+          <div class="text-[10px] font-mono text-text-tertiary" id="d-state" data-lang-en" style="display:none">NORMAL</div>
+        </div>
+      </div>
+
+      <div class="mt-3 bg-gradient-to-r from-duo-blue/10 to-accent-warm/10 border border-duo-blue/20 rounded-2xl p-3">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="size-5 rounded-lg bg-duo-blue/20 text-duo-blue text-[10px] font-bold flex items-center justify-center">AI</span>
+          <span class="text-[10px] font-mono text-duo-blue font-bold">Qwen3-VL · MNN</span>
+          <span class="text-[10px] text-text-tertiary ml-auto" data-lang-zh">0.4s 首 token</span>
+          <span class="text-[10px] text-text-tertiary ml-auto" data-lang-en" style="display:none">0.4s first token</span>
+        </div>
+        <div id="d-advice" class="text-xs text-text-primary leading-relaxed">继续保持当前坐姿,你的颈部与腰椎都在健康范围内。</div>
+      </div>
+
+      <div class="mt-3 flex items-center gap-3 bg-gradient-to-br from-status-healthy/5 to-status-warning/5 rounded-2xl p-3 border border-status-healthy/20">
+        <svg id="mini-plant" class="w-12 h-12 plant-glow" viewBox="0 0 100 100" fill="none">
+          <path d="M 14 70 L 22 92 L 58 92 L 66 70 Z" fill="#C2725A"/>
+          <ellipse cx="40" cy="70" rx="24" ry="2.5" fill="#5C3D24"/>
+          <g id="mp-stage-2">
+            <path d="M 50 68 L 50 35" stroke="#65A30D" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="40" cy="50" rx="9" ry="3.5" fill="#84CC16" transform="rotate(-25 40 50)"/>
+            <ellipse cx="60" cy="45" rx="9" ry="3.5" fill="#84CC16" transform="rotate(25 60 45)"/>
+            <ellipse cx="42" cy="62" rx="7" ry="3" fill="#A3E635" transform="rotate(-15 42 62)"/>
+            <ellipse cx="58" cy="58" rx="7" ry="3" fill="#A3E635" transform="rotate(15 58 58)"/>
+          </g>
+          <g id="mp-stage-1" style="display:none">
+            <path d="M 50 68 L 50 50" stroke="#84CC16" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="46" cy="55" rx="6" ry="2.5" fill="#A3E635" transform="rotate(-25 46 55)"/>
+            <ellipse cx="54" cy="52" rx="6" ry="2.5" fill="#A3E635" transform="rotate(25 54 52)"/>
+          </g>
+          <g id="mp-stage-0" style="display:none">
+            <ellipse cx="50" cy="68" rx="3" ry="1.5" fill="#84CC16"/>
+          </g>
+        </svg>
+        <div class="flex-1">
+          <div class="text-[10px] font-mono text-text-tertiary" data-lang-zh">盆栽反应</div>
+          <div class="text-[10px] font-mono text-text-tertiary" data-lang-en" style="display:none">PLANT</div>
+          <div id="d-plant" class="text-xs font-bold text-status-healthy" data-lang-zh">继续生长 · 小树阶段</div>
+          <div id="d-plant" class="text-xs font-bold text-status-healthy" data-lang-en" style="display:none">Growing · Sapling</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-mono text-text-tertiary">STREAK</div>
+          <div class="font-mono text-base font-bold text-status-warning">7d</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fade-up d4 bg-surface-1 cute-shadow rounded-3xl p-4">
+      <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-2" data-lang-zh">MCP 工具调用链 · 10 个工具</div>
+      <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider mb-3" data-lang-en" style="display:none">MCP TOOL CHAIN · 10 TOOLS</div>
+      <div class="space-y-1.5 font-mono text-[10px]">
+        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-surface-2/50">
+          <span class="text-status-healthy font-bold">→</span>
+          <span class="text-text-primary">phone_look</span>
+          <span class="text-text-tertiary ml-auto" data-lang-zh">手机环视</span>
+        </div>
+        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-surface-2/50">
+          <span class="text-status-healthy font-bold">→</span>
+          <span class="text-text-primary">phone_listen</span>
+          <span class="text-text-tertiary ml-auto" data-lang-zh">手机听音</span>
+        </div>
+        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-surface-2/50">
+          <span class="text-status-healthy font-bold">→</span>
+          <span class="text-text-primary">phone_perceive</span>
+          <span class="text-text-tertiary ml-auto" data-lang-zh">VL 推理</span>
+        </div>
+        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-surface-2/50">
+          <span class="text-status-healthy font-bold">→</span>
+          <span class="text-text-primary">get_body_kinematics</span>
+          <span class="text-text-tertiary ml-auto" data-lang-zh">取姿态</span>
+        </div>
+        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-surface-2/50">
+          <span class="text-status-healthy font-bold">→</span>
+          <span class="text-text-primary">phone_watch_start</span>
+          <span class="text-text-tertiary ml-auto" data-lang-zh">巡检</span>
+        </div>
+        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-status-alert/10">
+          <span class="text-status-alert font-bold">⚡</span>
+          <span class="text-text-primary">trigger_vibration_feedback</span>
+          <span class="text-status-alert font-bold ml-auto" data-lang-zh">触发振动</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="fade-up d5 grid grid-cols-2 gap-2">
+      <a href="desk.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-3 flex items-center gap-2.5">
+        <span class="text-xl">🏠</span>
+        <div>
+          <div class="text-sm font-bold" data-lang-zh">回主页</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-zh">看实时姿态</div>
+        </div>
+      </a>
+      <a href="agent.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-3 flex items-center gap-2.5">
+        <span class="text-xl">🤖</span>
+        <div>
+          <div class="text-sm font-bold" data-lang-zh">看 Agent</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-zh">MCP 远程调用</div>
+        </div>
+      </a>
+    </section>
+
+  </main>
+
+  <nav class="fixed md:absolute bottom-0 inset-x-0 md:rounded-b-[48px] bg-surface-raised/95 backdrop-blur-md border-t border-border-subtle z-10">
+    <div class="grid grid-cols-4 max-w-md md:max-w-none mx-auto">
+      <a href="desk.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="text-[10px] font-bold" data-lang-zh">主页</span>
+      </a>
+      <a href="plant.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <span class="text-base">🪴</span>
+        <span class="text-[10px] font-bold" data-lang-zh>盆栽</span>
+      </a>
+      <a href="demo.html" class="flex flex-col items-center py-2.5 gap-0.5 text-accent-warm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span class="text-[10px] font-bold" data-lang-zh">演示</span>
+      </a>
+      <a href="agent.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span class="text-[10px] font-bold">MCP</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<aside class="hidden md:flex flex-col w-[420px] bg-surface-1 cute-shadow rounded-3xl p-6 self-start sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto" style="animation: fade-up 0.5s ease-out 0.3s both;">
+  <div class="text-[10px] font-mono text-accent-warm font-bold tracking-wider mb-3">// DEMO SCRIPT · §16.2</div>
+  <h2 class="text-xl font-bold serif-zh mb-3" data-lang-zh">3 分钟怎么讲</h2>
+  <h2 class="text-xl font-bold serif-zh mb-3" data-lang-en" style="display:none">3-min Script</h2>
+  <p class="text-sm text-text-secondary leading-relaxed mb-4" data-lang-zh">
+    比赛现场 3 分钟,不是"打开应用一个一个点"——是把这 5 步连成一条线讲完。
+    上方 5 个步骤圆环,就是评委看到的"故事线"。
+  </p>
+
+  <ol class="space-y-3 text-sm text-text-primary mb-5">
+    <li class="flex items-start gap-3">
+      <span class="size-7 rounded-full bg-accent-warm text-white font-bold flex items-center justify-center flex-shrink-0">1</span>
+      <div>
+        <div class="font-bold" data-lang-zh">检测 (0:00–0:20)</div>
+        <div class="text-[12px] text-text-secondary" data-lang-zh">展示腰带实物 → 演示 3 节点 → 切到 NORMAL 场景</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="size-7 rounded-full bg-accent-warm text-white font-bold flex items-center justify-center flex-shrink-0">2</span>
+      <div>
+        <div class="font-bold" data-lang-zh">触发 (0:20–0:50)</div>
+        <div class="text-[12px] text-text-secondary" data-lang-zh">切到 SLUMPED → 显示 3 节点同时变红</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="size-7 rounded-full bg-accent-warm text-white font-bold flex items-center justify-center flex-shrink-0">3</span>
+      <div>
+        <div class="font-bold" data-lang-zh">反馈 (0:50–1:20)</div>
+        <div class="text-[12px] text-text-secondary" data-lang-zh">腰带振动 + 屏幕波纹 → 用户物理感知</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="size-7 rounded-full bg-accent-warm text-white font-bold flex items-center justify-center flex-shrink-0">4</span>
+      <div>
+        <div class="font-bold" data-lang-zh">推理 (1:20–2:00)</div>
+        <div class="text-[12px] text-text-secondary" data-lang-zh">Qwen3-VL MNN 端侧 → 0.4s 出"怎么改"</div>
+      </div>
+    </li>
+    <li class="flex items-start gap-3">
+      <span class="size-7 rounded-full bg-accent-warm text-white font-bold flex items-center justify-center flex-shrink-0">5</span>
+      <div>
+        <div class="font-bold" data-lang-zh">成长 (2:00–2:40)</div>
+        <div class="text-[12px] text-text-secondary" data-lang-zh">切到"好坐姿" → 盆栽从蔫到舒展 → Streak +1</div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="border-t border-border-subtle pt-4">
+    <div class="text-[10px] font-mono text-status-healthy font-bold tracking-wider mb-2" data-lang-zh">闭幕 Q&A · §16.6</div>
+    <div class="text-base font-bold serif-zh mb-2" data-lang-zh">评委可能问的 3 个问题</div>
+    <div class="space-y-2.5 text-[12px] text-text-secondary">
+      <div>
+        <div class="font-bold text-text-primary" data-lang-zh">Q: 真的端侧推理吗？</div>
+        <div class="text-[11px]" data-lang-zh">A: Qwen3.5-2B MNN,首 token 0.4s,完整 1.2s,无网可用</div>
+      </div>
+      <div>
+        <div class="font-bold text-text-primary" data-lang-zh">Q: 隐私呢？</div>
+        <div class="text-[11px]" data-lang-zh">A: IMU 数据不出手机,VL 图像本地推理,云端只在需要时</div>
+      </div>
+      <div>
+        <div class="font-bold text-text-primary" data-lang-zh">Q: 比现有 app 强在哪？</div>
+        <div class="text-[11px]" data-lang-zh">A: 单点传感器→三段脊柱;闹钟式→AI 建议;数据报告→养成游戏</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    n: 1,
+    title_zh: '检测 · SENSE',
+    title_en: 'SENSE',
+    desc_zh: '腰带 3 节点 IMU 以 100Hz 上报 C7/T12/L5 实时四元数。KinematicsHub 计算偏差角,状态机判定 NORMAL / TECH_NECK / SLUMPED / LEFT_LEAN。',
+    desc_en: '3-node IMU belt reports C7/T12/L5 quaternions at 100Hz. KinematicsHub computes deviation angles; state machine classifies posture.',
+    latency: '≤ 10ms',
+    latency_color: '#58CC02'
+  },
+  {
+    n: 2,
+    title_zh: '触发 · TRIGGER',
+    title_en: 'TRIGGER',
+    desc_zh: '状态机识别异常(如 SLUMPED 三节同时超阈)→ 写入 PendingAlertStore → 经 5 分钟去重后向 SSE / 通知通道推送。',
+    desc_en: 'State machine detects anomaly (e.g. SLUMPED all 3 nodes out) → writes to PendingAlertStore → after 5-min dedup, pushes via SSE / notification.',
+    latency: '≤ 5ms',
+    latency_color: '#58CC02'
+  },
+  {
+    n: 3,
+    title_zh: '反馈 · HAPTIC',
+    title_en: 'HAPTIC',
+    desc_zh: 'BLE 写指令到腰带 L5 节点马达 → 振动 200ms × 2,用户物理感知"姿势不对"。同时屏幕 L5 节点出现振动波纹动画。',
+    desc_en: 'BLE writes to L5 node motor → vibrates 200ms × 2, user physically feels "wrong posture". Screen L5 node shows vibration wave animation.',
+    latency: '≤ 300ms (BLE)',
+    latency_color: '#FFC800'
+  },
+  {
+    n: 4,
+    title_zh: '推理 · QWEN-VL',
+    title_en: 'VL INFER',
+    desc_zh: 'DefaultPerceptionEngine 调用 MnnPerceptionEngine → Qwen3.5-2B MNN 端侧推理 → 输出"检测到驼背 18°,请挺胸收肩 3 次深呼吸"。',
+    desc_en: 'DefaultPerceptionEngine calls MnnPerceptionEngine → Qwen3.5-2B MNN local inference → outputs "hunched 18°, straighten back, 3 deep breaths".',
+    latency: '0.4s 首 token · 1.2s 完整',
+    latency_color: '#FFC800'
+  },
+  {
+    n: 5,
+    title_zh: '成长 · PLANT',
+    title_en: 'PLANT',
+    desc_zh: '当用户调整到 NORMAL 超过 30 秒 → 盆栽叶子舒展动画 → 当日 healthy_minutes +N → Streak 累加 → 阶段可能升级。',
+    desc_en: 'When user holds NORMAL > 30s → plant leaves unfurl animation → daily healthy_minutes +N → Streak accumulates → stage may upgrade.',
+    latency: '即时',
+    latency_color: '#58CC02'
+  }
+];
+
+const STATES = {
+  NORMAL: { c7: 5.2, t12: 2.1, l5: 3.4, score: 92, color: '#58CC02', label_zh: 'NORMAL · 标准', label_en: 'NORMAL', advice_zh: '继续保持当前坐姿,你的颈部与腰椎都在健康范围内。', advice_en: 'Keep current posture, your neck and lumbar are within healthy range.', plant: 2, plant_zh: '继续生长 · 小树阶段', plant_en: 'Growing · Sapling', haptic: false },
+  TECH_NECK: { c7: 28.5, t12: 4.2, l5: 5.1, score: 73, color: '#FFC800', label_zh: 'TECH_NECK · 颈前倾', label_en: 'TECH NECK', advice_zh: '检测到颈椎前倾 28.5°,长时间会引发颈椎间盘突出。请把下巴回缩,眼睛平视屏幕。', advice_en: 'Neck pitch 28.5°, may cause disc herniation. Tuck chin, look straight.', plant: 1, plant_zh: '叶子微蔫 · 嫩芽阶段', plant_en: 'Wilting · Sprout', haptic: false },
+  SLUMPED: { c7: 32.1, t12: 18.4, l5: 12.7, score: 41, color: '#FF4B4B', label_zh: 'SLUMPED · 严重驼背', label_en: 'SLUMPED', advice_zh: '【触觉反馈已触发】三节脊柱同时超出阈值。立刻挺胸,把肩膀向后向下沉,3 次深呼吸。', advice_en: '[Haptic triggered] All 3 nodes out of range. Sit up, drop shoulders, 3 deep breaths.', plant: 0, plant_zh: '枯萎 · 种子阶段', plant_en: 'Withered · Seed', haptic: true },
+  LEFT_LEAN: { c7: 6.3, t12: 8.7, l5: 16.2, score: 64, color: '#CE82FF', label_zh: 'LEFT_LEAN · 左倾', label_en: 'LEFT LEAN', advice_zh: 'L5 腰椎左偏 16.2°,可能椅子高度不合适或习惯性侧坐。建议调整坐姿居中。', advice_en: 'L5 lean 16.2° left. Chair height or habit. Center your sit.', plant: 1, plant_zh: '叶子左倾 · 嫩芽阶段', plant_en: 'Leaning · Sprout', haptic: false },
+  OFFLINE: { c7: null, t12: null, l5: null, score: 0, color: '#AFA8A0', label_zh: 'OFFLINE · 设备断连', label_en: 'OFFLINE', advice_zh: '腰带信号丢失。请检查蓝牙是否开启,电量 12%。最近一次连接:3 分钟前。', advice_en: 'Belt signal lost. Check Bluetooth; battery 12%. Last seen 3 min ago.', plant: 2, plant_zh: '暂停生长 · 等待重连', plant_en: 'Paused · Awaiting reconnect', haptic: false }
+};
+
+let curSc = 'NORMAL';
+let lang = 'zh';
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('[data-lang-zh]').forEach(el => el.style.display = l === 'zh' ? '' : 'none');
+  document.querySelectorAll('[data-lang-en]').forEach(el => el.style.display = l === 'en' ? '' : 'none');
+  document.getElementById('lang-zh').classList.toggle('active', l === 'zh');
+  document.getElementById('lang-zh').classList.toggle('text-text-tertiary', l !== 'zh');
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-en').classList.toggle('text-text-tertiary', l !== 'en');
+  document.documentElement.lang = l === 'zh' ? 'zh-CN' : 'en';
+  applyScenario(curSc);
+}
+
+function animateStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('step-' + i);
+    el.classList.remove('step-active');
+    el.classList.remove('step-done');
+    if (i < n) el.classList.add('step-done');
+    else if (i === n) {
+      el.classList.add('step-active');
+      el.style.background = '#FF6B35';
+      el.style.color = 'white';
+      el.style.borderColor = '#FF6B35';
+    } else {
+      el.style.background = '';
+      el.style.color = '';
+      el.style.borderColor = '';
+    }
+  }
+  const bar = document.getElementById('timeline-bar');
+  bar.style.opacity = n / 5;
+}
+
+function showStep(n) {
+  const s = STEPS[n - 1];
+  document.getElementById('step-num').textContent = n;
+  document.getElementById('step-title').textContent = lang === 'en' ? s.title_en : s.title_zh;
+  document.getElementById('step-desc').textContent = lang === 'en' ? s.desc_en : s.desc_zh;
+  document.getElementById('step-latency').textContent = s.latency;
+  document.getElementById('step-latency').style.color = s.latency_color;
+}
+
+function applyScenario(name) {
+  curSc = name;
+  const s = STATES[name];
+
+  document.getElementById('d-c7').textContent = s.c7 === null ? '--' : s.c7.toFixed(1) + '°';
+  document.getElementById('d-t12').textContent = s.t12 === null ? '--' : s.t12.toFixed(1) + '°';
+  document.getElementById('d-l5').textContent = s.l5 === null ? '--' : s.l5.toFixed(1) + '°';
+  document.getElementById('d-c7').style.color = s.color;
+  document.getElementById('d-t12').style.color = s.color;
+  document.getElementById('d-l5').style.color = s.color;
+  document.getElementById('d-score').textContent = s.score;
+  document.getElementById('d-score').style.color = s.color;
+  document.getElementById('d-state').textContent = lang === 'en' ? s.label_en : s.label_zh;
+  document.getElementById('d-advice').textContent = lang === 'en' ? s.advice_en : s.advice_zh;
+  document.getElementById('d-plant').textContent = lang === 'en' ? s.plant_en : s.plant_zh;
+
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById('mp-stage-' + i);
+    if (el) el.style.display = i === s.plant ? '' : 'none';
+  }
+  const live = document.getElementById('live-dot');
+  live.style.background = s.haptic ? '#FF4B4B' : (s.score >= 85 ? '#58CC02' : s.score >= 65 ? '#FFC800' : '#FF4B4B');
+
+  document.querySelectorAll('.scenario-btn').forEach(b => {
+    if (b.dataset.sc === name) {
+      b.classList.remove('bg-surface-2', 'border-transparent');
+      b.classList.add('bg-status-healthy/15', 'border-2', 'border-status-healthy');
+    } else {
+      b.classList.remove('bg-status-healthy/15', 'border-status-healthy');
+      b.classList.add('bg-surface-2', 'border-2', 'border-transparent');
+    }
+  });
+
+  // 跑步骤动画
+  let maxStep = name === 'NORMAL' ? 5 : (name === 'OFFLINE' ? 2 : 4);
+  if (name === 'SLUMPED') maxStep = 5; // 全闭环
+  animateStep(1);
+  showStep(1);
+  let cur = 1;
+  const timer = setInterval(() => {
+    cur++;
+    if (cur > maxStep) { clearInterval(timer); return; }
+    animateStep(cur);
+    showStep(cur);
+  }, 700);
+}
+
+document.querySelectorAll('.scenario-btn').forEach(b => {
+  b.addEventListener('click', () => applyScenario(b.dataset.sc));
+});
+
+// 自动播放一次
+applyScenario('NORMAL');
+setTimeout(() => applyScenario('SLUMPED'), 4000);
+setTimeout(() => applyScenario('NORMAL'), 9000);
+</script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>坐姿小植物 · Posture-AI</title>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=LXGW+WenKai:wght@400;700&display=swap" rel="stylesheet" />
+<style type="text/tailwindcss">
+  @theme {
+    --color-canvas: #FFF8F0;
+    --color-surface-1: #FFFFFF;
+    --color-surface-2: #F5F0E8;
+    --color-surface-raised: #FFFCF7;
+    --color-border-subtle: #E8E0D4;
+    --color-border-warm: #FFD9B3;
+    --color-text-primary: #2D2A26;
+    --color-text-secondary: #6B6560;
+    --color-text-tertiary: #9B9590;
+    --color-accent-warm: #FF6B35;
+    --color-status-healthy: #58CC02;
+    --color-status-warning: #FFC800;
+    --color-status-alert: #FF4B4B;
+    --color-status-offline: #AFA8A0;
+    --color-duo-purple: #CE82FF;
+    --color-duo-blue: #1CB0F6;
+    --font-sans: "Geist", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+    --font-serif-zh: "LXGW WenKai", "Noto Serif SC", serif;
+  }
+  @layer base {
+    html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; }
+  }
+  .serif-zh { font-family: var(--font-serif-zh); }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fade-up 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.10s; } .d3 { animation-delay: 0.15s; }
+  .d4 { animation-delay: 0.20s; } .d5 { animation-delay: 0.25s; }
+  @keyframes plant-breathe { 0%, 100% { transform: scale(1) rotate(-0.5deg); } 50% { transform: scale(1.02) rotate(0.5deg); } }
+  .plant-breathe { animation: plant-breathe 4s ease-in-out infinite; transform-origin: 50% 95%; }
+  @keyframes flame-flicker { 0%, 100% { transform: scaleY(1) translateY(0); opacity: 1; } 50% { transform: scaleY(1.06) translateY(-1px); opacity: 0.9; } }
+  .flame-flicker { animation: flame-flicker 1.2s ease-in-out infinite; transform-origin: 50% 100%; }
+  @keyframes badge-shine { 0%, 100% { filter: drop-shadow(0 0 6px rgba(88, 204, 2, 0.3)); } 50% { filter: drop-shadow(0 0 14px rgba(88, 204, 2, 0.6)); } }
+  .badge-shine { animation: badge-shine 2.4s ease-in-out infinite; }
+  .badge-locked { filter: grayscale(1) opacity(0.4); }
+  @keyframes sun-shine { 0%, 100% { opacity: 0.4; transform: rotate(0deg); } 50% { opacity: 0.6; transform: rotate(6deg); } }
+  .sun-shine { animation: sun-shine 8s ease-in-out infinite; transform-origin: 50% 50%; }
+  .cute-shadow { box-shadow: 0 2px 8px rgba(45, 42, 38, 0.06), 0 0 0 1px var(--color-border-subtle); }
+  .card-hover { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease-out; }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(45, 42, 38, 0.1); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--color-accent-warm); outline-offset: 3px; border-radius: 12px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .score-display { font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace; font-weight: 800; }
+  .badge-btn { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease-out; }
+  .badge-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 20px -6px rgba(45, 42, 38, 0.12); }
+  .badge-btn:active { transform: translateY(0) scale(0.98); }
+  .day-cell { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease-out; }
+  .day-cell:hover { transform: scale(1.08); box-shadow: 0 4px 12px -4px rgba(88, 204, 2, 0.2); }
+  .stage-dot { transition: all 0.2s ease-out; cursor: pointer; }
+  .stage-dot:hover { background-color: rgba(88, 204, 2, 0.08); }
+  @keyframes modal-in { from { opacity: 0; transform: scale(0.92) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-in { animation: modal-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .lang-btn { transition: background-color 0.2s, color 0.2s, transform 0.15s; }
+  .lang-btn:hover { transform: scale(1.05); }
+  .lang-btn.active { background-color: var(--color-accent-warm); color: white; }
+</style>
+</head>
+<body>
+<div class="min-h-screen flex items-stretch md:items-center justify-center md:gap-8 p-0 md:p-8 bg-canvas">
+
+<div class="w-full md:w-[400px] md:rounded-[48px] md:ring-8 md:ring-surface-2 md:shadow-2xl bg-canvas md:overflow-hidden relative" style="min-height:100vh;max-height:1024px;">
+
+  <div class="flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-mono text-text-tertiary">
+    <span>9:41</span>
+    <div class="flex items-center gap-1.5"><span>████</span><span>5G</span><span>89%</span></div>
+  </div>
+
+  <header class="px-5 pt-3 pb-3 flex items-center justify-between fade-up d1">
+    <a href="desk.html" class="size-9 rounded-2xl bg-surface-2 border border-border-subtle flex items-center justify-center text-text-secondary hover:border-accent-warm transition-colors" aria-label="返回">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+    <div class="text-lg font-bold serif-zh">
+      <span data-lang-zh>坐姿小植物</span>
+      <span data-lang-en style="display:none">Posture Plant</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-0.5 bg-surface-2 rounded-full p-0.5">
+        <button onclick="setLang('zh')" class="lang-btn active px-2 py-0.5 rounded-full text-[10px] font-bold" id="lang-zh">中</button>
+        <button onclick="setLang('en')" class="lang-btn px-2 py-0.5 rounded-full text-[10px] font-bold text-text-tertiary" id="lang-en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="px-5 pb-24 space-y-3">
+
+    <section class="fade-up d2 bg-surface-1 cute-shadow rounded-3xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider">PLANT</div>
+          <div class="text-lg font-bold serif-zh" data-lang-zh>今天的小植物</div>
+          <div class="text-lg font-bold serif-zh" data-lang-en style="display:none">Today's Plant</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] text-text-tertiary" data-lang-zh">当前阶段</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-en style="display:none">Current Stage</div>
+          <div id="stage-label" class="text-base font-mono font-bold text-status-healthy">2 · 小树</div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-b from-canvas to-surface-2 rounded-2xl h-56 flex items-center justify-center relative overflow-hidden border border-border-subtle">
+        <div class="absolute top-3 right-3 opacity-30">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="sun-shine">
+            <circle cx="12" cy="12" r="5" fill="#FFC800"/>
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="#FFC800" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <svg id="plant" class="w-44 h-44 plant-breathe" viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="93" rx="30" ry="3" fill="#000" opacity="0.1"/>
+          <path d="M 14 70 L 22 92 L 58 92 L 66 70 Z" fill="#C2725A"/>
+          <path d="M 14 70 L 66 70 L 64 73 L 16 73 Z" fill="#A0563D"/>
+          <rect x="14" y="67" width="52" height="4" rx="1" fill="#D4886F"/>
+          <ellipse cx="40" cy="70" rx="24" ry="2.5" fill="#5C3D24"/>
+
+          <g class="stage stage-0" style="display:none">
+            <ellipse cx="50" cy="68" rx="3" ry="1.5" fill="#84CC16"/>
+          </g>
+          <g class="stage stage-1" style="display:none">
+            <path d="M 50 68 L 50 50" stroke="#84CC16" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="46" cy="55" rx="6" ry="2.5" fill="#A3E635" transform="rotate(-25 46 55)"/>
+            <ellipse cx="54" cy="52" rx="6" ry="2.5" fill="#A3E635" transform="rotate(25 54 52)"/>
+          </g>
+          <g class="stage stage-2" style="display:">
+            <path d="M 50 68 L 50 35" stroke="#65A30D" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="40" cy="50" rx="9" ry="3.5" fill="#84CC16" transform="rotate(-25 40 50)"/>
+            <ellipse cx="60" cy="45" rx="9" ry="3.5" fill="#84CC16" transform="rotate(25 60 45)"/>
+            <ellipse cx="42" cy="62" rx="7" ry="3" fill="#A3E635" transform="rotate(-15 42 62)"/>
+            <ellipse cx="58" cy="58" rx="7" ry="3" fill="#A3E635" transform="rotate(15 58 58)"/>
+            <circle cx="50" cy="35" r="2" fill="#84CC16"/>
+          </g>
+          <g class="stage stage-3" style="display:none">
+            <path d="M 50 68 L 50 22" stroke="#15803D" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="38" cy="50" rx="11" ry="4" fill="#22C55E" transform="rotate(-30 38 50)"/>
+            <ellipse cx="62" cy="44" rx="11" ry="4" fill="#22C55E" transform="rotate(30 62 44)"/>
+            <ellipse cx="40" cy="62" rx="9" ry="3.5" fill="#4ADE80" transform="rotate(-15 40 62)"/>
+            <ellipse cx="60" cy="56" rx="9" ry="3.5" fill="#4ADE80" transform="rotate(15 60 56)"/>
+            <ellipse cx="50" cy="22" rx="8" ry="10" fill="#CE82FF"/>
+            <ellipse cx="50" cy="22" rx="5" ry="7" fill="#E9B0FF"/>
+          </g>
+          <g class="stage stage-4" style="display:none">
+            <path d="M 50 68 L 50 14" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="35" cy="50" rx="13" ry="4.5" fill="#16A34A" transform="rotate(-30 35 50)"/>
+            <ellipse cx="65" cy="45" rx="13" ry="4.5" fill="#16A34A" transform="rotate(30 65 45)"/>
+            <ellipse cx="40" cy="64" rx="10" ry="4" fill="#22C55E" transform="rotate(-15 40 64)"/>
+            <ellipse cx="60" cy="60" rx="10" ry="4" fill="#22C55E" transform="rotate(15 60 60)"/>
+            <circle cx="42" cy="40" r="4" fill="#FF4B4B"/>
+            <circle cx="58" cy="38" r="4" fill="#FFC800"/>
+            <circle cx="50" cy="22" r="3.5" fill="#FF4B4B"/>
+            <circle cx="46" cy="30" r="3" fill="#FFC800"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="grid grid-cols-5 gap-1.5 mt-4" id="stage-dots">
+        <button data-stage="0" class="stage-dot text-center py-2 rounded-xl">
+          <div class="text-[10px] text-text-tertiary font-mono font-bold">0</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-zh>种子</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-en style="display:none">Seed</div>
+        </button>
+        <button data-stage="1" class="stage-dot text-center py-2 rounded-xl">
+          <div class="text-[10px] text-text-tertiary font-mono font-bold">1</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-zh>嫩芽</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-en style="display:none">Sprout</div>
+        </button>
+        <button data-stage="2" class="stage-dot text-center py-2 rounded-xl bg-status-healthy/10 border border-status-healthy/40">
+          <div class="text-[10px] text-status-healthy font-mono font-bold">2</div>
+          <div class="text-[11px] text-status-healthy font-bold mt-0.5" data-lang-zh>小树</div>
+          <div class="text-[11px] text-status-healthy font-bold mt-0.5" data-lang-en style="display:none">Sapling</div>
+        </button>
+        <button data-stage="3" class="stage-dot text-center py-2 rounded-xl">
+          <div class="text-[10px] text-text-tertiary font-mono font-bold">3</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-zh>含苞</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-en style="display:none">Bud</div>
+        </button>
+        <button data-stage="4" class="stage-dot text-center py-2 rounded-xl">
+          <div class="text-[10px] text-text-tertiary font-mono font-bold">4</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-zh>结果</div>
+          <div class="text-[11px] text-text-tertiary mt-0.5" data-lang-en style="display:none">Fruit</div>
+        </button>
+      </div>
+    </section>
+
+    <section class="fade-up d3 bg-surface-1 cute-shadow rounded-3xl p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-mono text-text-tertiary font-bold tracking-wider">STREAK</div>
+          <div class="flex items-baseline gap-2 mt-2">
+            <span class="score-display text-status-warning" style="font-size:3rem">7</span>
+            <span class="text-xs text-text-tertiary" data-lang-zh>天</span>
+            <span class="text-xs text-text-tertiary" data-lang-en style="display:none">days</span>
+          </div>
+          <div class="text-xs text-text-secondary mt-1" data-lang-zh">连续 7 天坐姿达标</div>
+          <div class="text-xs text-text-secondary mt-1" data-lang-en style="display:none">7 days of good posture</div>
+        </div>
+        <div class="flame-flicker">
+          <svg width="56" height="72" viewBox="0 0 64 80" fill="none">
+            <defs>
+              <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stop-color="#FF6B35"/>
+                <stop offset="60%" stop-color="#FFC800"/>
+                <stop offset="100%" stop-color="#FFE066"/>
+              </linearGradient>
+            </defs>
+            <path d="M 32 8 Q 20 24 24 40 Q 14 36 18 50 Q 12 60 24 68 Q 32 76 40 68 Q 52 60 46 50 Q 50 36 40 40 Q 44 24 32 8 Z" fill="url(#flameGrad)" opacity="0.9"/>
+            <path d="M 32 28 Q 26 36 28 46 Q 22 48 24 56 Q 28 64 32 64 Q 36 64 40 56 Q 42 48 36 46 Q 38 36 32 28 Z" fill="#FFF8E0"/>
+          </svg>
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-1.5 mt-4">
+        <div class="day-cell aspect-square rounded-xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center"><span class="text-[11px] text-status-healthy font-bold" data-lang-zh>一</span><span class="text-[11px] text-status-healthy font-bold" data-lang-en style="display:none">M</span></div>
+        <div class="day-cell aspect-square rounded-xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center"><span class="text-[11px] text-status-healthy font-bold" data-lang-zh>二</span><span class="text-[11px] text-status-healthy font-bold" data-lang-en style="display:none">T</span></div>
+        <div class="day-cell aspect-square rounded-xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center"><span class="text-[11px] text-status-healthy font-bold" data-lang-zh>三</span><span class="text-[11px] text-status-healthy font-bold" data-lang-en style="display:none">W</span></div>
+        <div class="day-cell aspect-square rounded-xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center"><span class="text-[11px] text-status-healthy font-bold" data-lang-zh>四</span><span class="text-[11px] text-status-healthy font-bold" data-lang-en style="display:none">T</span></div>
+        <div class="day-cell aspect-square rounded-xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center"><span class="text-[11px] text-status-healthy font-bold" data-lang-zh>五</span><span class="text-[11px] text-status-healthy font-bold" data-lang-en style="display:none">F</span></div>
+        <div class="day-cell aspect-square rounded-xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center"><span class="text-[11px] text-status-healthy font-bold" data-lang-zh">六</span><span class="text-[11px] text-status-healthy font-bold" data-lang-en style="display:none">S</span></div>
+        <div class="day-cell aspect-square rounded-xl bg-status-warning/15 border border-status-warning/30 flex items-center justify-center"><span class="text-[11px] text-status-warning font-bold" data-lang-zh">日</span><span class="text-[11px] text-status-warning font-bold" data-lang-en style="display:none">S</span></div>
+      </div>
+      <p class="text-[11px] text-text-tertiary mt-3 text-center" data-lang-zh">今天 <span class="text-status-healthy font-mono font-bold">还需 53 分钟</span> 坐姿达标</p>
+      <p class="text-[11px] text-text-tertiary mt-3 text-center" data-lang-en style="display:none">Today <span class="text-status-healthy font-mono font-bold">53 min more</span> for daily goal</p>
+    </section>
+
+    <section class="fade-up d4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold serif-zh" data-lang-zh">成就徽章</h3>
+        <h3 class="text-lg font-bold serif-zh" data-lang-en style="display:none">Achievements</h3>
+        <span class="text-xs text-text-tertiary font-bold">2 / 6</span>
+      </div>
+      <div class="grid grid-cols-3 gap-3" id="badges">
+        <button data-name="初次上路" data-name-en="First Step" data-desc="完成首次 3 节点校准" data-desc-en="Complete first 3-node calibration" data-locked="false" class="badge-btn bg-surface-1 cute-shadow rounded-2xl p-3 flex flex-col items-center gap-2">
+          <div class="size-14 rounded-2xl bg-status-healthy/15 border-2 border-status-healthy/30 flex items-center justify-center">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#58CC02" stroke-width="2"><path d="M12 2L3 7l9 5 9-5-9-5z"/><path d="M3 17l9 5 9-5M3 12l9 5 9-5"/></svg>
+          </div>
+          <div class="text-[11px] text-status-healthy font-bold text-center" data-lang-zh>初次上路</div>
+          <div class="text-[11px] text-status-healthy font-bold text-center" data-lang-en style="display:none">First Step</div>
+        </button>
+        <button data-name="四小时战士" data-name-en="4h Warrior" data-desc="单日不弯腰时长 ≥ 4 小时" data-desc-en="Daily good posture ≥ 4h" data-locked="false" class="badge-btn bg-surface-1 cute-shadow rounded-2xl p-3 flex flex-col items-center gap-2">
+          <div class="size-14 rounded-2xl bg-status-healthy/15 border-2 border-status-healthy/30 flex items-center justify-center badge-shine">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#58CC02" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <div class="text-[11px] text-status-healthy font-bold text-center" data-lang-zh">四小时战士</div>
+          <div class="text-[11px] text-status-healthy font-bold text-center" data-lang-en style="display:none">4h Warrior</div>
+        </button>
+        <button data-name="连续一周" data-name-en="Week Streak" data-desc="连续 7 天不弯腰 ≥ 1h" data-desc-en="7-day streak, ≥1h/day" data-locked="true" class="badge-btn bg-surface-1 cute-shadow rounded-2xl p-3 flex flex-col items-center gap-2">
+          <div class="size-14 rounded-2xl bg-surface-2 border-2 border-border-subtle flex items-center justify-center badge-locked">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2l1.5 3M16 2l-1.5 3M3 8h18M5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg>
+          </div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-zh">连续一周</div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-en style="display:none">Week Streak</div>
+        </button>
+        <button data-name="训练达人" data-name-en="Training Pro" data-desc="单周完成训练 ≥ 5 次" data-desc-en="Weekly training ≥ 5 times" data-locked="true" class="badge-btn bg-surface-1 cute-shadow rounded-2xl p-3 flex flex-col items-center gap-2">
+          <div class="size-14 rounded-2xl bg-surface-2 border-2 border-border-subtle flex items-center justify-center badge-locked">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M3 8h3M18 8h3M3 16h3M18 16h3"/></svg>
+          </div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-zh">训练达人</div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-en style="display:none">Training Pro</div>
+        </button>
+        <button data-name="早起鸟" data-name-en="Early Bird" data-desc="早 9 点前完成首次校准" data-desc-en="Calibrate before 9am" data-locked="true" class="badge-btn bg-surface-1 cute-shadow rounded-2xl p-3 flex flex-col items-center gap-2">
+          <div class="size-14 rounded-2xl bg-surface-2 border-2 border-border-subtle flex items-center justify-center badge-locked">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3v18M5.6 5.6l12.8 12.8"/></svg>
+          </div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-zh">早起鸟</div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-en style="display:none">Early Bird</div>
+        </button>
+        <button data-name="周末也在线" data-name-en="Weekend Warrior" data-desc="周六/周日不弯腰 ≥ 2h" data-desc-en="Weekend good posture ≥ 2h" data-locked="true" class="badge-btn bg-surface-1 cute-shadow rounded-2xl p-3 flex flex-col items-center gap-2">
+          <div class="size-14 rounded-2xl bg-surface-2 border-2 border-border-subtle flex items-center justify-center badge-locked">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-zh">周末也在线</div>
+          <div class="text-[11px] text-text-tertiary text-center" data-lang-en style="display:none">Weekend Warrior</div>
+        </button>
+      </div>
+    </section>
+
+    <section class="fade-up d5 bg-surface-1 cute-shadow rounded-2xl p-5">
+      <div class="text-[10px] font-mono text-text-tertiary mb-3 font-bold tracking-wider" data-lang-zh">阶段状态机 · §5.7.1</div>
+      <div class="text-[10px] font-mono text-text-tertiary mb-3 font-bold tracking-wider" data-lang-en style="display:none">PLANT STATE MACHINE · §5.7.1</div>
+      <div class="space-y-2 text-xs">
+        <div class="flex items-center gap-2"><span class="size-2 rounded-full bg-text-tertiary"></span><span class="text-text-secondary" data-lang-zh>种子</span><span class="text-text-secondary" data-lang-en style="display:none">Seed</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-zh">首次校准</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-en style="display:none">First calibration</span></div>
+        <div class="flex items-center gap-2"><span class="size-2 rounded-full bg-text-tertiary"></span><span class="text-text-secondary" data-lang-zh>嫩芽</span><span class="text-text-secondary" data-lang-en style="display:none">Sprout</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-zh">连续 1 天 ≥ 1h</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-en style="display:none">1-day streak ≥ 1h</span></div>
+        <div class="flex items-center gap-2"><span class="size-2 rounded-full bg-status-healthy"></span><span class="text-status-healthy font-bold" data-lang-zh>小树</span><span class="text-status-healthy font-bold" data-lang-en style="display:none">Sapling</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-zh">连续 3 天 · 当前</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-en style="display:none">3-day streak · Current</span></div>
+        <div class="flex items-center gap-2"><span class="size-2 rounded-full bg-text-tertiary"></span><span class="text-text-secondary" data-lang-zh>含苞</span><span class="text-text-secondary" data-lang-en style="display:none">Bud</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-zh">连续 7 天</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-en style="display:none">7-day streak</span></div>
+        <div class="flex items-center gap-2"><span class="size-2 rounded-full bg-text-tertiary"></span><span class="text-text-secondary" data-lang-zh">结果</span><span class="text-text-secondary" data-lang-en style="display:none">Fruit</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-zh">连续 14 天</span><span class="text-text-tertiary ml-auto text-[11px]" data-lang-en style="display:none">14-day streak</span></div>
+      </div>
+      <div class="text-[11px] text-text-tertiary mt-3 leading-relaxed" data-lang-zh">退一阶段条件:当日不弯腰时长 &lt; 30min。数据源:每日不弯腰时长(§F6 公式),无需新数据。</div>
+      <div class="text-[11px] text-text-tertiary mt-3 leading-relaxed" data-lang-en style="display:none">Demote: daily good posture &lt; 30min. Data source: §F6 formula, no new data needed.</div>
+    </section>
+
+    <section class="fade-up d5 grid grid-cols-2 gap-2">
+      <a href="desk.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-3 flex items-center gap-2.5">
+        <span class="text-xl">🏠</span>
+        <div>
+          <div class="text-sm font-bold" data-lang-zh">回主页</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-zh">看实时姿态</div>
+          <div class="text-sm font-bold" data-lang-en" style="display:none">Back home</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-en style="display:none">View live posture</div>
+        </div>
+      </a>
+      <a href="demo.html" class="card-hover bg-surface-1 cute-shadow rounded-2xl py-3 px-3 flex items-center gap-2.5">
+        <span class="text-xl">🔁</span>
+        <div>
+          <div class="text-sm font-bold" data-lang-zh">看闭环</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-zh">3 分钟演示脚本</div>
+          <div class="text-sm font-bold" data-lang-en" style="display:none">See loop</div>
+          <div class="text-[10px] text-text-tertiary" data-lang-en style="display:none">3-min demo script</div>
+        </div>
+      </a>
+    </section>
+
+  </main>
+
+  <nav class="fixed md:absolute bottom-0 inset-x-0 md:rounded-b-[48px] bg-surface-raised/95 backdrop-blur-md border-t border-border-subtle z-10">
+    <div class="grid grid-cols-4 max-w-md md:max-w-none mx-auto">
+      <a href="desk.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="text-[10px] font-bold" data-lang-zh>主页</span>
+        <span class="text-[10px] font-bold" data-lang-en style="display:none">HOME</span>
+      </a>
+      <a href="plant.html" class="flex flex-col items-center py-2.5 gap-0.5 text-accent-warm">
+        <span class="text-base">🪴</span>
+        <span class="text-[10px] font-bold" data-lang-zh>盆栽</span>
+        <span class="text-[10px] font-bold" data-lang-en style="display:none">PLANT</span>
+      </a>
+      <a href="demo.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span class="text-[10px] font-bold" data-lang-zh>演示</span>
+        <span class="text-[10px] font-bold" data-lang-en style="display:none">DEMO</span>
+      </a>
+      <a href="agent.html" class="flex flex-col items-center py-2.5 gap-0.5 text-text-tertiary hover:text-accent-warm transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span class="text-[10px] font-bold">MCP</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<aside class="hidden md:flex flex-col w-[420px] bg-surface-1 cute-shadow rounded-3xl p-6 self-start sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto aside-card">
+  <div class="text-[10px] font-mono text-accent-warm font-bold tracking-wider mb-3">// GAMIFICATION · 给设计师看</div>
+  <h2 class="text-xl font-bold serif-zh mb-3" data-lang-zh">这个画面在表达什么？</h2>
+  <h2 class="text-xl font-bold serif-zh mb-3" data-lang-en style="display:none">What this page tells</h2>
+  <p class="text-sm text-text-secondary leading-relaxed mb-4" data-lang-zh">
+    Forest 风格的养成游戏:把抽象的"坐姿时长"翻译成一颗肉眼可见的植物。
+    你不需要看数字,只需要看叶子有没有蔫。
+  </p>
+  <p class="text-sm text-text-secondary leading-relaxed mb-4" data-lang-en style="display:none">
+    Forest-style growth game: translates abstract posture minutes into a visible plant.
+    You don't read numbers — you just see if the leaves are wilting.
+  </p>
+
+  <ol class="space-y-2.5 text-sm text-text-primary mb-5">
+    <li class="flex items-start gap-2">
+      <span class="size-5 rounded-full bg-accent-warm/15 text-accent-warm text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+      <span data-lang-zh"><b>5 个阶段</b> · 种子 → 嫩芽 → 小树 → 含苞 → 结果</span>
+      <span data-lang-en style="display:none"><b>5 stages</b> · Seed → Sprout → Sapling → Bud → Fruit</span>
+    </li>
+    <li class="flex items-start gap-2">
+      <span class="size-5 rounded-full bg-accent-warm/15 text-accent-warm text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+      <span data-lang-zh"><b>连续天数</b> · 7 天不弯腰 = 一朵火苗 = 进入含苞</span>
+      <span data-lang-en style="display:none"><b>Streak</b> · 7 days = flame = enter Bud</span>
+    </li>
+    <li class="flex items-start gap-2">
+      <span class="size-5 rounded-full bg-accent-warm/15 text-accent-warm text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+      <span data-lang-zh"><b>6 个徽章</b> · 早晚、周末、训练、连续天数</span>
+      <span data-lang-en style="display:none"><b>6 badges</b> · early/late, weekend, training, streaks</span>
+    </li>
+  </ol>
+
+  <div class="border-t border-border-subtle pt-4">
+    <div class="text-[10px] font-mono text-duo-blue font-bold tracking-wider mb-3">// 数据闭环</div>
+    <div class="text-base font-bold serif-zh mb-3" data-lang-zh">为什么这样设计？</div>
+    <div class="text-base font-bold serif-zh mb-3" data-lang-en style="display:none">Why this design?</div>
+    <div class="space-y-2 text-[12px] text-text-secondary leading-relaxed">
+      <p data-lang-zh">- 久坐最痛苦的是"我没感觉到在变糟"——植物替你感受</p>
+      <p data-lang-en style="display:none">- Worst pain: "I don't feel myself getting worse" — plant feels for you</p>
+      <p data-lang-zh">- 触发即时的画面反馈,比"今日报告"有效 10 倍</p>
+      <p data-lang-en style="display:none">- Immediate visual feedback is 10x more effective than daily reports</p>
+      <p data-lang-zh">- 退一阶段机制防止"赢了就躺"——今天不达标就掉级</p>
+      <p data-lang-en style="display:none">- Demote mechanism prevents "win and rest" — miss today, drop a stage</p>
+    </div>
+  </div>
+</aside>
+
+</div>
+
+<div id="badge-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30 backdrop-blur-sm">
+  <div class="bg-surface-1 cute-shadow rounded-3xl p-6 mx-6 w-full max-w-sm modal-in">
+    <div class="flex items-start justify-between mb-4">
+      <div id="badge-modal-icon" class="size-16 rounded-2xl bg-status-healthy/15 border-2 border-status-healthy/30 flex items-center justify-center"></div>
+      <button id="badge-modal-close" class="size-9 rounded-2xl bg-surface-2 border border-border-subtle flex items-center justify-center text-text-secondary hover:border-accent-warm transition-colors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <h3 id="badge-modal-name" class="text-xl font-bold tracking-tight mb-2 serif-zh"></h3>
+    <p id="badge-modal-desc" class="text-sm text-text-secondary leading-relaxed mb-4"></p>
+    <div id="badge-modal-state" class="text-xs"></div>
+  </div>
+</div>
+
+<script>
+function setLang(l) {
+  document.querySelectorAll('[data-lang-zh]').forEach(el => el.style.display = l === 'zh' ? '' : 'none');
+  document.querySelectorAll('[data-lang-en]').forEach(el => el.style.display = l === 'en' ? '' : 'none');
+  document.getElementById('lang-zh').classList.toggle('active', l === 'zh');
+  document.getElementById('lang-zh').classList.toggle('text-text-tertiary', l !== 'zh');
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-en').classList.toggle('text-text-tertiary', l !== 'en');
+  document.documentElement.lang = l === 'zh' ? 'zh-CN' : 'en';
+  window._lang = l;
+}
+window._lang = 'zh';
+
+(function() {
+  const STAGE_LABEL_ZH = ['0 · 种子','1 · 嫩芽','2 · 小树','3 · 含苞','4 · 结果'];
+  const STAGE_LABEL_EN = ['0 · Seed','1 · Sprout','2 · Sapling','3 · Bud','4 · Fruit'];
+  const plant = document.getElementById('plant');
+  const dots = document.querySelectorAll('.stage-dot');
+  const label = document.getElementById('stage-label');
+  function apply(stage) {
+    plant.querySelectorAll('.stage').forEach(g => g.style.display = 'none');
+    const sel = plant.querySelector('.stage-' + stage);
+    if (sel) sel.style.display = '';
+    dots.forEach(d => {
+      d.className = 'stage-dot text-center py-2 rounded-xl';
+      const m = d.querySelector('.font-mono');
+      const t = d.querySelectorAll('div')[1];
+      if (m) { m.className = 'text-[10px] text-text-tertiary font-mono font-bold'; }
+      if (t) { t.className = 'text-[11px] text-text-tertiary mt-0.5'; }
+    });
+    const cur = document.querySelector(`.stage-dot[data-stage="${stage}"]`);
+    if (cur) {
+      cur.classList.add('bg-status-healthy/10', 'border', 'border-status-healthy/40');
+      const m = cur.querySelector('.font-mono');
+      const t = cur.querySelectorAll('div')[1];
+      if (m) m.className = 'text-[10px] text-status-healthy font-mono font-bold';
+      if (t) t.className = 'text-[11px] text-status-healthy font-bold mt-0.5';
+    }
+    label.textContent = (window._lang === 'en' ? STAGE_LABEL_EN : STAGE_LABEL_ZH)[stage];
+  }
+  dots.forEach(d => d.addEventListener('click', () => apply(d.dataset.stage)));
+})();
+
+(function() {
+  const modal = document.getElementById('badge-modal');
+  const icon = document.getElementById('badge-modal-icon');
+  const name = document.getElementById('badge-modal-name');
+  const desc = document.getElementById('badge-modal-desc');
+  const state = document.getElementById('badge-modal-state');
+  document.querySelectorAll('.badge-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const locked = btn.dataset.locked === 'true';
+      const l = window._lang;
+      const svg = btn.querySelector('svg').cloneNode(true);
+      svg.setAttribute('width', '32');
+      svg.setAttribute('height', '32');
+      icon.innerHTML = '';
+      icon.appendChild(svg);
+      icon.className = 'size-16 rounded-2xl flex items-center justify-center ' + (locked ? 'bg-surface-2 border-2 border-border-subtle' : 'bg-status-healthy/15 border-2 border-status-healthy/30');
+      if (locked) icon.querySelector('svg').style.color = '#9B9590';
+      else icon.querySelector('svg').setAttribute('stroke', '#58CC02');
+      name.textContent = l === 'en' ? btn.dataset.nameEn : btn.dataset.name;
+      desc.textContent = l === 'en' ? btn.dataset.descEn : btn.dataset.desc;
+      state.innerHTML = locked
+        ? (l === 'en' ? '<span class="text-text-tertiary">Locked</span> · Meet requirement to unlock' : '<span class="text-text-tertiary">未解锁</span> · 达成条件即可点亮')
+        : (l === 'en' ? '<span class="text-status-healthy">Unlocked</span> · Repeat does not re-activate' : '<span class="text-status-healthy">已解锁</span> · 再次达成不重复点亮');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    });
+  });
+  document.getElementById('badge-modal-close').addEventListener('click', () => {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  });
+  modal.addEventListener('click', e => { if (e.target === modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } });
+})();
+</script>
+</body>
+</html>

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>原型导航 · Posture-AI</title>
+<title>原型索引 · Posture-AI</title>
 <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,7 +25,6 @@
     --color-status-warning: #FFC800;
     --color-status-alert: #FF4B4B;
     --color-status-offline: #AFA8A0;
-    --color-status-active: #FFC800;
     --color-duo-purple: #CE82FF;
     --color-duo-blue: #1CB0F6;
     --font-sans: "Geist", "Noto Sans SC", system-ui, sans-serif;
@@ -37,414 +36,291 @@
     html, body { font-family: var(--font-sans); background: var(--color-canvas); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
     body { min-height: 100vh; }
   }
-  /* 衬线体点缀 */
   .serif-zh { font-family: var(--font-serif-zh); }
   .serif-en { font-family: var(--font-serif-en); }
-  /* 入场动画 */
-  @keyframes card-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
   .card-in { animation: card-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-  .d1 { animation-delay: 0.04s; } .d2 { animation-delay: 0.08s; } .d3 { animation-delay: 0.12s; }
-  .d4 { animation-delay: 0.16s; } .d5 { animation-delay: 0.20s; } .d6 { animation-delay: 0.24s; }
-  .d7 { animation-delay: 0.28s; } .d8 { animation-delay: 0.32s; }
-  /* 卡片悬浮 */
-  .card-hover {
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease-out, border-color 0.2s ease-out;
-  }
-  .card-hover:hover {
-    transform: translateY(-3px) scale(1.01);
-    box-shadow: 0 12px 32px -8px rgba(45, 42, 38, 0.12), 0 0 0 1px rgba(255, 107, 53, 0.15);
-    border-color: var(--color-border-warm);
-  }
-  /* 焦点可见 */
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.10s; } .d3 { animation-delay: 0.15s; }
+  .d4 { animation-delay: 0.20s; } .d5 { animation-delay: 0.25s; } .d6 { animation-delay: 0.30s; }
+  .d7 { animation-delay: 0.35s; } .d8 { animation-delay: 0.40s; } .d9 { animation-delay: 0.45s; }
+  .card-hover { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease-out, border-color 0.2s ease-out; }
+  .card-hover:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 32px -8px rgba(45, 42, 38, 0.12), 0 0 0 1px rgba(255, 107, 53, 0.15); border-color: var(--color-border-warm); }
   a:focus-visible, button:focus-visible { outline: 3px solid var(--color-accent-warm); outline-offset: 3px; border-radius: 12px; }
-  /* 减弱动画 */
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-  /* 旅程节点悬浮 */
   .journey-node { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .journey-node:hover { transform: scale(1.12); }
-  /* 语言切换按钮 */
   .lang-btn { transition: background-color 0.2s, color 0.2s, transform 0.15s; }
   .lang-btn:hover { transform: scale(1.05); }
   .lang-btn.active { background-color: var(--color-accent-warm); color: white; }
-  /* 可爱圆角装饰 */
   .cute-shadow { box-shadow: 0 2px 8px rgba(45, 42, 38, 0.06), 0 0 0 1px var(--color-border-subtle); }
+  .bigger-shadow { box-shadow: 0 4px 20px -6px rgba(45, 42, 38, 0.10), 0 0 0 1px var(--color-border-warm); }
+  .score-display { font-family: var(--font-serif-en); font-weight: 800; }
+  .node-pulse { animation: np 2.4s ease-in-out infinite; transform-origin: center; }
+  .node-pulse-2 { animation-delay: 0.4s; }
+  .node-pulse-3 { animation-delay: 0.8s; }
+  @keyframes np { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.18); opacity: 0.85; } }
+  @keyframes plant-breathe { 0%, 100% { transform: scale(1) rotate(-0.5deg); } 50% { transform: scale(1.02) rotate(0.5deg); } }
+  .plant-breathe { animation: plant-breathe 4s ease-in-out infinite; transform-origin: 50% 95%; }
+  @keyframes sun-shine { 0%, 100% { opacity: 0.4; transform: rotate(0deg); } 50% { opacity: 0.6; transform: rotate(6deg); } }
+  .sun-shine { animation: sun-shine 8s ease-in-out infinite; transform-origin: 200px 60px; }
 </style>
 </head>
 <body>
-  <!-- 顶部导航 -->
-  <header class="sticky top-0 z-20 bg-surface-raised/90 backdrop-blur-md border-b border-border-subtle">
-    <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="size-10 rounded-2xl bg-accent-warm flex items-center justify-center shadow-md">
-          <span class="text-white font-bold text-lg serif-en">P</span>
-        </div>
-        <div>
-          <div class="text-sm font-bold tracking-tight">
-            <span data-lang-zh>Posture-AI 原型</span>
-            <span data-lang-en style="display:none">Posture-AI Prototype</span>
-          </div>
-          <div class="text-xs text-text-tertiary">
-            <span data-lang-zh>10 个核心页面 · 2C APP + 外接传感器</span>
-            <span data-lang-en style="display:none">10 core pages · 2C APP + External Sensor</span>
-          </div>
-        </div>
+<header class="sticky top-0 z-20 bg-surface-raised/90 backdrop-blur-md border-b border-border-subtle">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="size-10 rounded-2xl bg-accent-warm flex items-center justify-center shadow-md">
+        <span class="text-white font-bold text-lg serif-en">P</span>
       </div>
-      <!-- 中英文切换 -->
-      <div class="flex items-center gap-1 bg-surface-2 rounded-full p-1">
-        <button onclick="setLang('zh')" class="lang-btn active px-3 py-1 rounded-full text-xs font-bold" id="lang-zh">中</button>
-        <button onclick="setLang('en')" class="lang-btn px-3 py-1 rounded-full text-xs font-bold text-text-tertiary" id="lang-en">EN</button>
+      <div>
+        <div class="text-sm font-bold tracking-tight" data-lang-zh>Posture-AI 原型</div>
+        <div class="text-sm font-bold tracking-tight" data-lang-en" style="display:none">Posture-AI Prototype</div>
+        <div class="text-xs text-text-tertiary" data-lang-zh">书桌场景 · 5 步闭环 · 3 个核心页面</div>
+        <div class="text-xs text-text-tertiary" data-lang-en" style="display:none">Desk scene · 5-step loop · 3 core pages</div>
       </div>
     </div>
-  </header>
+    <div class="flex items-center gap-1 bg-surface-2 rounded-full p-1">
+      <button onclick="setLang('zh')" class="lang-btn active px-3 py-1 rounded-full text-xs font-bold" id="lang-zh">中</button>
+      <button onclick="setLang('en')" class="lang-btn px-3 py-1 rounded-full text-xs font-bold text-text-tertiary" id="lang-en">EN</button>
+    </div>
+  </div>
+</header>
 
-  <main class="max-w-5xl mx-auto px-6 py-10 space-y-14">
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-14">
 
-    <!-- Hero -->
-    <section class="card-in">
-      <div class="text-xs font-mono text-accent-warm mb-3 font-bold tracking-wider">// DESIGN BRIEF · 2026-06-06 · 2C</div>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-tight max-w-3xl serif-zh">
-        <span data-lang-zh>一块<span class="text-accent-warm">3 节点背带板</span>，<br/>一个<span class="text-accent-warm">手机 APP</span>。</span>
-        <span data-lang-en style="display:none">A <span class="text-accent-warm">3-Node Sensor Belt</span>,<br/>One <span class="text-accent-warm">Smartphone App</span>.</span>
-      </h1>
-      <p class="text-text-secondary text-base mt-4 max-w-2xl leading-relaxed">
-        <span data-lang-zh>外接开发板（BOM ≈ ¥223，含 ESP32-S3 + 3 个 BNO085 IMU）通过 BLE 连接到 iOS / Android APP。APP 端做实时姿态打分、振动反馈、端侧 MNN 推理，并把姿态/视觉数据暴露为 MCP 工具供 PC 智能体远程调用。</span>
-        <span data-lang-en style="display:none">External dev board (BOM ≈ ¥223, ESP32-S3 + 3× BNO085 IMU) connects to iOS/Android via BLE. The app performs real-time posture scoring, vibration feedback, on-device MNN inference, and exposes posture/vision data as MCP tools for PC-side AI agents.</span>
-      </p>
-      <div class="mt-5 flex flex-wrap gap-2">
-        <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">
-          <span data-lang-zh>📦 外接硬件 · 3 节点</span><span data-lang-en style="display:none">📦 Hardware · 3 Nodes</span>
-        </span>
-        <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">
-          <span data-lang-zh>📱 2C APP · BLE 配对</span><span data-lang-en style="display:none">📱 2C APP · BLE Pairing</span>
-        </span>
-        <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">
-          <span data-lang-zh>🤖 MCP Agent · 远程调用</span><span data-lang-en style="display:none">🤖 MCP Agent · Remote Access</span>
-        </span>
-        <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">
-          <span data-lang-zh>🔒 端侧 MNN · 隐私优先</span><span data-lang-en style="display:none">🔒 On-Device MNN · Privacy First</span>
-        </span>
-        <span class="text-xs px-3 py-1.5 rounded-full bg-status-healthy/10 border border-status-healthy/30 text-status-healthy font-bold">
-          <span data-lang-zh>🌱 游戏化 · 复赛 P0</span><span data-lang-en style="display:none">🌱 Gamification · Semifinal P0</span>
-        </span>
-      </div>
-    </section>
+  <section class="card-in">
+    <div class="text-xs font-mono text-accent-warm mb-3 font-bold tracking-wider">// REDESIGNED v2 · 2026-06-07 · 主舞台:书桌场景</div>
+    <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-tight max-w-3xl serif-zh">
+      <span data-lang-zh">一只<span class="text-accent-warm">坐在书桌前</span>的猫,<br/>和桌面上一颗<span class="text-accent-warm">会成长的植物</span>。</span>
+      <span data-lang-en" style="display:none">A cat at the <span class="text-accent-warm">desk</span>,<br/>and a <span class="text-accent-warm">growing plant</span> on it.</span>
+    </h1>
+    <p class="text-text-secondary text-base mt-4 max-w-2xl leading-relaxed" data-lang-zh">
+      v2 重新设计:把抽象的 IMU 角度变成"脊柱上 3 个绿黄红节点",把每日时长变成"桌上一颗会枯萎/结果的盆栽"。
+      5 步闭环 <b class="text-text-primary">检测 → 触发 → 反馈 → 推理 → 成长</b>,3 分钟现场讲完。
+    </p>
+    <p class="text-text-secondary text-base mt-4 max-w-2xl leading-relaxed" data-lang-en" style="display:none">
+      v2 redesign: turn IMU angles into 3 colored spine nodes (green/yellow/red), turn daily minutes into a withering/blooming plant on the desk. 5-step loop <b class="text-text-primary">SENSE → TRIGGER → HAPTIC → INFER → GROW</b>.
+    </p>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">书桌场景</span>
+      <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">3 节点脊柱</span>
+      <span class="text-xs px-3 py-1.5 rounded-full bg-surface-2 border border-border-subtle text-text-secondary">盆栽养成</span>
+      <span class="text-xs px-3 py-1.5 rounded-full bg-status-healthy/10 border border-status-healthy/30 text-status-healthy font-bold">5 步闭环</span>
+      <span class="text-xs px-3 py-1.5 rounded-full bg-duo-blue/10 border border-duo-blue/30 text-duo-blue font-bold">MCP 远程</span>
+    </div>
+  </section>
 
-    <!-- 用户旅程地图 -->
-    <section>
-      <h2 class="text-2xl font-bold mb-2 serif-zh">
-        <span data-lang-zh>用户旅程地图</span><span data-lang-en style="display:none">User Journey Map</span>
-      </h2>
-      <p class="text-text-secondary text-sm mb-5">
-        <span data-lang-zh>从开箱到日常使用的完整 2C 路径</span><span data-lang-en style="display:none">Complete 2C path from unboxing to daily use</span>
-      </p>
-      <div class="bg-surface-1 cute-shadow rounded-3xl p-5 overflow-x-auto">
-        <div class="flex items-center gap-2 min-w-[760px]">
-          <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
-            <div class="size-10 rounded-2xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center text-status-healthy font-bold">1</div>
-            <a href="dashboard-empty.html" class="text-xs text-center leading-tight max-w-[80px] text-text-secondary hover:text-accent-warm transition-colors">
-              <span data-lang-zh>开箱 + 首次启动</span><span data-lang-en style="display:none">Unboxing</span>
-            </a>
+  <section>
+    <h2 class="text-2xl font-bold mb-2 serif-zh" data-lang-zh">主舞台 · 3 个核心页面</h2>
+    <h2 class="text-2xl font-bold mb-2 serif-zh" data-lang-en" style="display:none">Main Stage · 3 Core Pages</h2>
+    <p class="text-text-secondary text-sm mb-5" data-lang-zh">点击任意卡片进入</p>
+    <p class="text-text-secondary text-sm mb-5" data-lang-en" style="display:none">Click any card to enter.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a href="desk.html" class="md:col-span-2 group card-hover card-in d1 bg-surface-1 bigger-shadow rounded-3xl p-6 relative overflow-hidden">
+        <div class="text-[10px] font-mono text-accent-warm mb-2 font-bold">F1 · 主舞台</div>
+        <div class="text-2xl font-bold serif-zh mb-2" data-lang-zh">书桌主页 · 实时姿态</div>
+        <div class="text-2xl font-bold serif-zh mb-2" data-lang-en" style="display:none">Desk Home · Live Posture</div>
+        <div class="text-sm text-text-secondary max-w-md" data-lang-zh">"一只猫坐在书桌前"的核心画面。3 节点脊柱实时可视化,盆栽随姿态生长/枯萎,5 个状态按钮现场切换。</div>
+        <div class="text-sm text-text-secondary max-w-md" data-lang-en" style="display:none">The "cat at desk" hero scene. 3-node spine live viz, plant grows/wilts, 5 state buttons switch live.</div>
+        <div class="mt-4 bg-canvas rounded-2xl p-4 border border-border-subtle">
+          <svg viewBox="0 0 400 160" class="w-full h-32">
+            <rect x="0" y="0" width="400" height="160" fill="url(#wGrad)"/>
+            <defs>
+              <linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFFCF7"/>
+                <stop offset="100%" stop-color="#F5F0E8"/>
+              </linearGradient>
+            </defs>
+            <rect x="20" y="120" width="360" height="6" fill="#D4A574"/>
+            <g class="plant-breathe" transform="translate(290, 75)">
+              <path d="M 14 35 L 18 45 L 32 45 L 36 35 Z" fill="#C2725A"/>
+              <path d="M 25 35 L 25 18" stroke="#65A30D" stroke-width="2" stroke-linecap="round"/>
+              <ellipse cx="20" cy="26" rx="6" ry="2" fill="#84CC16" transform="rotate(-25 20 26)"/>
+              <ellipse cx="30" cy="22" rx="6" ry="2" fill="#84CC16" transform="rotate(25 30 22)"/>
+            </g>
+            <g>
+              <!-- 猫 -->
+              <ellipse cx="160" cy="102" rx="14" ry="11" fill="#FFB347"/>
+              <circle cx="160" cy="78" r="11" fill="#FFB347"/>
+              <path d="M 152 72 L 149 60 L 157 69 Z" fill="#FFB347"/>
+              <path d="M 168 72 L 171 60 L 163 69 Z" fill="#FFB347"/>
+              <circle cx="156" cy="76" r="1.8" fill="#2D2A26"/>
+              <circle cx="164" cy="76" r="1.8" fill="#2D2A26"/>
+              <ellipse cx="160" cy="80" rx="1.5" ry="1" fill="#FF8C94"/>
+              <path d="M 148 102 Q 136 98 132 90" fill="none" stroke="#FFB347" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g>
+              <circle cx="160" cy="95" r="5" fill="none" stroke="#58CC02" stroke-width="2" class="node-pulse"/>
+              <circle cx="160" cy="95" r="3" fill="#58CC02" class="node-pulse"/>
+              <circle cx="158" cy="108" r="5" fill="none" stroke="#58CC02" stroke-width="2" class="node-pulse node-pulse-2"/>
+              <circle cx="158" cy="108" r="3" fill="#58CC02" class="node-pulse node-pulse-2"/>
+            </g>
+            <text x="170" y="97" font-family="Geist Mono" font-size="6" font-weight="700" fill="#9B9590">C7</text>
+            <text x="168" y="110" font-family="Geist Mono" font-size="6" font-weight="700" fill="#9B9590">T12</text>
+          </svg>
+        </div>
+        <div class="mt-4 inline-flex items-center gap-1.5 text-sm text-accent-warm font-bold" data-lang-zh">进入主页 →</div>
+        <div class="mt-4 inline-flex items-center gap-1.5 text-sm text-accent-warm font-bold" data-lang-en" style="display:none">Enter Desk →</div>
+      </a>
+
+      <a href="plant.html" class="group card-hover card-in d2 bg-surface-1 cute-shadow rounded-3xl p-5">
+        <div class="text-[10px] font-mono text-status-healthy mb-1.5 font-bold">F2 · 养成</div>
+        <div class="text-lg font-bold mb-1.5 serif-zh" data-lang-zh">坐姿小植物</div>
+        <div class="text-lg font-bold mb-1.5 serif-zh" data-lang-en" style="display:none">Posture Plant</div>
+        <div class="text-xs text-text-secondary leading-relaxed" data-lang-zh">Forest 风格 5 阶段养成 + 7 天连续 + 6 枚成就徽章</div>
+        <div class="text-xs text-text-secondary leading-relaxed" data-lang-en" style="display:none">Forest-style 5-stage growth + 7-day streak + 6 badges</div>
+        <div class="mt-3 flex justify-center">
+          <svg class="w-20 h-20 plant-breathe" viewBox="0 0 100 100" fill="none">
+            <path d="M 14 70 L 22 92 L 58 92 L 66 70 Z" fill="#C2725A"/>
+            <ellipse cx="40" cy="70" rx="24" ry="2.5" fill="#5C3D24"/>
+            <path d="M 50 68 L 50 35" stroke="#65A30D" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="40" cy="50" rx="9" ry="3.5" fill="#84CC16" transform="rotate(-25 40 50)"/>
+            <ellipse cx="60" cy="45" rx="9" ry="3.5" fill="#84CC16" transform="rotate(25 60 45)"/>
+            <ellipse cx="42" cy="62" rx="7" ry="3" fill="#A3E635" transform="rotate(-15 42 62)"/>
+            <ellipse cx="58" cy="58" rx="7" ry="3" fill="#A3E635" transform="rotate(15 58 58)"/>
+          </svg>
+        </div>
+        <div class="mt-3 text-xs text-accent-warm font-bold" data-lang-zh">进入养成 →</div>
+        <div class="mt-3 text-xs text-accent-warm font-bold" data-lang-en" style="display:none">Enter Plant →</div>
+      </a>
+
+      <a href="agent.html" class="group card-hover card-in d4 bg-gradient-to-br from-duo-blue/5 to-status-healthy/5 border border-duo-blue/20 rounded-3xl p-5 md:col-span-2">
+        <div class="text-[10px] font-mono text-duo-blue mb-1.5 font-bold">F3 · 杀手锏</div>
+        <div class="text-lg font-bold mb-1.5 serif-zh" data-lang-zh">MCP Agent 网关</div>
+        <div class="text-lg font-bold mb-1.5 serif-zh" data-lang-en" style="display:none">MCP Agent Gateway</div>
+        <div class="text-xs text-text-secondary leading-relaxed" data-lang-zh">手机成为 LLM Agent 的"身体"。10 个 MCP 工具,Claude Code / Codex 远程调用</div>
+        <div class="text-xs text-text-secondary leading-relaxed" data-lang-en" style="display:none">Phone becomes LLM Agent's body. 10 MCP tools, Claude Code / Codex call remotely.</div>
+        <div class="mt-3 flex items-center gap-3">
+          <div class="flex-1 bg-canvas rounded-lg p-2 border border-border-subtle font-mono text-[10px]">
+            <div class="text-text-tertiary">$ claude --mcp-server posture://</div>
+            <div class="text-status-healthy">✓ Connected</div>
+            <div class="text-text-secondary">→ tool: get_body_kinematics</div>
           </div>
-          <div class="flex-1 h-px bg-border-subtle"></div>
-          <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
-            <div class="size-10 rounded-2xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center text-status-healthy font-bold">2</div>
-            <a href="pairing.html" class="text-xs text-center leading-tight max-w-[80px] text-text-secondary hover:text-accent-warm transition-colors">
-              <span data-lang-zh>BLE 配对板子</span><span data-lang-en style="display:none">BLE Pairing</span>
-            </a>
-          </div>
-          <div class="flex-1 h-px bg-border-subtle"></div>
-          <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
-            <div class="size-10 rounded-2xl bg-status-healthy/15 border border-status-healthy/30 flex items-center justify-center text-status-healthy font-bold">3</div>
-            <a href="calibration.html" class="text-xs text-center leading-tight max-w-[80px] text-text-secondary hover:text-accent-warm transition-colors">
-              <span data-lang-zh>3 节点零位校准</span><span data-lang-en style="display:none">3-Node Calibration</span>
-            </a>
-          </div>
-          <div class="flex-1 h-px bg-border-subtle"></div>
-          <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
-            <div class="size-10 rounded-2xl bg-accent-warm/15 border border-accent-warm/30 flex items-center justify-center text-accent-warm font-bold">4</div>
-            <a href="dashboard.html" class="text-xs text-center leading-tight max-w-[80px] text-text-secondary hover:text-accent-warm transition-colors">
-              <span data-lang-zh>日常使用</span><span data-lang-en style="display:none">Daily Use</span>
-            </a>
-          </div>
-          <div class="flex-1 h-px bg-border-subtle"></div>
-          <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
-            <div class="size-10 rounded-2xl bg-surface-2 border border-border-subtle flex items-center justify-center text-text-tertiary font-bold">5</div>
-            <a href="mcp-service.html" class="text-xs text-center leading-tight max-w-[80px] text-text-secondary hover:text-accent-warm transition-colors">
-              <span data-lang-zh>进阶：MCP 远程</span><span data-lang-en style="display:none">Advanced: MCP</span>
-            </a>
-          </div>
-          <div class="flex-1 h-px" style="background-image: repeating-linear-gradient(to right, var(--color-border-subtle) 0 6px, transparent 6px 12px);"></div>
-          <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
-            <div class="size-10 rounded-2xl bg-status-warning/15 border border-status-warning/30 flex items-center justify-center text-status-warning font-bold">6</div>
-            <a href="gamification.html" class="text-xs text-center leading-tight max-w-[80px] text-accent-warm font-bold">
-              <span data-lang-zh>复赛：游戏化</span><span data-lang-en style="display:none">Gamification</span>
-            </a>
+          <div class="text-2xl">→</div>
+          <div class="bg-canvas rounded-lg p-2 border border-border-subtle font-mono text-[10px]">
+            <div class="text-status-healthy font-bold">92</div>
+            <div class="text-text-tertiary">SCORE</div>
+            <div class="text-status-healthy">NORMAL</div>
           </div>
         </div>
-      </div>
-    </section>
+        <div class="mt-3 text-xs text-accent-warm font-bold" data-lang-zh">进入 Agent →</div>
+        <div class="mt-3 text-xs text-accent-warm font-bold" data-lang-en" style="display:none">Enter Agent →</div>
+      </a>
+    </div>
+  </section>
 
-    <!-- 页面索引 -->
-    <section>
-      <div class="flex items-baseline justify-between mb-5">
-        <h2 class="text-2xl font-bold serif-zh">
-          <span data-lang-zh>页面索引</span><span data-lang-en style="display:none">Page Index</span>
-        </h2>
-        <span class="text-xs text-text-tertiary font-mono font-bold">9 PAGES</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- 主仪表盘（大卡） -->
-        <a href="dashboard.html" class="md:col-span-2 group card-hover card-in d1 bg-surface-1 cute-shadow rounded-3xl p-6">
-          <div class="flex items-start justify-between mb-5">
-            <div>
-              <div class="text-xs font-mono text-accent-warm mb-2 font-bold">F1 · 日常主屏</div>
-              <div class="text-xl font-bold serif-zh">
-                <span data-lang-zh>实时姿态仪表盘</span><span data-lang-en style="display:none">Real-time Posture Dashboard</span>
-              </div>
-              <div class="text-sm text-text-secondary mt-1.5 max-w-md">
-                <span data-lang-zh>3 节点脊柱可视化 + Posture Score + 板子状态 + 振动反馈</span>
-                <span data-lang-en style="display:none">3-node spine visualization + Posture Score + Board status + Vibration feedback</span>
-              </div>
-            </div>
-            <span class="text-text-tertiary group-hover:text-accent-warm group-hover:translate-x-1 transition-all text-lg">→</span>
-          </div>
-          <div class="bg-canvas rounded-2xl p-4 border border-border-subtle flex items-center gap-6">
-            <svg width="40" height="120" viewBox="0 0 40 120" fill="none">
-              <line x1="20" y1="10" x2="20" y2="110" stroke="#E8E0D4" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="20" cy="25" r="7" fill="#58CC02"/>
-              <circle cx="20" cy="60" r="7" fill="#58CC02"/>
-              <circle cx="20" cy="95" r="7" fill="#FFC800"/>
-              <text x="33" y="28" fill="#9B9590" font-family="Geist Mono" font-size="9" font-weight="bold">C7</text>
-              <text x="33" y="63" fill="#9B9590" font-family="Geist Mono" font-size="9" font-weight="bold">T12</text>
-              <text x="33" y="98" fill="#9B9590" font-family="Geist Mono" font-size="9" font-weight="bold">L5</text>
-            </svg>
-            <div class="flex-1 space-y-2">
-              <div class="flex items-center justify-between"><span class="text-xs text-text-tertiary font-mono font-bold">C7 NECK PITCH</span><span class="font-mono text-sm font-bold text-status-warning">12.4°</span></div>
-              <div class="flex items-center justify-between"><span class="text-xs text-text-tertiary font-mono font-bold">T12 ROLL</span><span class="font-mono text-sm font-bold text-status-healthy">3.1°</span></div>
-              <div class="flex items-center justify-between"><span class="text-xs text-text-tertiary font-mono font-bold">L5 ROLL</span><span class="font-mono text-sm font-bold text-status-warning">9.8°</span></div>
-            </div>
-            <div class="text-right">
-              <div class="font-mono text-4xl font-bold text-status-healthy serif-en">87</div>
-              <div class="text-xs text-text-tertiary font-bold">SCORE</div>
-            </div>
-          </div>
-        </a>
-
-        <!-- 右上：空态 -->
-        <a href="dashboard-empty.html" class="group card-hover card-in d2 bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-text-tertiary mb-1.5 font-bold">F1 · EMPTY</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>开箱首启</span><span data-lang-en style="display:none">First Launch</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>未配对板子 · 引导：装上背带 → 开机 → 靠近手机</span>
-            <span data-lang-en style="display:none">Unpaired board · Guide: wear belt → power on → bring near phone</span>
-          </div>
-          <div class="mt-4 inline-flex items-center gap-1.5 text-xs text-accent-warm font-bold">
-            <span data-lang-zh>开始配对 →</span><span data-lang-en style="display:none">Start Pairing →</span>
-          </div>
-        </a>
-
-        <!-- BLE 配对 -->
-        <a href="pairing.html" class="group card-hover card-in d3 bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-text-tertiary mb-1.5 font-bold">F1 · PAIRING</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>BLE 配对板子</span><span data-lang-en style="display:none">BLE Board Pairing</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>扫描 → 选 PoseMaster-C6 → 配对 → 验证 3 节点</span>
-            <span data-lang-en style="display:none">Scan → Select PoseMaster-C6 → Pair → Verify 3 nodes</span>
-          </div>
-          <div class="mt-4 space-y-1.5">
-            <div class="flex items-center gap-2 text-xs"><span class="size-2 rounded-full bg-status-healthy"></span><span class="text-text-secondary">Node-C</span></div>
-            <div class="flex items-center gap-2 text-xs"><span class="size-2 rounded-full bg-status-healthy"></span><span class="text-text-secondary">Node-T</span></div>
-            <div class="flex items-center gap-2 text-xs"><span class="size-2 rounded-full bg-status-healthy"></span><span class="text-text-secondary">Node-L</span></div>
-          </div>
-        </a>
-
-        <!-- 校准 -->
-        <a href="calibration.html" class="group card-hover card-in d4 bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-text-tertiary mb-1.5 font-bold">F2</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>3 节点零位校准</span><span data-lang-en style="display:none">3-Node Zero Calibration</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>直立基线 → 前屈 30° → 侧屈 15°，采集参考四元数</span>
-            <span data-lang-en style="display:none">Upright baseline → Flex 30° → Lateral 15°, capture reference quaternions</span>
-          </div>
-          <div class="mt-4 flex gap-1.5">
-            <span class="size-2.5 rounded-full bg-accent-warm"></span>
-            <span class="size-2.5 rounded-full bg-surface-2"></span>
-            <span class="size-2.5 rounded-full bg-surface-2"></span>
-          </div>
-        </a>
-
-        <!-- Settings -->
-        <a href="settings.html" class="group card-hover card-in d5 bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-text-tertiary mb-1.5 font-bold">F8</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>设备管理</span><span data-lang-en style="display:none">Device Management</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>板子电量 · 固件版本 · 重新配对 · 解绑 · MNN 模型</span>
-            <span data-lang-en style="display:none">Board battery · Firmware · Re-pair · Unbind · MNN Model</span>
-          </div>
-        </a>
-
-        <!-- 游戏化大卡 -->
-        <a href="gamification.html" class="md:col-span-2 group card-hover card-in d6 bg-gradient-to-br from-status-healthy/5 to-status-warning/5 hover:from-status-healthy/10 hover:to-status-warning/10 border border-status-healthy/20 rounded-3xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="text-xs font-mono text-status-healthy mb-2 font-bold">F7+ · 复赛 P0 · §5.7</div>
-              <div class="text-xl font-bold serif-zh">
-                <span data-lang-zh>游戏化 3 件套</span><span data-lang-en style="display:none">Gamification Trio</span>
-              </div>
-              <div class="text-sm text-text-secondary mt-1.5">
-                <span data-lang-zh>坐姿小植物（5 阶段） + Streak 连续天数 + 6 个成就徽章</span>
-                <span data-lang-en style="display:none">Posture Plant (5 stages) + Streak Days + 6 Achievement Badges</span>
-              </div>
-            </div>
-            <span class="text-text-tertiary group-hover:text-accent-warm group-hover:translate-x-1 transition-all text-lg">→</span>
-          </div>
-          <div class="grid grid-cols-3 gap-3">
-            <div class="bg-canvas rounded-xl p-3 border border-border-subtle">
-              <div class="text-xs text-text-tertiary font-mono font-bold">PLANT</div>
-              <div class="text-xs text-text-primary mt-1">
-                <span data-lang-zh>种子 → 嫩芽 → 小苗 → 含苞 → 结果</span>
-                <span data-lang-en style="display:none">Seed → Sprout → Sapling → Bud → Fruit</span>
-              </div>
-            </div>
-            <div class="bg-canvas rounded-xl p-3 border border-border-subtle">
-              <div class="text-xs text-text-tertiary font-mono font-bold">STREAK</div>
-              <div class="text-xs text-status-warning font-mono font-bold mt-1">🔥 7 天连续</div>
-            </div>
-            <div class="bg-canvas rounded-xl p-3 border border-border-subtle">
-              <div class="text-xs text-text-tertiary font-mono font-bold">BADGES</div>
-              <div class="text-xs text-status-healthy font-bold mt-1">2 / 6 解锁</div>
-            </div>
-          </div>
-        </a>
-
-        <!-- 演示控制台 -->
-        <a href="mock-console.html" class="group card-hover card-in d7 bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-accent-warm mb-1.5 font-bold">F7 · DEMO</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>演示控制台</span><span data-lang-en style="display:none">Demo Console</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>5 种预设场景一键切换</span><span data-lang-en style="display:none">5 preset scenarios, one-tap switch</span>
-          </div>
-          <div class="mt-4 flex flex-wrap gap-1.5">
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-healthy/10 text-status-healthy font-bold">NORMAL</span>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert font-bold">SLUMPED</span>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-warning/10 text-status-warning font-bold">TECH_NECK</span>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-duo-purple/10 text-duo-purple font-bold">LEFT_LEAN</span>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-status-offline/10 text-status-offline font-bold">OFFLINE</span>
-          </div>
-        </a>
-
-        <!-- MCP 服务 -->
-        <a href="mcp-service.html" class="md:col-span-2 group card-hover card-in d8 bg-surface-1 cute-shadow rounded-3xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="text-xs font-mono text-duo-blue mb-2 font-bold">F9 · AGENT GATEWAY</div>
-              <div class="text-xl font-bold serif-zh">
-                <span data-lang-zh>MCP 服务启动页</span><span data-lang-en style="display:none">MCP Service Launch</span>
-              </div>
-              <div class="text-sm text-text-secondary mt-1.5">
-                <span data-lang-zh>前台服务启动 · LAN URL + Bearer Token · QR 码配对</span>
-                <span data-lang-en style="display:none">Foreground service · LAN URL + Bearer Token · QR pairing</span>
-              </div>
-            </div>
-            <span class="text-text-tertiary group-hover:text-accent-warm group-hover:translate-x-1 transition-all text-lg">→</span>
-          </div>
-          <div class="grid grid-cols-3 gap-3">
-            <div class="bg-canvas rounded-xl p-3 border border-border-subtle">
-              <div class="text-xs text-text-tertiary font-mono font-bold">URL</div>
-              <div class="text-xs text-text-primary font-mono mt-1 truncate">http://192.168.1.42:8765/mcp</div>
-            </div>
-            <div class="bg-canvas rounded-xl p-3 border border-border-subtle">
-              <div class="text-xs text-text-tertiary font-mono font-bold">TOKEN</div>
-              <div class="text-xs text-text-primary font-mono mt-1 truncate">eop_7f3a••••b9c2</div>
-            </div>
-            <div class="bg-canvas rounded-xl p-3 border border-border-subtle">
-              <div class="text-xs text-text-tertiary font-mono font-bold">CLIENTS</div>
-              <div class="text-xs text-status-healthy font-mono font-bold mt-1">1 connected</div>
-            </div>
-          </div>
-        </a>
-
-        <!-- Watchdog + Report -->
-        <a href="watchdog.html" class="group card-hover card-in bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-text-tertiary mb-1.5 font-bold">F9 · WATCH</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>周期感知</span><span data-lang-en style="display:none">Watchdog</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>配置巡检任务，异常推通知 + 落盘告警</span>
-            <span data-lang-en style="display:none">Configure patrol tasks, push alerts on anomaly</span>
-          </div>
-        </a>
-        <a href="report.html" class="group card-hover card-in bg-surface-1 cute-shadow rounded-3xl p-5">
-          <div class="text-xs font-mono text-text-tertiary mb-1.5 font-bold">F6</div>
-          <div class="text-lg font-bold mb-1.5 serif-zh">
-            <span data-lang-zh>周报 / 月报</span><span data-lang-en style="display:none">Weekly / Monthly Report</span>
-          </div>
-          <div class="text-xs text-text-secondary leading-relaxed">
-            <span data-lang-zh>不驼背趋势图 + 异常分布 + AI 建议</span>
-            <span data-lang-en style="display:none">Posture trend + Anomaly distribution + AI suggestions</span>
-          </div>
-        </a>
-        <a href="settings.html" class="group card-hover card-in bg-surface-1 rounded-3xl p-5" style="visibility:hidden;"></a>
-      </div>
-    </section>
-
-    <!-- 设计 DNA 速览 -->
-    <section class="border-t border-border-subtle pt-10">
-      <h2 class="text-2xl font-bold mb-5 serif-zh">
-        <span data-lang-zh>设计 DNA 速览</span><span data-lang-en style="display:none">Design DNA Overview</span>
-      </h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
-          <div class="text-xs text-text-tertiary font-mono mb-3 font-bold">COLOR · STATUS</div>
-          <div class="flex gap-1.5 mb-2">
-            <div class="size-7 rounded-lg bg-status-healthy"></div>
-            <div class="size-7 rounded-lg bg-status-warning"></div>
-            <div class="size-7 rounded-lg bg-status-alert"></div>
-            <div class="size-7 rounded-lg bg-status-offline"></div>
-          </div>
-          <div class="text-xs text-text-secondary">
-            <span data-lang-zh>4 状态色不混用</span><span data-lang-en style="display:none">4 status colors, no mixing</span>
-          </div>
+  <section>
+    <div class="flex items-baseline justify-between mb-5">
+      <h2 class="text-2xl font-bold serif-zh" data-lang-zh">用户旅程 · 5 步闭环</h2>
+      <h2 class="text-2xl font-bold serif-zh" data-lang-en" style="display:none">User Journey</h2>
+      <span class="text-xs text-text-tertiary font-mono font-bold">§16.2</span>
+    </div>
+    <div class="bg-surface-1 cute-shadow rounded-3xl p-5 overflow-x-auto">
+      <div class="flex items-center gap-2 min-w-[860px]">
+        <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
+          <div class="size-10 rounded-2xl bg-accent-warm text-white flex items-center justify-center font-bold">1</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-zh">检测</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-en" style="display:none">SENSE</div>
+          <div class="text-[10px] text-text-tertiary text-center" data-lang-zh">3 节点 100Hz</div>
         </div>
-        <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
-          <div class="text-xs text-text-tertiary font-mono mb-3 font-bold">FONT</div>
-          <div class="text-lg font-bold">Geist</div>
-          <div class="text-xs text-text-secondary mt-1">Sans + Mono + Serif</div>
+        <div class="flex-1 h-px bg-gradient-to-r from-accent-warm to-status-warning"></div>
+        <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
+          <div class="size-10 rounded-2xl bg-status-warning text-white flex items-center justify-center font-bold">2</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-zh">触发</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-en" style="display:none">TRIG</div>
+          <div class="text-[10px] text-text-tertiary text-center" data-lang-zh">状态机</div>
         </div>
-        <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
-          <div class="text-xs text-text-tertiary font-mono mb-3 font-bold">PERSONALITY</div>
-          <div class="text-sm serif-zh">
-            <span data-lang-zh>可爱 · 克制 · 微微暖意</span><span data-lang-en style="display:none">Cute · Restrained · Warm</span>
-          </div>
-          <div class="text-xs text-text-secondary mt-1">DuoLingo × Oura</div>
+        <div class="flex-1 h-px bg-gradient-to-r from-status-warning to-accent-warm"></div>
+        <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
+          <div class="size-10 rounded-2xl bg-accent-warm text-white flex items-center justify-center font-bold">3</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-zh">反馈</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-en" style="display:none">HAPTIC</div>
+          <div class="text-[10px] text-text-tertiary text-center" data-lang-zh">L5 振动</div>
         </div>
-        <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
-          <div class="text-xs text-text-tertiary font-mono mb-3 font-bold">AVOID</div>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">紫渐变</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">Inter</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">玻璃</span>
-          </div>
+        <div class="flex-1 h-px bg-gradient-to-r from-accent-warm to-duo-blue"></div>
+        <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
+          <div class="size-10 rounded-2xl bg-duo-blue text-white flex items-center justify-center font-bold">4</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-zh">推理</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-en" style="display:none">VL</div>
+          <div class="text-[10px] text-text-tertiary text-center" data-lang-zh">Qwen MNN 0.4s</div>
+        </div>
+        <div class="flex-1 h-px bg-gradient-to-r from-duo-blue to-status-healthy"></div>
+        <div class="flex flex-col items-center gap-2 flex-shrink-0 journey-node">
+          <div class="size-10 rounded-2xl bg-status-healthy text-white flex items-center justify-center font-bold">5</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-zh">成长</div>
+          <div class="text-xs text-center leading-tight max-w-[80px] text-text-primary font-bold" data-lang-en" style="display:none">PLANT</div>
+          <div class="text-[10px] text-text-tertiary text-center" data-lang-zh">Streak +1</div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <footer class="text-xs text-text-tertiary text-center py-6">
-      Posture-AI · 设计原型 v0.4 · 2026-06-06 · 10 页面（2C + 3 节点 + 游戏化）
-    </footer>
-  </main>
+  <section>
+    <h2 class="text-2xl font-bold serif-zh mb-2" data-lang-zh">原有页面 · 兼容导航</h2>
+    <h2 class="text-2xl font-bold serif-zh mb-2" data-lang-en" style="display:none">Original Pages · Legacy</h2>
+    <p class="text-text-secondary text-sm mb-5" data-lang-zh">v1 设计稿保留,供回溯参考</p>
+    <p class="text-text-secondary text-sm mb-5" data-lang-en" style="display:none">v1 design kept for reference</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <a href="dashboard.html" class="card-hover card-in d5 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 仪表盘</a>
+      <a href="dashboard-empty.html" class="card-hover card-in d5 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 空态</a>
+      <a href="dashboard-v2.html" class="card-hover card-in d5 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 仪表盘 v2</a>
+      <a href="pairing.html" class="card-hover card-in d6 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 配对</a>
+      <a href="calibration.html" class="card-hover card-in d6 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 校准</a>
+      <a href="settings.html" class="card-hover card-in d6 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 设置</a>
+      <a href="mock-console.html" class="card-hover card-in d7 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 演示台</a>
+      <a href="mcp-service.html" class="card-hover card-in d7 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · MCP 服务</a>
+      <a href="watchdog.html" class="card-hover card-in d7 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 巡检</a>
+      <a href="report.html" class="card-hover card-in d8 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 报告</a>
+      <a href="gamification.html" class="card-hover card-in d8 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">v1 · 养成(旧)</a>
+      <a href="demo.html" class="card-hover card-in d8 bg-surface-1 cute-shadow rounded-2xl p-3 text-sm font-bold" data-lang-zh">比赛演示脚本</a>
+    </div>
+  </section>
+
+  <section class="border-t border-border-subtle pt-10">
+    <h2 class="text-2xl font-bold serif-zh mb-5" data-lang-zh">设计 DNA</h2>
+    <h2 class="text-2xl font-bold serif-zh mb-5" data-lang-en" style="display:none">Design DNA</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
+        <div class="text-xs text-text-tertiary font-mono mb-3 font-bold">COLOR · STATUS</div>
+        <div class="flex gap-1.5 mb-2">
+          <div class="size-7 rounded-lg bg-status-healthy"></div>
+          <div class="size-7 rounded-lg bg-status-warning"></div>
+          <div class="size-7 rounded-lg bg-status-alert"></div>
+          <div class="size-7 rounded-lg bg-status-offline"></div>
+        </div>
+        <div class="text-xs text-text-secondary" data-lang-zh">4 状态色不混用</div>
+        <div class="text-xs text-text-secondary" data-lang-en" style="display:none">4 status colors, no mixing</div>
+      </div>
+      <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
+        <div class="text-xs text-text-tertiary font-mono mb-3 font-bold">FONT</div>
+        <div class="text-lg font-bold">Geist</div>
+        <div class="text-xs text-text-secondary mt-1">Sans + Mono + Serif</div>
+      </div>
+      <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
+        <div class="text-xs text-text-tertiary font-mono mb-3 font-bold" data-lang-zh">风格</div>
+        <div class="text-[10px] font-mono mb-3 font-bold" data-lang-en" style="display:none">PERSONALITY</div>
+        <div class="text-sm serif-zh" data-lang-zh">克制 · 温暖 · 可爱</div>
+        <div class="text-sm serif-zh" data-lang-en" style="display:none">Restrained · Warm · Cute</div>
+        <div class="text-xs text-text-secondary mt-1">DuoLingo × Oura</div>
+      </div>
+      <div class="bg-surface-1 cute-shadow rounded-2xl p-4">
+        <div class="text-xs text-text-tertiary font-mono mb-3 font-bold" data-lang-zh">避免</div>
+        <div class="text-[10px] font-mono mb-3 font-bold" data-lang-en" style="display:none">AVOID</div>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70" data-lang-zh">渐变色</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70" data-lang-en" style="display:none">Gradients</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70">Inter</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-status-alert/10 text-status-alert line-through opacity-70" data-lang-zh">玻璃</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-xs text-text-tertiary text-center py-6">
+    Posture-AI 原型 v2 · 2026-06-07 · 4 个新页面 + 11 个兼容页面 · 设计师 + 用户双视角
+  </footer>
+</main>
 
 <script>
 function setLang(lang) {
