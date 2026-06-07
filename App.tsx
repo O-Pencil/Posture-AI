@@ -8,7 +8,7 @@
  * [HERE] 项目根 /App.tsx · RN 仪表盘入口（F1-F6 UI + F7 Mock Console）
  */
 /**
- * Posture-AI React Native Dashboard
+ * Catune React Native Dashboard
  * Full MVP implementation with F7 Mock Console.
  */
 
