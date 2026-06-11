@@ -81,3 +81,6 @@ web-build/
 
 # Claude Code local config (per-user, not project-shared)
 .claude/
+
+# Local agent logs / token traces
+.nanopencil/

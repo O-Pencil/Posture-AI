@@ -156,7 +156,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     // Kotlin 序列化：PerceptionModels / ModelOutputParser（端侧推理输出契约）依赖
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     // Android KTX 基础
     implementation("androidx.core:core-ktx:1.13.1")
