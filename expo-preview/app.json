@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Catune 传感器预览",
+    "slug": "catune-sensor-preview",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.catune.preview",
+      "infoPlist": {
+        "NSMotionUsageDescription": "用于读取手机姿态（倾斜角度）来演示坐姿评估。"
+      }
+    },
+    "android": {
+      "package": "com.catune.preview"
+    }
+  }
+}
