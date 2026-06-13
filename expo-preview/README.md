@@ -34,3 +34,21 @@ npx expo start            # 终端出现二维码
 - **逻辑文件已复制进本目录 `./posture/`**（types/engine/mock），与主工程 `../src/posture/` 内容一致，自包含、不跨目录（避免 Expo + 仓库外文件的解析问题）。
   → 若以后改了主工程 `src/posture/` 的规则/阈值/文案，记得把这 3 个文件**同步过来**（`cp ../src/posture/*.ts ./posture/`）。
 - 真机连不上多为网络问题：路由器隔离 → 用 iPhone 热点；`npx expo start --tunnel` 可绕开局域网。
+
+## 踩坑记录（2026-06-13，已跑通真机传感器）
+
+按真实排错顺序记录，下次照抄：
+
+1. **二维码 IP 是 `198.18.x.x` / 一直超时** —— 这是 **代理/VPN 工具（Clash/Surge 等）的虚拟网卡 IP**，手机连不到。
+   - 查真实 Wi-Fi IP：`ipconfig getifaddr en0`（如 `192.168.1.25`）。
+   - 强制用它启动：`REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.25 npx expo start -c`。
+   - 或关掉代理工具的 TUN/增强模式。判定：iPhone Safari 打开 `http://<真实IP>:8081` 能看到 `packager-status:running` 即网络通。
+2. **`Cannot find module 'babel-preset-expo'`** —— 缺依赖。`npx expo install babel-preset-expo`（已写进 package.json）。
+3. **运动权限弹窗点不动**（"another Expo experience… Allow to also use it?"）—— Expo Go 已知毛病。
+   - 去 **iOS 设置 → Expo Go → 运动与健身 → 打开**，回 App **摇一摇 Reload**（或杀掉重开）。
+4. **想先看效果不依赖传感器** —— 界面上点「模拟」按钮，用 10Hz mock 跑。
+
+### 已验证可用的版本（Expo SDK 54）
+
+`expo ~54.0` · `react-native 0.81.5` · `react 19.1.0` · `expo-sensors ~15.0` · `babel-preset-expo ~54.0.10`。
+用 `npx expo install --fix` 对齐即可。
