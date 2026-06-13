@@ -1,7 +1,7 @@
 # Catune 传感器预览（Expo SDK 54）
 
 > 用途：在 **iPhone（Expo Go SDK 54）** 上扫码测「手机 IMU → 姿态评估」效果，**免 Mac、免安卓机、免硬件**。
-> 关系：独立于主工程（主工程是 RN 0.76 + 安卓 MNN 线，决赛用）；本预览内置一份与主工程 `src/posture/` 一致的纯 TS 引擎（`./posture/`，自包含）。
+> 关系：独立于主工程（主工程是 RN 0.76 + 安卓 MNN 线，决赛用）；本预览**直接相对引用**主工程 `../src/posture/`（engine/types/mock + 共享 `Dashboard` UI），通过 metro `watchFolders` 单一来源、不复制。
 
 ## 为什么是独立的一个 app
 
@@ -31,8 +31,9 @@ npx expo start            # 终端出现二维码
 ## 边界
 
 - 这是 UI + 规则逻辑的真机预览，**不含端侧 Qwen+MNN**（那是原生模块，决赛在安卓真机上跑）。
-- **逻辑文件已复制进本目录 `./posture/`**（types/engine/mock），与主工程 `../src/posture/` 内容一致，自包含、不跨目录（避免 Expo + 仓库外文件的解析问题）。
-  → 若以后改了主工程 `src/posture/` 的规则/阈值/文案，记得把这 3 个文件**同步过来**（`cp ../src/posture/*.ts ./posture/`）。
+- **逻辑与 UI 都相对引用主工程 `../src/posture/`**（engine/types/mock/Dashboard），metro `watchFolders` 单一来源、不复制。改主工程即两端同时生效。
+  （之前误判跨目录引用有问题而复制，后来发现真正元凶是代理 IP `198.18.x`；已恢复相对引用。）
+- **数据点为 3 节点**：颈 NeckPitch / 胸 ThorPitch(驼背主指标) / 腰 LumbarRoll。手机单 IMU 无法物理分离 3 节点，预览里把手机一个朝向映射成 3 路演示值；真实 3 节点来自决赛 BLE 姿态带。
 - 真机连不上多为网络问题：路由器隔离 → 用 iPhone 热点；`npx expo start --tunnel` 可绕开局域网。
 
 ## 踩坑记录（2026-06-13，已跑通真机传感器）

@@ -1,33 +1,34 @@
 /**
  * @file mock.ts
- * @description 跨平台模拟数据源（TS）：10Hz 写入姿态引擎，支持 F7 场景锁定。替代原 Kotlin SpineBluetoothManager 模拟流。
- *   真实蓝牙未来用 react-native-ble-plx（TS，两端通用）替换本文件的数据来源。
+ * @description 跨平台模拟数据源（TS）：10Hz 写入姿态引擎（3 节点），支持 F7 场景锁定。替代原 Kotlin SpineBluetoothManager 模拟流。
+ *   真实数据未来用 react-native-ble-plx（3 节点姿态带）或 expo-sensors（手机 IMU）替换本文件。
  *
- * [WHO] 导出 `SCENARIOS`、`MockScenario`、`createMockSource(engine)`
+ * [WHO] 导出 `SCENARIOS`、`MockScenario`、`createMockSource(engine)`、`postureToScenario`
  * [FROM] 依赖 ./engine、./types
- * [TO] 被 App.tsx 启动；写入 PostureEngine
+ * [TO] 被 App.tsx / expo-preview 启动；写入 PostureEngine
  * [HERE] src/posture/mock.ts · 模拟数据源（TS）
  */
-import { PostureEngine } from './engine';
-import { PostureName } from './types';
+import {PostureEngine} from './engine';
+import {PostureName} from './types';
 
 export type MockScenario = 'NORMAL' | 'SLUMPED' | 'TECH_NECK' | 'LEFT_LEAN' | 'OFFLINE';
 
 export const SCENARIOS: MockScenario[] = ['NORMAL', 'SLUMPED', 'TECH_NECK', 'LEFT_LEAN', 'OFFLINE'];
 
-/** 各场景对应的 (neck, lumbar) 角度（与原 KinematicsModule.setSimulationScenario 一致）。 */
-const SCENARIO_ANGLES: Record<Exclude<MockScenario, 'OFFLINE'>, [number, number]> = {
-  NORMAL: [5, 2],
-  SLUMPED: [10, 25],
-  TECH_NECK: [35, 5],
-  LEFT_LEAN: [5, -15],
+/** 各场景对应的 [neck, thor, lumbar] 角度（驼背由 thor 驱动）。 */
+const SCENARIO_ANGLES: Record<Exclude<MockScenario, 'OFFLINE'>, [number, number, number]> = {
+  NORMAL: [5, 5, 2],
+  SLUMPED: [10, 25, 2], // thor 25 > 15 → 驼背
+  TECH_NECK: [35, 8, 5], // neck 35 > 20 → 头前倾
+  LEFT_LEAN: [5, 5, -15], // lumbar -15 < -10 → 侧倾
 };
 
-/** 纯 TS 角度解算占位（原 MainActivity.calculateSpineAnglesStatic 的等价实现）。 */
-function calcAngles(raw: number[]): [number, number] {
-  const neck = clamp((raw[0] ?? 0) * 12 + 8, -45, 45);
-  const lumbar = clamp((raw[1] ?? 0) * 10 + 4, -30, 30);
-  return [neck, lumbar];
+/** 纯 TS 角度解算占位：把原始量映射成 [neck, thor, lumbar]。 */
+function calcAngles(raw: number[]): [number, number, number] {
+  const neck = clamp((raw[0] ?? 0) * 12 + 6, -45, 60);
+  const thor = clamp((raw[1] ?? 0) * 10 + 5, -20, 45);
+  const lumbar = clamp((raw[2] ?? 0) * 10 + 2, -40, 40);
+  return [neck, thor, lumbar];
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -57,18 +58,19 @@ export function createMockSource(engine: PostureEngine, intervalMs = 100): MockS
       return;
     }
     if (pinned) {
-      const [neck, lumbar] = SCENARIO_ANGLES[pinned];
-      engine.update(neck, lumbar);
+      const [neck, thor, lumbar] = SCENARIO_ANGLES[pinned];
+      engine.update(neck, thor, lumbar);
       return;
     }
-    // 未锁定：正常态轻微漂移
-    const [neck, lumbar] = calcAngles([Math.random(), Math.random()]);
-    engine.update(neck, lumbar);
+    const [neck, thor, lumbar] = calcAngles([Math.random(), Math.random(), Math.random()]);
+    engine.update(neck, thor, lumbar);
   }
 
   return {
     start() {
-      if (timer) {return;}
+      if (timer) {
+        return;
+      }
       timer = setInterval(tick, intervalMs);
     },
     stop() {
@@ -79,7 +81,7 @@ export function createMockSource(engine: PostureEngine, intervalMs = 100): MockS
     },
     setScenario(scenario: MockScenario) {
       pinned = scenario;
-      tick(); // 立即生效，不等下一拍
+      tick();
     },
     resume() {
       pinned = null;
@@ -87,7 +89,7 @@ export function createMockSource(engine: PostureEngine, intervalMs = 100): MockS
   };
 }
 
-/** 当前锁定场景与 UI 高亮对齐用：把引擎 posture 名映射回场景名（同名）。 */
+/** 把引擎 posture 名映射回场景名（同名），用于 UI 高亮。 */
 export function postureToScenario(posture: PostureName): MockScenario {
   return posture as MockScenario;
 }

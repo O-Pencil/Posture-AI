@@ -32,9 +32,20 @@ export interface PostureSignals {
   windowMs: number;
 }
 
-/** 姿态状态机的输出状态。 */
+/** 三节点姿态读数（对齐 PRD 3 节点：颈 / 胸 / 腰）。 */
+export interface SpineReading {
+  /** 颈椎前倾（头前倾，Node-C）。 */
+  neckPitch: number;
+  /** 胸椎后凸（驼背主指标，Node-T）。 */
+  thorPitch: number;
+  /** 腰椎侧倾（Node-L）。 */
+  lumbarRoll: number;
+}
+
+/** 姿态状态机的输出状态（含 3 节点角度）。 */
 export interface KinematicsState {
   neckPitch: number;
+  thorPitch: number;
   lumbarRoll: number;
   posture: PostureName;
   postureLabel: string;

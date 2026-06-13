@@ -5,6 +5,8 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "../src/posture/**/*.ts",
+    "../src/posture/**/*.tsx"
   ]
 }

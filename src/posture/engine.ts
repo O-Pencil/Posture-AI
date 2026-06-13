@@ -1,13 +1,14 @@
 /**
  * @file engine.ts
- * @description 跨平台姿态引擎（TS）：规则状态机 + 0-100 打分 + 本地查表文案 + 禁词检查 + 规则兜底。
- *   从 Kotlin 侧 KinematicsHub / PostureAdvice / PostureClassifier 迁移，iOS/Android 通用，无原生依赖。
+ * @description 跨平台姿态引擎（TS）：3 节点规则状态机（颈/胸/腰）+ 0-100 打分 + 本地查表文案 + 禁词检查 + 规则兜底。
+ *   从 Kotlin 侧迁移，iOS/Android 通用，无原生依赖。
  *
- * [WHO] 导出 `createPostureEngine()`、`ruleFallback()`、`THRESHOLDS`、`BANNED_WORDS`
+ * [WHO] 导出 `createPostureEngine()`、`ruleFallback()`、`THRESHOLDS`、`BANNED_WORDS`、`sanitize()`
  * [FROM] 依赖 ./types
- * [TO] 被 src/posture/mock.ts 写入、App.tsx 订阅
+ * [TO] 被 src/posture/mock.ts 写入、Dashboard/App 订阅、expo-preview 复用
  * [HERE] src/posture/engine.ts · 姿态规则引擎（TS）
  *
+ * 节点（PRD 3 节点）：neckPitch=颈椎前倾、thorPitch=胸椎后凸(驼背主指标)、lumbarRoll=腰椎侧倾。
  * 纪律（PRD §5.10）：分类/打分用规则（可靠底线）；端侧模型只补「文案生成」；文案一律过禁词。
  */
 import {
@@ -19,10 +20,10 @@ import {
   PostureSignals,
 } from './types';
 
-/** 与原 Kotlin 阈值一致。 */
+/** 与 PRD 阈值一致：胸椎后凸>15°=驼背；颈前倾>20°；腰椎侧倾<-10°。 */
 export const THRESHOLDS = {
   neckTechDeg: 20,
-  lumbarSlumpDeg: 15,
+  thorSlumpDeg: 15,
   lumbarLeanDeg: -10,
 };
 
@@ -40,8 +41,8 @@ export const BANNED_WORDS = [
 
 const ACTION_TEXT: Record<string, string> = {
   neck_retraction: '头部有些前倾，试着收下巴、让耳朵回到肩膀正上方，做几次颈部回缩。',
-  thoracic_extension: '上背有点含胸，挺一下胸椎、打开肩膀，做几次胸椎伸展。',
-  scapular_retraction: '肩膀略向前，轻轻把肩胛骨向后向下收，做几次肩胛后缩。',
+  thoracic_extension: '上背有点含胸驼背，挺一下胸椎、打开肩膀，做几次胸椎伸展。',
+  scapular_retraction: '身体向一侧偏，把重心摆正、肩胛骨向后向下收一收。',
 };
 
 const NORMAL_TEXT = '坐姿不错，保持脊柱自然中立，继续加油。';
@@ -68,52 +69,59 @@ function adviceFor(actionId: string | null, severityLevel: number, posture: Post
   return sanitize(text);
 }
 
-// ---------------- 规则兜底（无端侧模型时使用） ----------------
+// ---------------- 3 节点分类（规则） ----------------
+
+/** 单一判定来源：3 节点角度 → 姿态 + 推荐动作。SLUMPED 由胸椎(thor)驱动（PRD 驼背主指标）。 */
+function classifyAndAction(
+  neck: number,
+  thor: number,
+  lumbar: number,
+): {posture: PostureName; actionId: string | null} {
+  if (thor > THRESHOLDS.thorSlumpDeg) {
+    return {posture: 'SLUMPED', actionId: 'thoracic_extension'};
+  }
+  if (neck > THRESHOLDS.neckTechDeg) {
+    return {posture: 'TECH_NECK', actionId: 'neck_retraction'};
+  }
+  if (lumbar < THRESHOLDS.lumbarLeanDeg) {
+    return {posture: 'LEFT_LEAN', actionId: 'scapular_retraction'};
+  }
+  return {posture: 'NORMAL', actionId: null};
+}
 
 function severityOf(posture: PostureName, s: PostureSignals): number {
-  if (posture === 'NORMAL') {return 0;}
+  if (posture === 'NORMAL') {
+    return 0;
+  }
   let excess = 0;
-  if (posture === 'TECH_NECK') {excess = s.neckPitchDeg - THRESHOLDS.neckTechDeg;}
-  else if (posture === 'SLUMPED') {excess = s.lumbarRollDeg - THRESHOLDS.lumbarSlumpDeg;}
-  else if (posture === 'LEFT_LEAN') {excess = Math.abs(s.lumbarRollDeg) - Math.abs(THRESHOLDS.lumbarLeanDeg);}
+  if (posture === 'SLUMPED') {
+    excess = s.thorPitchDeg - THRESHOLDS.thorSlumpDeg;
+  } else if (posture === 'TECH_NECK') {
+    excess = s.neckPitchDeg - THRESHOLDS.neckTechDeg;
+  } else if (posture === 'LEFT_LEAN') {
+    excess = Math.abs(s.lumbarRollDeg) - Math.abs(THRESHOLDS.lumbarLeanDeg);
+  }
   const base = excess >= 20 ? 3 : excess >= 10 ? 2 : 1;
   return s.durationMin >= 45 ? Math.min(3, base + 1) : base;
 }
 
 /** 纯规则兜底：复用阈值，离线 100% 可用。端侧模型就绪后可在 App 层改调原生 inferText 再回退到此。 */
 export function ruleFallback(signals: PostureSignals): PostureFeedback {
-  let posture: PostureName;
-  let actionId: string | null;
-  if (signals.neckPitchDeg > THRESHOLDS.neckTechDeg) {
-    posture = 'TECH_NECK';
-    actionId = 'neck_retraction';
-  } else if (signals.lumbarRollDeg > THRESHOLDS.lumbarSlumpDeg) {
-    posture = 'SLUMPED';
-    actionId = 'thoracic_extension';
-  } else if (signals.lumbarRollDeg < THRESHOLDS.lumbarLeanDeg) {
-    posture = 'LEFT_LEAN';
-    actionId = 'scapular_retraction';
-  } else {
-    posture = 'NORMAL';
-    actionId = null;
-  }
+  const {posture, actionId} = classifyAndAction(
+    signals.neckPitchDeg,
+    signals.thorPitchDeg,
+    signals.lumbarRollDeg,
+  );
   const severity = severityOf(posture, signals);
-  return { advice: adviceFor(actionId, severity, posture), source: 'RULE_FALLBACK' };
+  return {advice: adviceFor(actionId, severity, posture), source: 'RULE_FALLBACK'};
 }
 
 // ---------------- 状态机（原 KinematicsHub） ----------------
 
-function classify(neck: number, lumbar: number): PostureName {
-  if (neck > THRESHOLDS.neckTechDeg) {return 'TECH_NECK';}
-  if (lumbar > THRESHOLDS.lumbarSlumpDeg) {return 'SLUMPED';}
-  if (lumbar < THRESHOLDS.lumbarLeanDeg) {return 'LEFT_LEAN';}
-  return 'NORMAL';
-}
-
 function signalsFrom(state: KinematicsState): PostureSignals {
   return {
     neckPitchDeg: state.neckPitch,
-    thorPitchDeg: 0, // 1 节点暂无胸椎独立角度
+    thorPitchDeg: state.thorPitch,
     lumbarRollDeg: state.lumbarRoll,
     durationMin: state.abnormalDurationMinutes,
     lastState: state.posture,
@@ -123,7 +131,8 @@ function signalsFrom(state: KinematicsState): PostureSignals {
 
 export type PostureEngine = {
   getState: () => DashboardState;
-  update: (neck: number, lumbar: number) => void;
+  /** 写入 3 节点角度（颈/胸/腰）。 */
+  update: (neckPitch: number, thorPitch: number, lumbarRoll: number) => void;
   setOffline: () => void;
   subscribe: (cb: (s: DashboardState) => void) => () => void;
 };
@@ -137,6 +146,7 @@ export function createPostureEngine(): PostureEngine {
   let healthySamples = 0;
   let state: DashboardState = {
     neckPitch: 0,
+    thorPitch: 0,
     lumbarRoll: 0,
     posture: 'NORMAL',
     postureLabel: POSTURE_LABELS.NORMAL,
@@ -152,20 +162,23 @@ export function createPostureEngine(): PostureEngine {
     // 文案：当前走规则兜底（离线可用）。
     // TODO(端侧模型): 模型就绪后在此 await NativeMnn.inferText(prompt)，失败再回退 ruleFallback。
     const feedback = ruleFallback(signalsFrom(next));
-    state = { ...next, advice: feedback.advice, inferenceSource: feedback.source };
+    state = {...next, advice: feedback.advice, inferenceSource: feedback.source};
     emit();
   }
 
   return {
     getState: () => state,
-    update(neck: number, lumbar: number) {
-      const posture = classify(neck, lumbar);
+    update(neckPitch: number, thorPitch: number, lumbarRoll: number) {
+      const {posture} = classifyAndAction(neckPitch, thorPitch, lumbarRoll);
       totalSamples += 1;
-      if (posture === 'NORMAL') {healthySamples += 1;}
+      if (posture === 'NORMAL') {
+        healthySamples += 1;
+      }
       const score = totalSamples > 0 ? Math.round((healthySamples * 100) / totalSamples) : 100;
       commit({
-        neckPitch: neck,
-        lumbarRoll: lumbar,
+        neckPitch,
+        thorPitch,
+        lumbarRoll,
         posture,
         postureLabel: POSTURE_LABELS[posture],
         score,
@@ -173,12 +186,11 @@ export function createPostureEngine(): PostureEngine {
       });
     },
     setOffline() {
-      const next: KinematicsState = {
+      commit({
         ...state,
         posture: 'OFFLINE',
         postureLabel: POSTURE_LABELS.OFFLINE,
-      };
-      commit(next);
+      });
     },
     subscribe(cb) {
       listeners.add(cb);
