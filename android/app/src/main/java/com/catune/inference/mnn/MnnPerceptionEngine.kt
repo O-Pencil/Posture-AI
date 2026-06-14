@@ -43,7 +43,7 @@ data class MnnTextResult(
 /**
  * Bridge to Alibaba MNN / Qwen3-VL on-device inference.
  *
- * Model weights: filesDir/mnn_models/qwen3-vl-2b/
+ * Model weights: filesDir/mnn_models/qwen3-1.7b/
  * Native lib: jniLibs/arm64-v8a/libMNN.so + eyes_mnn_bridge
  */
 class MnnPerceptionEngine private constructor(
@@ -181,7 +181,7 @@ class MnnPerceptionEngine private constructor(
         external fun getLastError(): String?
 
         fun tryCreate(context: Context): MnnPerceptionEngine? {
-            val modelDir = File(context.filesDir, "mnn_models/qwen3-vl-2b")
+            val modelDir = File(context.filesDir, "mnn_models/qwen3-1.7b")
             if (!modelDir.exists()) modelDir.mkdirs()
             loadNativeLibs()
             return MnnPerceptionEngine(modelDir)

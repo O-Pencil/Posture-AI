@@ -16,12 +16,13 @@ import * as FileSystem from 'expo-file-system/legacy';
 import {theme} from '../theme';
 import {Card} from '../primitives/Card';
 
-// ★ 填你托管 MNN 模型的基地址（末尾带 /）。例：'https://your-host.com/qwen-mnn/'
-const MODEL_BASE_URL = '';
-// 与原生读取目录一致（MnnDebugModule: filesDir/mnn_models/qwen3-vl-2b）
-const MODEL_SUBDIR = 'mnn_models/qwen3-vl-2b/';
-// MNN 模型实际文件名（按你的模型调整；常见还需 tokenizer.txt）
-const MODEL_FILES = ['config.json', 'llm.mnn', 'llm.mnn.weight', 'tokenizer.txt'];
+// MNN 官方转好的 Qwen3-1.7B（INT4，~1.24GB）。HuggingFace resolve 直链。
+// 国内慢/连不上 → 把域名换成镜像 'https://hf-mirror.com/...' 即可（路径不变）。
+const MODEL_BASE_URL = 'https://huggingface.co/taobao-mnn/Qwen3-1.7B-MNN/resolve/main/';
+// 与原生读取目录一致（MnnDebugModule / MnnPerceptionEngine: filesDir/mnn_models/qwen3-1.7b）
+const MODEL_SUBDIR = 'mnn_models/qwen3-1.7b/';
+// Qwen3-1.7B-MNN 实际文件（来自 HF 仓库 tree）
+const MODEL_FILES = ['config.json', 'llm_config.json', 'llm.mnn', 'llm.mnn.weight', 'tokenizer.txt'];
 
 type Status = 'idle' | 'checking' | 'ready' | 'downloading' | 'done' | 'error';
 

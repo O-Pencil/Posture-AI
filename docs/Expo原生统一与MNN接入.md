@@ -100,7 +100,7 @@ npx expo run:android -- -PenableMnn=true
 # 或：cd android && ./gradlew installDebug -PenableMnn=true
 
 # push 模型到 App 私有目录
-adb push <模型目录>/ /data/data/com.catune/files/mnn_models/qwen-posture-2b-int4/
+adb push <模型目录>/ /data/data/com.catune/files/mnn_models/qwen3-1.7b/
 ```
 
 App → **Settings → MNN DEBUG → REFRESH**（native/model loaded）→ **INFER TEXT**（看 backend + ttft/tps + 输出）。
@@ -125,7 +125,7 @@ adb install app-release.apk   # 或发文件给手机，开"未知来源"安装
 // 用 expo-file-system 下载到 App 私有目录（= 原生 filesDir）
 import * as FileSystem from 'expo-file-system';
 
-const MODEL_DIR = FileSystem.documentDirectory + 'mnn_models/qwen-posture-2b-int4/';
+const MODEL_DIR = FileSystem.documentDirectory + 'mnn_models/qwen3-1.7b/';
 async function downloadModel(baseUrl: string, onProgress: (p: number) => void) {
   await FileSystem.makeDirectoryAsync(MODEL_DIR, {intermediates: true});
   for (const f of ['config.json', 'llm.mnn', 'llm.mnn.weight']) {

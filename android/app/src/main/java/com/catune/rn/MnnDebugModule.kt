@@ -33,7 +33,7 @@ class MnnDebugModule(
     fun getStatus(promise: Promise) {
         scope.launch {
             try {
-                val modelDir = File(reactContext.filesDir, "mnn_models/qwen3-vl-2b")
+                val modelDir = File(reactContext.filesDir, "mnn_models/qwen3-1.7b")
                 MnnPerceptionEngine.loadNativeLibs()
                 val status = Arguments.createMap().apply {
                     putBoolean("nativeLibLoaded", MnnPerceptionEngine.isNativeLibLoaded())
