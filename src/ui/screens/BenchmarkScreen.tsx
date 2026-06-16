@@ -28,6 +28,7 @@ type CatuneMnnModule = {
 
 const CatuneMnn = NativeModules.CatuneMnn as CatuneMnnModule | undefined;
 const PROMPT = '请用一句不超过30字、有温度的中文提醒我坐直，语气温和，不要医疗诊断。';
+type BenchmarkPanelProps = {refreshKey?: number};
 
 function Big({label, value, unit, color}: {label: string; value: string; unit?: string; color?: string}): React.JSX.Element {
   return (
@@ -57,7 +58,7 @@ const bad = '#C20A0A';
 const boolColor = (v?: boolean) => (v ? ok : v === false ? bad : theme.colors.textMuted);
 const boolText = (v?: boolean) => (v === undefined ? '—' : v ? 'yes' : 'no');
 
-export function BenchmarkScreen(): React.JSX.Element {
+export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX.Element {
   const available = Boolean(CatuneMnn);
   const [status, setStatus] = useState<Status | null>(null);
   const [single, setSingle] = useState<InferResult | null>(null);
@@ -82,7 +83,7 @@ export function BenchmarkScreen(): React.JSX.Element {
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, [refresh, refreshKey]);
 
   const runInfer = async () => {
     if (!CatuneMnn) {
@@ -126,10 +127,10 @@ export function BenchmarkScreen(): React.JSX.Element {
   const ttft = m?.ttftMs;
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>端侧推理实测</Text>
+    <View style={styles.panel}>
+      <Text style={styles.title}>模型基准测试</Text>
       <View style={styles.offlineBanner}>
-        <Text style={styles.offlineText}>✈ 演示请开飞行模式：证明纯本地、零网络生成</Text>
+        <Text style={styles.offlineText}>录像建议打开飞行模式：本页只调用本地 CatuneMnn，展示本地路径和端侧指标。</Text>
       </View>
 
       {!available ? (
@@ -150,6 +151,7 @@ export function BenchmarkScreen(): React.JSX.Element {
             <Text style={styles.cardTitle}>模型与设备</Text>
             <Row label="active model" value={status?.activeModelId ?? '—'} />
             <Row label="model loaded" value={boolText(status?.modelLoaded)} color={boolColor(status?.modelLoaded)} />
+            <Row label="config exists" value={boolText(status?.configExists)} color={boolColor(status?.configExists)} />
             <Row label="本地路径" value={status?.modelDir ?? '—'} />
             <Row label="hw sme2" value={boolText(cpu?.sme2Hw)} color={boolColor(cpu?.sme2Hw)} />
             <Row label="lib sme2" value={boolText(cpu?.libSme2)} color={boolColor(cpu?.libSme2)} />
@@ -205,6 +207,14 @@ export function BenchmarkScreen(): React.JSX.Element {
           </View>
         </View>
       )}
+    </View>
+  );
+}
+
+export function BenchmarkScreen(): React.JSX.Element {
+  return (
+    <ScrollView style={styles.root} contentContainerStyle={styles.container}>
+      <BenchmarkPanel />
     </ScrollView>
   );
 }
@@ -212,8 +222,9 @@ export function BenchmarkScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: theme.colors.background},
   container: {padding: theme.spacing.md, paddingTop: 48, paddingBottom: 120, gap: theme.spacing.sm},
-  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontWeight: theme.font.weightHeavy, paddingHorizontal: 4},
-  offlineBanner: {backgroundColor: '#FCEAE0', borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.colors.primary, padding: 10},
+  panel: {gap: theme.spacing.sm},
+  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeLg, fontWeight: theme.font.weightHeavy, paddingHorizontal: 4},
+  offlineBanner: {backgroundColor: '#FCEAE0', borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.colors.primary, padding: 10, marginBottom: theme.spacing.xs},
   offlineText: {color: theme.colors.primary, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold, textAlign: 'center'},
   bigRow: {flexDirection: 'row', gap: theme.spacing.sm},
   bigCard: {flex: 1, alignItems: 'center', paddingVertical: theme.spacing.md},

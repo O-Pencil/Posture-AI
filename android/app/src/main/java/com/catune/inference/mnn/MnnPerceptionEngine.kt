@@ -183,6 +183,16 @@ class MnnPerceptionEngine private constructor(
         @JvmStatic
         external fun nativeGetCpuInfoJson(): String
 
+        @JvmStatic
+        private external fun nativeGetPartialOutput(): String
+
+        /** infer 进行中已生成的部分文本（流式轮询用）；不可用时返回空串。 */
+        fun getPartialOutput(): String = try {
+            nativeGetPartialOutput()
+        } catch (_: UnsatisfiedLinkError) {
+            ""
+        }
+
         fun getCpuInfoMap(): Map<String, Any?> {
             loadNativeLibs()
             if (!isNativeLibLoaded()) return emptyMap()

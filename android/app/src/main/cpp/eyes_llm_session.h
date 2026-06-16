@@ -41,12 +41,18 @@ public:
 
     std::string getMetric(const std::string& key) const;
 
+    /** infer 进行中正在生成的部分文本（供上层轮询做流式显示）。线程安全，与 infer 的 mutex_ 不互斥。 */
+    std::string getPartial() const;
+
 private:
     mutable std::mutex mutex_;
     bool ready_ = false;
     std::string cache_dir_;
     std::string last_error_;
     std::unordered_map<std::string, std::string> metrics_;
+
+    mutable std::mutex partial_mutex_;
+    std::string partial_;  // 流式：infer 中由输出流回调逐段累加
 
     void* llm_ = nullptr;  // MNN::Transformer::Llm*
 };

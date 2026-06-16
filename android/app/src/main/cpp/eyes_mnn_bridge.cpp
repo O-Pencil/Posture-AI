@@ -189,6 +189,12 @@ Java_com_catune_inference_mnn_MnnPerceptionEngine_getLastError(JNIEnv* env, jcla
     return stdToJstring(env, g_last_error);
 }
 
+// 流式：返回 infer 进行中已生成的部分文本。故意不锁 g_mutex（infer 正持有它），靠 session 内部 partial_mutex_ 保证线程安全。
+JNIEXPORT jstring JNICALL
+Java_com_catune_inference_mnn_MnnPerceptionEngine_nativeGetPartialOutput(JNIEnv* env, jclass) {
+    return stdToJstring(env, g_session.getPartial());
+}
+
 JNIEXPORT jstring JNICALL
 Java_com_catune_inference_mnn_MnnPerceptionEngine_nativeGetCpuInfoJson(JNIEnv* env, jclass) {
     const eyes::CpuCapability cap = eyes::queryCpuCapability();

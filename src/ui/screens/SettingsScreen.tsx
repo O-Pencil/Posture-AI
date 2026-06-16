@@ -3,7 +3,7 @@
  * @description 设置屏（= web SettingsPage 的 RN 版）：数据源切换（传感器/模拟）+ F7 演示控制台 + Android MNN Debug。
  *
  * [WHO] 导出 `SettingsScreen`
- * [FROM] 依赖 `react`、`react-native`、`../theme`、`../primitives/Card`、`../../posture/mock`、`../../posture/types`、Android `NativeModules.CatuneMnn`
+ * [FROM] 依赖 `react`、`react-native`、`../theme`、`../primitives/Card`、`./BenchmarkScreen`、`../../posture/mock`、`../../posture/types`、Android `NativeModules.CatuneMnn`
  * [TO] 被 `AppShell` 在 settings tab 渲染
  * [HERE] src/ui/screens/SettingsScreen.tsx · 设置/演示控制
  */
@@ -12,6 +12,7 @@ import {NativeModules, Pressable, ScrollView, StyleSheet, Text, View} from 'reac
 import {theme} from '../theme';
 import {Card} from '../primitives/Card';
 import {ModelDownloadCard} from '../components/ModelDownloadCard';
+import {BenchmarkPanel} from './BenchmarkScreen';
 import {MockScenario, SCENARIOS} from '../../posture/mock';
 import {DashboardState} from '../../posture/types';
 
@@ -303,6 +304,8 @@ export function SettingsScreen({state, mode, onUseSensor, onUseMock, onScenario}
       </Card>
 
       <ModelDownloadCard onModelsChanged={() => setMnnRefreshKey(k => k + 1)} />
+
+      <BenchmarkPanel refreshKey={mnnRefreshKey} />
 
       <MnnDebugCard refreshKey={mnnRefreshKey} />
 

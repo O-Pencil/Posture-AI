@@ -2,7 +2,7 @@
  * @file MnnDebugModule.kt
  * @description RN debug bridge for local MNN text inference status and smoke tests.
  *
- * [WHO] Exports `CatuneMnn.getStatus()` / `inferText()` / `runBenchmark()` to JS.
+ * [WHO] Exports `CatuneMnn.getStatus()` / `inferText()` / `inferTextStream()` / `runBenchmark()` to JS.
  * [FROM] Depends on `MnnPerceptionEngine` / `InferenceExecutor` and React Native bridge APIs.
  * [TO] Used by Settings MNN DEBUG card before the model path is wired into the posture engine.
  * [HERE] android/app/src/main/java/com/catune/rn/MnnDebugModule.kt - temporary MNN debug module.
@@ -17,9 +17,14 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -54,6 +59,20 @@ class MnnDebugModule(
             putDouble("decodeTps", result.metrics.decodeTps.toDouble())
             putString("backend", result.metrics.backend)
         }
+
+    private fun sendEvent(name: String, payload: WritableMap = Arguments.createMap()) {
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit(name, payload)
+    }
+
+    /** Required by RN NativeEventEmitter on Android. */
+    @ReactMethod
+    fun addListener(eventName: String) = Unit
+
+    /** Required by RN NativeEventEmitter on Android. */
+    @ReactMethod
+    fun removeListeners(count: Int) = Unit
 
     @ReactMethod
     fun getStatus(promise: Promise) {
@@ -108,6 +127,78 @@ class MnnDebugModule(
                 promise.resolve(response)
             } catch (error: Throwable) {
                 promise.reject("CATUNE_MNN_INFER_EXCEPTION", error.message, error)
+            }
+        }
+    }
+
+    @ReactMethod
+    fun inferTextStream(prompt: String, promise: Promise) {
+        scope.launch {
+            try {
+                InferenceExecutor.resetLoadFailure()
+                val loaded = InferenceExecutor.ensureModelLoaded(reactContext)
+                if (!loaded) {
+                    val message = InferenceExecutor.loadError() ?: "MNN model is not ready"
+                    sendEvent("onMnnError", Arguments.createMap().apply { putString("error", message) })
+                    promise.reject("CATUNE_MNN_MODEL_NOT_READY", message)
+                    return@launch
+                }
+
+                val engine = MnnPerceptionEngine.tryCreate(reactContext)
+                if (engine == null) {
+                    val message = "Engine unavailable"
+                    sendEvent("onMnnError", Arguments.createMap().apply { putString("error", message) })
+                    promise.reject("CATUNE_MNN_INFER_FAILED", message)
+                    return@launch
+                }
+
+                var rawOutput: String? = null
+                var inferError: Throwable? = null
+                val inferJob = launch {
+                    try {
+                        rawOutput = engine.inferText(prompt)?.rawOutput
+                    } catch (error: Throwable) {
+                        inferError = error
+                    }
+                }
+
+                var emitted = ""
+                val pollJob = launch {
+                    while (isActive && inferJob.isActive) {
+                        delay(120)
+                        val partial = MnnPerceptionEngine.getPartialOutput()
+                        if (partial.length > emitted.length) {
+                            val token = partial.substring(emitted.length)
+                            emitted = partial
+                            sendEvent("onMnnToken", Arguments.createMap().apply { putString("token", token) })
+                        }
+                    }
+                }
+
+                inferJob.join()
+                pollJob.cancelAndJoin()
+
+                inferError?.let { throw it }
+                val full = rawOutput
+                if (full.isNullOrEmpty()) {
+                    val message = MnnPerceptionEngine.getLastError() ?: "Inference returned empty"
+                    sendEvent("onMnnError", Arguments.createMap().apply { putString("error", message) })
+                    promise.reject("CATUNE_MNN_INFER_FAILED", message)
+                    return@launch
+                }
+
+                if (full.length > emitted.length) {
+                    sendEvent(
+                        "onMnnToken",
+                        Arguments.createMap().apply { putString("token", full.substring(emitted.length)) },
+                    )
+                }
+                sendEvent("onMnnDone")
+                promise.resolve(null)
+            } catch (error: Throwable) {
+                val message = error.message ?: "infer stream exception"
+                sendEvent("onMnnError", Arguments.createMap().apply { putString("error", message) })
+                promise.reject("CATUNE_MNN_INFER_EXCEPTION", message, error)
             }
         }
     }

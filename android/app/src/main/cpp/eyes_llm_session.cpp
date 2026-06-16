@@ -10,6 +10,8 @@
 #include <chrono>
 #include <dlfcn.h>
 #include <fstream>
+#include <functional>
+#include <ostream>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -301,7 +303,17 @@ std::string EyesLlmSession::infer(
         EYES_LOGD("Prompt tok[%zu] id=%d piece=%s", i, prompt_ids[i], llm->tokenizer_decode(prompt_ids[i]).c_str());
     }
 
-    llm->response(formatted_prompt);
+    // 流式：把 MNN 输出流接到 partial_，供上层轮询逐段显示
+    {
+        std::lock_guard<std::mutex> lk(partial_mutex_);
+        partial_.clear();
+    }
+    LlmStreamBuffer stream_buffer([this](const char* s, size_t n) {
+        std::lock_guard<std::mutex> lk(partial_mutex_);
+        partial_.append(s, n);
+    });
+    std::ostream stream_os(&stream_buffer);
+    llm->response(formatted_prompt, &stream_os);
 
     const auto* context = llm->getContext();
     if (context != nullptr) {
@@ -328,6 +340,9 @@ std::string EyesLlmSession::infer(
     }
 
     std::string result = context != nullptr ? context->generate_str : "";
+    if (result.empty()) {
+        result = getPartial();
+    }
     if (context != nullptr && context->status == LlmStatus::INTERNAL_ERROR) {
         last_error_ = "LLM internal error at prefill/decode (often OOM on emulator). "
                       "Use arm64 device or raise AVD RAM; max_all_tokens=512 on this build.";
@@ -351,6 +366,11 @@ std::string EyesLlmSession::getMetric(const std::string& key) const {
     auto it = metrics_.find(key);
     if (it == metrics_.end()) return "";
     return it->second;
+}
+
+std::string EyesLlmSession::getPartial() const {
+    std::lock_guard<std::mutex> lock(partial_mutex_);
+    return partial_;
 }
 
 CpuCapability queryCpuCapability() {
