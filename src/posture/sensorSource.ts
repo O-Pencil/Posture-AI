@@ -2,6 +2,7 @@
  * @file sensorSource.ts
  * @description 共享数据源：用 expo-sensors 的 DeviceMotion 读手机真实姿态，喂给 PostureEngine（3 节点：颈/胸/腰）。
  *   单手机一个 IMU 无法物理分离 3 个脊柱节点——把手机一个朝向映射成 3 路演示值；真实 3 节点来自决赛 BLE 姿态带。
+ *   iOS 用 rotation(attitude)；部分安卓 rotation 为 null → 回退用 accelerationIncludingGravity 算俯仰/翻滚（几乎所有安卓机都有加速度计）。
  *   web 上 DeviceMotion 多数不可用 → start() 返回 false，调用方回退 mock。
  *
  * [WHO] 导出 `SensorSource`、`createSensorSource(engine, intervalMs)`
@@ -24,6 +25,15 @@ function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
 }
 
+/** 把前后俯仰/左右翻滚（度）写入引擎的 3 节点。 */
+function feed(engine: PostureEngine, pitchDeg: number, rollDeg: number): void {
+  // 单手机一个朝向 → 颈/胸共用前后轴（无法分离），腰用左右轴
+  const neck = clamp(pitchDeg, -45, 60);
+  const thor = clamp(pitchDeg, -20, 45);
+  const lumbar = clamp(rollDeg, -40, 40);
+  engine.update(neck, thor, lumbar);
+}
+
 export function createSensorSource(engine: PostureEngine, intervalMs = 100): SensorSource {
   let sub: {remove: () => void} | null = null;
 
@@ -41,16 +51,18 @@ export function createSensorSource(engine: PostureEngine, intervalMs = 100): Sen
         DeviceMotion.setUpdateInterval(intervalMs);
         sub = DeviceMotion.addListener(data => {
           const r = data.rotation;
-          if (!r) {
+          if (r && (r.beta !== 0 || r.gamma !== 0)) {
+            // iOS / 支持 rotation 的安卓：直接用姿态角
+            feed(engine, r.beta * RAD2DEG, r.gamma * RAD2DEG);
             return;
           }
-          const pitchDeg = r.beta * RAD2DEG; // 前后俯仰
-          const rollDeg = r.gamma * RAD2DEG; // 左右翻滚
-          // 单手机一个朝向 → 颈/胸共用前后轴（无法分离），腰用左右轴
-          const neck = clamp(pitchDeg, -45, 60);
-          const thor = clamp(pitchDeg, -20, 45);
-          const lumbar = clamp(rollDeg, -40, 40);
-          engine.update(neck, thor, lumbar);
+          // 回退：加速度计（含重力）算倾角——部分安卓 rotation 为 null
+          const g = data.accelerationIncludingGravity;
+          if (g) {
+            const pitchDeg = Math.atan2(-g.y, Math.hypot(g.x, g.z)) * RAD2DEG; // 前后俯仰
+            const rollDeg = Math.atan2(g.x, Math.hypot(g.y, g.z)) * RAD2DEG; // 左右翻滚
+            feed(engine, pitchDeg, rollDeg);
+          }
         });
         return true;
       } catch {

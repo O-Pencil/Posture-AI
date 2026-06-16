@@ -5,11 +5,12 @@
  *
  * [WHO] 导出 `createPostureEngine()`、`ruleFallback()`、`THRESHOLDS`、`BANNED_WORDS`、`sanitize()`
  * [FROM] 依赖 ./types
- * [TO] 被 mock.ts/sensorSource.ts 写入、Dashboard/App 订阅（iOS/Android/Web 共用）
+ * [TO] 被 mock.ts/sensorSource.ts 写入、adviceOrchestrator 推模型文案、Dashboard/App 订阅
  * [HERE] src/posture/engine.ts · 姿态规则引擎（TS）
  *
  * 节点（PRD 3 节点）：neckPitch=颈椎前倾、thorPitch=胸椎后凸(驼背主指标)、lumbarRoll=腰椎侧倾。
  * 纪律（PRD §5.10）：分类/打分用规则（可靠底线）；端侧模型只补「文案生成」；文案一律过禁词。
+ * 建议文案「粘性」：规则文案只在姿态类别变化时重算；模型文案经 setModelAdvice 异步替换，不被 10Hz 帧覆盖。
  */
 import {
   DashboardState,
@@ -105,7 +106,7 @@ function severityOf(posture: PostureName, s: PostureSignals): number {
   return s.durationMin >= 45 ? Math.min(3, base + 1) : base;
 }
 
-/** 纯规则兜底：复用阈值，离线 100% 可用。端侧模型就绪后可在 App 层改调原生 inferText 再回退到此。 */
+/** 纯规则兜底：复用阈值，离线 100% 可用。 */
 export function ruleFallback(signals: PostureSignals): PostureFeedback {
   const {posture, actionId} = classifyAndAction(
     signals.neckPitchDeg,
@@ -134,12 +135,14 @@ export type PostureEngine = {
   /** 写入 3 节点角度（颈/胸/腰）。 */
   update: (neckPitch: number, thorPitch: number, lumbarRoll: number) => void;
   setOffline: () => void;
+  /** 端侧模型异步推送建议文案（流式：streaming=true，结束：false）。 */
+  setModelAdvice: (advice: string, opts: {streaming: boolean}) => void;
   subscribe: (cb: (s: DashboardState) => void) => () => void;
 };
 
 /**
  * 单例式状态枢纽（等价 Kotlin 的 KinematicsHub StateFlow）。
- * 每次 update 计算分类、累计分数、生成建议文案，并通知订阅者。
+ * update 每帧算分类/分数；建议文案「粘性」：规则只在姿态变化时重算，模型文案由 setModelAdvice 异步替换。
  */
 export function createPostureEngine(): PostureEngine {
   let totalSamples = 0;
@@ -154,17 +157,10 @@ export function createPostureEngine(): PostureEngine {
     abnormalDurationMinutes: 0,
     advice: '',
     inferenceSource: 'RULE_FALLBACK',
+    streaming: false,
   };
   const listeners = new Set<(s: DashboardState) => void>();
   const emit = () => listeners.forEach(cb => cb(state));
-
-  function commit(next: KinematicsState) {
-    // 文案：当前走规则兜底（离线可用）。
-    // TODO(端侧模型): 模型就绪后在外围节流调用 CatuneMnn.inferText(prompt)，失败再回退 ruleFallback。
-    const feedback = ruleFallback(signalsFrom(next));
-    state = {...next, advice: feedback.advice, inferenceSource: feedback.source};
-    emit();
-  }
 
   return {
     getState: () => state,
@@ -175,7 +171,7 @@ export function createPostureEngine(): PostureEngine {
         healthySamples += 1;
       }
       const score = totalSamples > 0 ? Math.round((healthySamples * 100) / totalSamples) : 100;
-      commit({
+      const next: KinematicsState = {
         neckPitch,
         thorPitch,
         lumbarRoll,
@@ -183,14 +179,32 @@ export function createPostureEngine(): PostureEngine {
         postureLabel: POSTURE_LABELS[posture],
         score,
         abnormalDurationMinutes: posture !== 'NORMAL' ? 1 : 0,
-      });
+      };
+      // 建议粘性：姿态类别变化（或首次）→ 重算规则文案并清掉模型态；否则保留当前文案（含模型流式结果）
+      const postureChanged = posture !== state.posture || state.advice === '';
+      if (postureChanged) {
+        const feedback = ruleFallback(signalsFrom(next));
+        state = {...next, advice: feedback.advice, inferenceSource: 'RULE_FALLBACK', streaming: false};
+      } else {
+        state = {...next, advice: state.advice, inferenceSource: state.inferenceSource, streaming: state.streaming};
+      }
+      emit();
     },
     setOffline() {
-      commit({
+      const feedback = ruleFallback(signalsFrom({...state, posture: 'OFFLINE'}));
+      state = {
         ...state,
         posture: 'OFFLINE',
         postureLabel: POSTURE_LABELS.OFFLINE,
-      });
+        advice: feedback.advice,
+        inferenceSource: 'RULE_FALLBACK',
+        streaming: false,
+      };
+      emit();
+    },
+    setModelAdvice(advice: string, opts: {streaming: boolean}) {
+      state = {...state, advice, inferenceSource: 'MODEL', streaming: opts.streaming};
+      emit();
     },
     subscribe(cb) {
       listeners.add(cb);

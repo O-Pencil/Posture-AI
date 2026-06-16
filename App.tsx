@@ -14,6 +14,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {AppShell} from './src/ui/AppShell';
 import {createPostureEngine} from './src/posture/engine';
+import {createAdviceOrchestrator} from './src/posture/adviceOrchestrator';
 import {createMockSource, MockScenario, MockSource} from './src/posture/mock';
 import {createSensorSource, SensorSource} from './src/posture/sensorSource';
 import {DashboardState} from './src/posture/types';
@@ -28,6 +29,7 @@ const INITIAL: DashboardState = {
   abnormalDurationMinutes: 0,
   advice: '',
   inferenceSource: 'RULE_FALLBACK',
+  streaming: false,
 };
 
 type Mode = 'loading' | 'sensor' | 'mock';
@@ -39,6 +41,8 @@ function App(): React.JSX.Element {
   const engineRef = useRef(createPostureEngine());
   const sensorRef = useRef<SensorSource>(createSensorSource(engineRef.current));
   const mockRef = useRef<MockSource>(createMockSource(engineRef.current));
+  // 模型建议异步编排（姿态变化/久持时后台生成温暖文案，流式写回；规则先兜底）
+  const adviceRef = useRef(createAdviceOrchestrator(engineRef.current));
 
   const useSensor = async () => {
     mockRef.current.stop();
@@ -67,9 +71,11 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     const unsubscribe = engineRef.current.subscribe(setK);
+    adviceRef.current.start();
     useSensor();
     return () => {
       unsubscribe();
+      adviceRef.current.stop();
       sensorRef.current.stop();
       mockRef.current.stop();
     };

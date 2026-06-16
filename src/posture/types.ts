@@ -63,4 +63,6 @@ export interface PostureFeedback {
 export interface DashboardState extends KinematicsState {
   advice: string;
   inferenceSource: InferenceSource;
+  /** 端侧模型是否正在流式生成（UI 可据此显示"AI 生成中 ▍"光标）。 */
+  streaming: boolean;
 }
