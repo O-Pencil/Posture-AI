@@ -65,5 +65,5 @@ export function AppShell({state, mode, deskSubtitle, onUseSensor, onUseMock, onS
 }
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: theme.colors.background},
+  root: {flex: 1, backgroundColor: theme.colors.surface},
 });
