@@ -55,12 +55,13 @@ export function CatFlipbook({
   minDeg = -25,
   maxDeg = 25,
   invert = false,
-  glideMs = 160,
+  glideMs = 260,
   style,
 }: Props): React.JSX.Element | null {
   const count = frames.length;
-  const idx = useRef(new Animated.Value(0)).current;
-  const [display, setDisplay] = useState(0);
+  const initial = angleToIndex(angle, count, minDeg, maxDeg, invert);
+  const idx = useRef(new Animated.Value(initial)).current;
+  const [display, setDisplay] = useState(Math.round(initial));
 
   // 角度变化 → 平滑滑到目标帧（中间帧一张张划过 = 连续转头，而非瞬移切图）
   useEffect(() => {
@@ -89,8 +90,18 @@ export function CatFlipbook({
   }
   const safe = Math.max(0, Math.min(count - 1, display));
   return (
-    <View style={style} pointerEvents="none">
-      <Image source={frames[safe]} style={StyleSheet.absoluteFill} resizeMode="contain" fadeDuration={0} />
+    <View style={[styles.frame, style]} pointerEvents="none">
+      <Image source={frames[safe]} style={styles.image} resizeMode="contain" fadeDuration={0} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  frame: {
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+});

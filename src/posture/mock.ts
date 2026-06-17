@@ -23,14 +23,7 @@ const SCENARIO_ANGLES: Record<Exclude<MockScenario, 'OFFLINE'>, [number, number,
   LEFT_LEAN: [5, 5, -15], // lumbar -15 < -10 → 侧倾
 };
 
-/** 纯 TS 角度解算占位：把原始量映射成 [neck, thor, lumbar]。 */
-function calcAngles(raw: number[]): [number, number, number] {
-  const neck = clamp((raw[0] ?? 0) * 12 + 6, -45, 60);
-  const thor = clamp((raw[1] ?? 0) * 10 + 5, -20, 45);
-  const lumbar = clamp((raw[2] ?? 0) * 10 + 2, -40, 40);
-  return [neck, thor, lumbar];
-}
-
+/** 把角度限制在姿态引擎支持的范围内。 */
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
 }
@@ -48,9 +41,29 @@ export type MockSource = {
  * 10Hz 模拟源。未锁定时产生「正常态」随机漂移；F7 锁定后持续保持该场景
  * （修复原 Kotlin 版本「F7 设置被随机流立刻覆盖」的问题）。
  */
-export function createMockSource(engine: PostureEngine, intervalMs = 100): MockSource {
+export function createMockSource(engine: PostureEngine, intervalMs = 250): MockSource {
   let timer: ReturnType<typeof setInterval> | null = null;
   let pinned: MockScenario | null = null;
+  let startedAt = Date.now();
+  let lastAngles: [number, number, number] = [5, 5, 2];
+
+  function smoothTo(target: [number, number, number], alpha = 0.22): [number, number, number] {
+    lastAngles = [
+      lastAngles[0] + (target[0] - lastAngles[0]) * alpha,
+      lastAngles[1] + (target[1] - lastAngles[1]) * alpha,
+      lastAngles[2] + (target[2] - lastAngles[2]) * alpha,
+    ];
+    return lastAngles;
+  }
+
+  function driftingAngles(): [number, number, number] {
+    const t = (Date.now() - startedAt) / 1000;
+    return [
+      clamp(7 + Math.sin(t * 0.42) * 3 + Math.sin(t * 0.13) * 1.5, -45, 60),
+      clamp(8 + Math.sin(t * 0.36 + 1.4) * 3, -20, 45),
+      clamp(2 + Math.sin(t * 0.32 + 2.1) * 9, -40, 40),
+    ];
+  }
 
   function tick() {
     if (pinned === 'OFFLINE') {
@@ -59,10 +72,10 @@ export function createMockSource(engine: PostureEngine, intervalMs = 100): MockS
     }
     if (pinned) {
       const [neck, thor, lumbar] = SCENARIO_ANGLES[pinned];
-      engine.update(neck, thor, lumbar);
+      engine.update(...smoothTo([neck, thor, lumbar], 0.35));
       return;
     }
-    const [neck, thor, lumbar] = calcAngles([Math.random(), Math.random(), Math.random()]);
+    const [neck, thor, lumbar] = smoothTo(driftingAngles());
     engine.update(neck, thor, lumbar);
   }
 
@@ -71,7 +84,9 @@ export function createMockSource(engine: PostureEngine, intervalMs = 100): MockS
       if (timer) {
         return;
       }
+      startedAt = Date.now();
       timer = setInterval(tick, intervalMs);
+      tick();
     },
     stop() {
       if (timer) {

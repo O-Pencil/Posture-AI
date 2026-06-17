@@ -25,6 +25,9 @@ import {LEAN_FRAMES} from '../assets/leanFrames';
 const PORTAL_IMAGE = require('../../../public/portal.png');
 /** 左右倾翻页的可视角度范围（lumbarRoll 度）→ 第 0..N-1 帧。按视频实拍幅度可调。 */
 const LEAN_RANGE_DEG = 25;
+const SCENE_ASPECT_RATIO = 2 / 3;
+const SCENE_MAX_WIDTH = 360;
+const SCENE_BOTTOM_GAP = 10;
 
 const SENSOR_VIEWBOX = {width: 184, height: 190};
 const SENSOR_CENTER_X = 92;
@@ -200,9 +203,25 @@ function SensorOverlay({state}: {state: DashboardState}): React.JSX.Element {
 
 function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
   const hasFrames = LEAN_FRAMES.length > 1;
+  const [visualSize, setVisualSize] = useState<{width: number; height: number} | null>(null);
+  const visualStyle = useMemo(() => [styles.sceneVisual, visualSize ?? undefined], [visualSize]);
+
   return (
     <View style={styles.scene}>
-      <View style={styles.sceneFrame}>
+      <View
+        style={styles.sceneFrame}
+        onLayout={event => {
+          const {width, height} = event.nativeEvent.layout;
+          const availableHeight = Math.max(0, height - SCENE_BOTTOM_GAP);
+          const nextWidth = Math.min(width * 0.92, SCENE_MAX_WIDTH, availableHeight * SCENE_ASPECT_RATIO);
+          const nextHeight = nextWidth / SCENE_ASPECT_RATIO;
+
+          setVisualSize(prev =>
+            prev && Math.abs(prev.width - nextWidth) < 0.5 && Math.abs(prev.height - nextHeight) < 0.5
+              ? prev
+              : {width: nextWidth, height: nextHeight},
+          );
+        }}>
         {hasFrames ? (
           // 角度驱动翻页：左右倾 → 帧序列平滑播放（无帧时下面回退静态图）
           <CatFlipbook
@@ -210,10 +229,10 @@ function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
             angle={state.lumbarRoll}
             minDeg={-LEAN_RANGE_DEG}
             maxDeg={LEAN_RANGE_DEG}
-            style={styles.sceneImage}
+            style={visualStyle}
           />
         ) : (
-          <Image source={PORTAL_IMAGE} style={styles.sceneImage} resizeMode="contain" />
+          <Image source={PORTAL_IMAGE} style={visualStyle} resizeMode="contain" />
         )}
         <SensorOverlay state={state} />
       </View>
@@ -299,11 +318,12 @@ const styles = StyleSheet.create({
     height: '100%',
     maxHeight: '100%',
     position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
-  sceneImage: {
-    ...StyleSheet.absoluteFillObject,
-    width: '100%',
-    height: '100%',
+  sceneVisual: {
+    marginBottom: SCENE_BOTTOM_GAP,
+    overflow: 'hidden',
   },
   sensorOverlay: {
     position: 'absolute',
