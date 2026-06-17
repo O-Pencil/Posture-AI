@@ -5,7 +5,8 @@
  * 主视觉「角度驱动翻页」：左右倾(lumbar)映射到 LEAN_FRAMES 帧下标，由 CatFlipbook 平滑播放（等价视频、零解码）。
  * 接入帧（单轴样例，用现有 left2right.mp4）：
  *   1) 切帧：ffmpeg -i public/mp4/left2right.mp4 -vsync 0 public/frames/lean/lean_%04d.png
- *   2) 生成清单：node scripts/gen-frame-manifest.mjs lean
+ *   2) （可选）重命名为 lean_stage_%04d.png 后生成清单：node scripts/gen-frame-manifest.mjs lean
+ *      脚本会同步写 leanFrames.ts，并为 lean_*.png 创建指向 lean_stage_*.png 的兼容软链。
  *   帧密度足够（≤1°/帧）+ CatFlipbook 帧号缓动 → 视觉与视频无异。无帧时自动回退 portal.png。
  *
  * [WHO] 导出 `DeskScreen`

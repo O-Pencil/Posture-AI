@@ -9,7 +9,7 @@
  *
  * [HERE] scripts/gen-frame-manifest.mjs · 帧清单生成器
  */
-import {readdirSync, readFileSync, writeFileSync, existsSync} from 'node:fs';
+import {existsSync, lstatSync, readdirSync, readFileSync, symlinkSync, unlinkSync, writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
 
@@ -26,9 +26,51 @@ if (!existsSync(framesDir)) {
   process.exit(1);
 }
 
-const files = readdirSync(framesDir)
-  .filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f))
+const allFiles = readdirSync(framesDir).filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f));
+const hasLeanStage = axis === 'lean' && allFiles.some(f => /^lean_stage_\d+\.png$/i.test(f));
+const files = allFiles
+  .filter(f => {
+    // lean_stage_* 为主文件名；lean_* 仅作 Metro 旧 bundle 兼容软链，不进入 manifest
+    if (hasLeanStage) {
+      return /^lean_stage_\d+\.png$/i.test(f);
+    }
+    return !/^lean_stage_\d+\.png$/i.test(f);
+  })
   .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+
+/** 010c6de 起帧图改为 lean_stage_*；旧 bundle 仍请求 lean_*，补软链避免 Metro 404。 */
+function ensureLeanLegacySymlinks(dir, frameFiles) {
+  if (axis !== 'lean') {
+    return 0;
+  }
+  let linked = 0;
+  for (const file of frameFiles) {
+    const match = file.match(/^lean_stage_(\d+)\.png$/i);
+    if (!match) {
+      continue;
+    }
+    const legacyName = `lean_${match[1]}.png`;
+    const legacyPath = join(dir, legacyName);
+    try {
+      if (existsSync(legacyPath)) {
+        const stat = lstatSync(legacyPath);
+        if (stat.isSymbolicLink()) {
+          unlinkSync(legacyPath);
+        } else if (!stat.isFile()) {
+          continue;
+        } else {
+          // 真实旧文件已存在则跳过，避免覆盖
+          continue;
+        }
+      }
+      symlinkSync(file, legacyPath);
+      linked += 1;
+    } catch (err) {
+      console.warn(`⚠ 无法创建兼容软链 ${legacyName}: ${err.message}`);
+    }
+  }
+  return linked;
+}
 
 if (files.length === 0) {
   console.error(`✗ ${framesDir} 下没有图片帧。`);
@@ -49,4 +91,8 @@ const replaced = src.replace(
   block,
 );
 writeFileSync(outFile, replaced, 'utf8');
+const legacyLinks = ensureLeanLegacySymlinks(framesDir, files);
 console.log(`✓ 写入 ${files.length} 帧到 ${outFile}（${constName}）`);
+if (legacyLinks > 0) {
+  console.log(`✓ 已创建 ${legacyLinks} 条 lean_*.png → lean_stage_*.png 兼容软链（供旧 bundle / Metro 资源请求）`);
+}
