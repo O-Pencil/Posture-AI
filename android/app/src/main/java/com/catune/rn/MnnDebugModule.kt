@@ -52,9 +52,9 @@ class MnnDebugModule(
 
     private fun metricsMap(result: com.catune.inference.mnn.MnnTextResult): com.facebook.react.bridge.WritableMap =
         Arguments.createMap().apply {
-            putDouble("ttftMs", result.metrics.ttftMs.toDouble())
-            putDouble("prefillMs", result.metrics.prefillMs.toDouble())
-            putDouble("decodeMs", result.metrics.decodeMs.toDouble())
+            putDouble("ttftMs", result.metrics.ttftMs)
+            putDouble("prefillMs", result.metrics.prefillMs)
+            putDouble("decodeMs", result.metrics.decodeMs)
             putInt("tokensGenerated", result.metrics.tokensGenerated)
             putDouble("decodeTps", result.metrics.decodeTps.toDouble())
             putString("backend", result.metrics.backend)

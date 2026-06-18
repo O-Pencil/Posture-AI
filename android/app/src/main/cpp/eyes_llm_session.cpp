@@ -317,9 +317,10 @@ std::string EyesLlmSession::infer(
 
     const auto* context = llm->getContext();
     if (context != nullptr) {
-        metrics_["ttft_ms"] = std::to_string(context->ttfa_us / 1000);
-        metrics_["prefill_ms"] = std::to_string(context->prefill_us / 1000);
-        metrics_["decode_ms"] = std::to_string(context->decode_us / 1000);
+        // 保留小数 ms，避免 ttfa_us<1000 被整除成 0 导致 UI 显示 TTFT=0
+        metrics_["ttft_ms"] = std::to_string(static_cast<double>(context->ttfa_us) / 1000.0);
+        metrics_["prefill_ms"] = std::to_string(static_cast<double>(context->prefill_us) / 1000.0);
+        metrics_["decode_ms"] = std::to_string(static_cast<double>(context->decode_us) / 1000.0);
         metrics_["vision_ms"] = std::to_string(context->vision_us / 1000);
         metrics_["audio_ms"] = std::to_string(context->audio_us / 1000);
         metrics_["tokens_generated"] = std::to_string(context->gen_seq_len);

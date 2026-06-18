@@ -19,9 +19,9 @@ import com.catune.inference.PerceptionResult
 import java.io.File
 
 data class InferenceMetrics(
-    val ttftMs: Long,
-    val prefillMs: Long,
-    val decodeMs: Long,
+    val ttftMs: Double,
+    val prefillMs: Double,
+    val decodeMs: Double,
     val tokensGenerated: Int,
     val decodeTps: Float,
     val backend: String = "unknown",
@@ -76,11 +76,11 @@ class MnnPerceptionEngine private constructor(
         val totalMs = System.currentTimeMillis() - start
         val parsed = ModelOutputParser.parse(raw)
         val tokens: Int = readMetricLong("tokens_generated")?.toInt() ?: estimateTokenCount(raw)
-        val ttft = readMetricLong("ttft_ms") ?: (totalMs * 0.35).toLong().coerceAtLeast(1L)
-        val prefill = readMetricLong("prefill_ms") ?: ttft.coerceAtMost(totalMs)
-        val decode = readMetricLong("decode_ms") ?: (totalMs - prefill).coerceAtLeast(0L)
+        val ttft = readMetricDouble("ttft_ms") ?: (totalMs * 0.35).coerceAtLeast(1.0)
+        val prefill = readMetricDouble("prefill_ms") ?: ttft.coerceAtMost(totalMs.toDouble())
+        val decode = readMetricDouble("decode_ms") ?: (totalMs - prefill).coerceAtLeast(0.0)
         val tps = readMetricFloat("decode_tps")
-            ?: if (decode > 0L) tokens * 1000f / decode.toFloat() else 0f
+            ?: if (decode > 0.0) (tokens * 1000f / decode.toFloat()) else 0f
         val backend = readNativeMetric("backend") ?: "unknown"
         val metrics = InferenceMetrics(
             ttftMs = ttft,
@@ -123,11 +123,11 @@ class MnnPerceptionEngine private constructor(
         } ?: return null
         val totalMs = System.currentTimeMillis() - start
         val tokens = readMetricLong("tokens_generated")?.toInt() ?: estimateTokenCount(raw)
-        val ttft = readMetricLong("ttft_ms") ?: (totalMs * 0.35).toLong().coerceAtLeast(1L)
-        val prefill = readMetricLong("prefill_ms") ?: ttft.coerceAtMost(totalMs)
-        val decode = readMetricLong("decode_ms") ?: (totalMs - prefill).coerceAtLeast(0L)
+        val ttft = readMetricDouble("ttft_ms") ?: (totalMs * 0.35).coerceAtLeast(1.0)
+        val prefill = readMetricDouble("prefill_ms") ?: ttft.coerceAtMost(totalMs.toDouble())
+        val decode = readMetricDouble("decode_ms") ?: (totalMs - prefill).coerceAtLeast(0.0)
         val tps = readMetricFloat("decode_tps")
-            ?: if (decode > 0L) tokens * 1000f / decode.toFloat() else 0f
+            ?: if (decode > 0.0) (tokens * 1000f / decode.toFloat()) else 0f
         return MnnTextResult(
             rawOutput = raw,
             inferenceMs = totalMs,
@@ -145,6 +145,8 @@ class MnnPerceptionEngine private constructor(
     private fun estimateTokenCount(text: String): Int = (text.length / 4).coerceAtLeast(1)
 
     private fun readMetricLong(key: String): Long? = readNativeMetric(key)?.toLongOrNull()
+
+    private fun readMetricDouble(key: String): Double? = readNativeMetric(key)?.toDoubleOrNull()
 
     private fun readMetricFloat(key: String): Float? = readNativeMetric(key)?.toFloatOrNull()
 

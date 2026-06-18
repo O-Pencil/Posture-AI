@@ -2,7 +2,7 @@
  * @file BenchmarkScreen.tsx
  * @description 模型基准测试：可编辑 Prompt、输出展示、推理指标（录像证真端侧模型）。
  */
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {NativeModules, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 import {colors, theme} from '../theme';
 import {Card} from '../primitives/Card';
@@ -46,6 +46,8 @@ type CatuneMnnModule = {
   runBenchmark: (prompt: string) => Promise<BenchResult>;
 };
 
+type MetricScope = 'idle' | 'infer' | 'bench';
+
 const CatuneMnn = NativeModules.CatuneMnn as CatuneMnnModule | undefined;
 const DEFAULT_PROMPT = '请用一句不超过30字、有温度的中文提醒我坐直，语气温和，不要医疗诊断。';
 
@@ -68,6 +70,35 @@ type BenchmarkPanelProps = {refreshKey?: number};
 const bad = '#C20A0A';
 const yesNo = (v?: boolean) => (v === undefined ? '—' : v ? '是' : '否');
 
+/** 毫秒：小值保留 1 位小数，避免 TTFT 被四舍五入成 0。 */
+function formatDurationMs(ms?: number | null): string {
+  if (ms == null || Number.isNaN(ms)) {
+    return '—';
+  }
+  if (ms > 0 && ms < 1) {
+    return '<1 ms';
+  }
+  if (ms < 100) {
+    return `${ms.toFixed(1)} ms`;
+  }
+  return `${Math.round(ms)} ms`;
+}
+
+function formatTps(tps?: number | null): string {
+  if (tps == null || Number.isNaN(tps)) {
+    return '—';
+  }
+  return `${tps.toFixed(2)} tok/s`;
+}
+
+function formatRunDetail(run: BenchRun): string {
+  const m = run.metrics;
+  const total = formatDurationMs(run.inferenceMs);
+  const prefill = formatDurationMs(m?.prefillMs);
+  const decode = formatDurationMs(m?.decodeMs);
+  return `${formatTps(m?.decodeTps)} · ${m?.tokensGenerated ?? '—'} tok · 总 ${total}（prefill ${prefill} / decode ${decode}）`;
+}
+
 const styles = StyleSheet.create({
   card: {marginBottom: theme.spacing.md},
   cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold},
@@ -88,6 +119,12 @@ const styles = StyleSheet.create({
     fontWeight: theme.font.weightBold,
     marginTop: 14,
     marginBottom: 6,
+  },
+  sectionHint: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.font.sizeXs,
+    lineHeight: 16,
+    marginBottom: 8,
   },
   promptInput: {
     minHeight: 72,
@@ -165,7 +202,7 @@ function MetricTile({label, value}: {label: string; value: string}): React.JSX.E
   return (
     <View style={styles.metricTile}>
       <Text style={styles.metricLabel}>{label}</Text>
-      <Text style={styles.metricValue} numberOfLines={1}>
+      <Text style={styles.metricValue} numberOfLines={2}>
         {value}
       </Text>
     </View>
@@ -176,7 +213,7 @@ function InfoRow({label, value}: {label: string; value: string}): React.JSX.Elem
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue} numberOfLines={2}>
+      <Text style={styles.infoValue} numberOfLines={3}>
         {value}
       </Text>
     </View>
@@ -193,6 +230,7 @@ export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [inferenceMs, setInferenceMs] = useState<number | null>(null);
   const [bench, setBench] = useState<BenchResult | null>(null);
+  const [metricScope, setMetricScope] = useState<MetricScope>('idle');
   const [busy, setBusy] = useState<'' | 'status' | 'infer' | 'bench'>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -219,6 +257,11 @@ export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX
   const trimmedPrompt = prompt.trim();
   const actionsDisabled = previewMode || busy !== '';
 
+  const lastBenchTimed = useMemo(
+    () => [...(bench?.runs ?? [])].reverse().find(r => r.label === 'timed'),
+    [bench],
+  );
+
   const runInfer = async () => {
     if (previewMode || !CatuneMnn || !trimmedPrompt) {
       return;
@@ -226,6 +269,7 @@ export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX
     setBusy('infer');
     setError(null);
     setBench(null);
+    setMetricScope('infer');
     try {
       const result = await CatuneMnn.inferText(trimmedPrompt);
       setOutput(result.rawOutput ?? '');
@@ -245,6 +289,7 @@ export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX
     }
     setBusy('bench');
     setError(null);
+    setMetricScope('bench');
     try {
       const result = await CatuneMnn.runBenchmark(trimmedPrompt);
       setBench(result);
@@ -266,7 +311,20 @@ export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX
 
   const cpu = status?.cpu;
   const backend = metrics?.backend ?? bench?.summary?.backend ?? cpu?.backend ?? '—';
-  const tps = bench?.summary?.avgDecodeTps ?? metrics?.decodeTps;
+  const timedRunCount = (bench?.runs ?? []).filter(r => r.label === 'timed').length;
+  const metricSectionTitle =
+    metricScope === 'bench' && lastBenchTimed?.run != null
+      ? `推理指标（基准末轮 #${lastBenchTimed.run} timed）`
+      : metricScope === 'infer'
+        ? '推理指标（单次推理）'
+        : '推理指标';
+
+  const metricSectionHint =
+    metricScope === 'bench'
+      ? `Decode TPS 为 decode 阶段速度；下方「平均 Decode TPS」仅统计 #2+#${lastBenchTimed?.run ?? '?'} 两轮 timed（不含 warmup）。`
+      : metricScope === 'infer'
+        ? '以下为 wall-clock 总耗时与 MNN 上报的 prefill/decode 拆分。'
+        : null;
 
   return (
     <Card style={styles.card}>
@@ -318,27 +376,36 @@ export function BenchmarkPanel({refreshKey = 0}: BenchmarkPanelProps): React.JSX
           </Text>
         </View>
 
-        <Text style={styles.sectionLabel}>推理指标</Text>
+        <Text style={styles.sectionLabel}>{metricSectionTitle}</Text>
+        {metricSectionHint ? <Text style={styles.sectionHint}>{metricSectionHint}</Text> : null}
         <View style={styles.metricGrid}>
-          <MetricTile label="TTFT" value={metrics?.ttftMs != null ? `${Math.round(metrics.ttftMs)} ms` : '—'} />
-          <MetricTile label="TPS" value={tps != null ? tps.toFixed(2) : '—'} />
+          <MetricTile label="TTFT" value={formatDurationMs(metrics?.ttftMs)} />
+          <MetricTile label="Prefill" value={formatDurationMs(metrics?.prefillMs)} />
+          <MetricTile label="Decode" value={formatDurationMs(metrics?.decodeMs)} />
+          <MetricTile label="总耗时" value={formatDurationMs(inferenceMs)} />
+          <MetricTile label="Decode TPS" value={formatTps(metrics?.decodeTps)} />
           <MetricTile label="Tokens" value={metrics?.tokensGenerated != null ? String(metrics.tokensGenerated) : '—'} />
           <MetricTile label="Backend" value={backend} />
-          <MetricTile label="总耗时" value={inferenceMs != null ? `${Math.round(inferenceMs)} ms` : '—'} />
           <MetricTile label="模型已加载" value={yesNo(status?.modelLoaded)} />
         </View>
 
+        {metricScope === 'bench' && bench?.summary?.avgDecodeTps != null ? (
+          <>
+            <Text style={styles.sectionLabel}>基准汇总</Text>
+            <InfoRow
+              label={`平均 Decode TPS（${timedRunCount} 轮 timed）`}
+              value={formatTps(bench.summary.avgDecodeTps)}
+            />
+            <InfoRow label="统计口径" value="不含 #1 warmup；TPS 仅 decode 阶段，非 tokens÷总耗时" />
+          </>
+        ) : null}
+
         {bench?.runs?.length ? (
           <>
-            <Text style={styles.sectionLabel}>基准轮次</Text>
+            <Text style={styles.sectionLabel}>基准轮次明细</Text>
             {bench.runs.map((run, index) => (
-              <InfoRow
-                key={index}
-                label={`#${run.run} ${run.label ?? ''}`}
-                value={`${(run.metrics?.decodeTps ?? 0).toFixed(2)} tok/s · ${run.metrics?.tokensGenerated ?? '—'} tok · ${Math.round(run.inferenceMs ?? 0)} ms`}
-              />
+              <InfoRow key={index} label={`#${run.run} ${run.label ?? ''}`} value={formatRunDetail(run)} />
             ))}
-            <InfoRow label="平均 TPS" value={`${(bench.summary?.avgDecodeTps ?? 0).toFixed(2)} tok/s`} />
           </>
         ) : null}
 
