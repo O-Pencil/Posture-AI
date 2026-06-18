@@ -15,6 +15,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {AppShell} from './src/ui/AppShell';
 import {createPostureEngine} from './src/posture/engine';
 import {createAdviceOrchestrator} from './src/posture/adviceOrchestrator';
+import {createMemoryService} from './src/posture/memory/service';
 import {createGrowthTracker, GrowthState} from './src/posture/growth';
 import {createMockSource, MockScenario, MockSource} from './src/posture/mock';
 import {createSensorSource, SensorSource} from './src/posture/sensorSource';
@@ -40,8 +41,10 @@ function App(): React.JSX.Element {
   const engineRef = useRef(createPostureEngine());
   const sensorRef = useRef<SensorSource>(createSensorSource(engineRef.current));
   const mockRef = useRef<MockSource>(createMockSource(engineRef.current));
+  // 语义记忆（教练"懂你"）：本地存储，注入教练 prompt 个性化；写入由 onboarding/反馈钩子调用
+  const memoryRef = useRef(createMemoryService());
   // 模型建议异步编排（姿态变化/久持时后台生成温暖文案，流式写回；规则先兜底）
-  const adviceRef = useRef(createAdviceOrchestrator(engineRef.current));
+  const adviceRef = useRef(createAdviceOrchestrator(engineRef.current, memoryRef.current));
   // 植物成长累加器（真实坐姿 → 积分/阶段/日志，驱动 Plant 页）
   const growthRef = useRef(createGrowthTracker(engineRef.current));
 
