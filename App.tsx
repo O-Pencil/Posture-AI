@@ -105,6 +105,7 @@ function App(): React.JSX.Element {
     <AppShell
       state={k}
       growth={growth}
+      memory={memoryRef.current}
       mode={mode}
       deskSubtitle={subtitle}
       onUseSensor={useSensor}

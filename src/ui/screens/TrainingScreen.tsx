@@ -14,6 +14,8 @@ import Svg, {Circle} from 'react-native-svg';
 
 import {exerciseFor} from '../../posture/exercises';
 import {PostureAction} from '../../posture/types';
+import {ACTION_META} from '../../posture/actionTag';
+import {MemoryService} from '../../posture/memory/service';
 import {theme} from '../theme';
 
 type Phase = 'ready' | 'hold' | 'rest' | 'done';
@@ -33,16 +35,42 @@ const PHASE_LABEL: Record<Phase, string> = {
 export function TrainingScreen({
   action,
   onClose,
+  memory,
 }: {
   action: PostureAction;
   onClose: () => void;
+  memory?: MemoryService;
 }): React.JSX.Element | null {
   const exercise = useMemo(() => exerciseFor(action), [action]);
   const [phase, setPhase] = useState<Phase>('ready');
   const [rep, setRep] = useState(1);
   const [secLeft, setSecLeft] = useState(READY_SEC);
   const [running, setRunning] = useState(true);
+  const [rated, setRated] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const rateExercise = (good: boolean) => {
+    if (memory) {
+      if (good) {
+        memory.remember({
+          type: 'lesson',
+          text: `${ACTION_META[action].label}对他有效`,
+          tags: [action],
+          importance: 0.6,
+          source: 'feedback',
+        });
+      } else {
+        memory.remember({
+          type: 'preference',
+          text: `${ACTION_META[action].label}效果一般，换个动作`,
+          tags: [action],
+          importance: 0.4,
+          source: 'feedback',
+        });
+      }
+    }
+    setRated(true);
+  };
 
   const phaseTotal = useMemo(() => {
     if (!exercise) {
@@ -177,6 +205,22 @@ export function TrainingScreen({
         ))}
       </View>
 
+      {isDone && memory ? (
+        rated ? (
+          <Text style={styles.fbThanks}>已记住，会据此调整推荐 ✓</Text>
+        ) : (
+          <View style={styles.fbRow}>
+            <Text style={styles.fbQ}>这个动作有用吗？</Text>
+            <Pressable hitSlop={8} onPress={() => rateExercise(true)}>
+              <Text style={styles.fbEmoji}>👍</Text>
+            </Pressable>
+            <Pressable hitSlop={8} onPress={() => rateExercise(false)}>
+              <Text style={styles.fbEmoji}>👎</Text>
+            </Pressable>
+          </View>
+        )
+      ) : null}
+
       <View style={styles.actions}>
         {isDone ? (
           <>
@@ -230,6 +274,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   stepText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 20},
+  fbRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 20},
+  fbQ: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm},
+  fbEmoji: {fontSize: 22},
+  fbThanks: {color: '#3A9E1F', fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, textAlign: 'center', marginTop: 20},
   actions: {flexDirection: 'row', gap: 12, marginTop: 'auto', marginBottom: 36},
   btn: {flex: 1, paddingVertical: 14, borderRadius: theme.radius.md, alignItems: 'center'},
   btnGhost: {borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface},

@@ -18,9 +18,18 @@ import React, {useMemo, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import Svg, {Circle, Path} from 'react-native-svg';
 
-import {DashboardState, PostureAction, SpineNode} from '../../posture/types';
+import {DashboardState, PostureAction, PostureName, SpineNode} from '../../posture/types';
 import {ACTION_META} from '../../posture/actionTag';
 import {exerciseFor} from '../../posture/exercises';
+import {MemoryService} from '../../posture/memory/service';
+
+const FEEDBACK_LABEL: Record<PostureName, string> = {
+  TECH_NECK: '头前倾',
+  SLUMPED: '驼背',
+  LEFT_LEAN: '侧倾',
+  NORMAL: '正常',
+  OFFLINE: '离线',
+};
 import {theme} from '../theme';
 import {CatFlipbook} from '../components/CatFlipbook';
 import {CatSprite} from '../components/CatSprite';
@@ -58,9 +67,15 @@ function spineCurvePath(c7: Pixel, t12: Pixel, l5: Pixel): string {
 function DeskHeader({
   state,
   onOpenTraining,
+  showFeedback,
+  justRated,
+  onFeedback,
 }: {
   state: DashboardState;
   onOpenTraining?: (action: PostureAction) => void;
+  showFeedback?: boolean;
+  justRated?: boolean;
+  onFeedback?: (good: boolean) => void;
 }): React.JSX.Element {
   const feedback =
     state.advice ||
@@ -83,6 +98,19 @@ function DeskHeader({
           <Text style={styles.actionChipText}>去跟练 · {ACTION_META[state.action].label}</Text>
           <Text style={styles.actionChevron}>›</Text>
         </Pressable>
+      ) : null}
+      {showFeedback ? (
+        <View style={styles.feedbackRow}>
+          <Text style={styles.feedbackQ}>这条提醒怎么样？</Text>
+          <Pressable hitSlop={8} style={styles.fbBtn} onPress={() => onFeedback?.(true)}>
+            <Text style={styles.fbEmoji}>👍</Text>
+          </Pressable>
+          <Pressable hitSlop={8} style={styles.fbBtn} onPress={() => onFeedback?.(false)}>
+            <Text style={styles.fbEmoji}>👎</Text>
+          </Pressable>
+        </View>
+      ) : justRated ? (
+        <Text style={styles.feedbackThanks}>已记住 ✓</Text>
       ) : null}
     </View>
   );
@@ -264,14 +292,51 @@ function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
 export function DeskScreen({
   state,
   onOpenTraining,
+  memory,
 }: {
   state: DashboardState;
   subtitle?: string;
   onOpenTraining?: (action: PostureAction) => void;
+  memory?: MemoryService;
 }): React.JSX.Element {
+  const [ratedAdvice, setRatedAdvice] = useState<string | null>(null);
+  const abnormal = state.posture === 'SLUMPED' || state.posture === 'TECH_NECK' || state.posture === 'LEFT_LEAN';
+  const showFeedback = !!memory && !!state.advice && abnormal && !state.streaming && state.advice !== ratedAdvice;
+  const justRated = !!state.advice && abnormal && state.advice === ratedAdvice;
+
+  const onFeedback = (good: boolean) => {
+    if (!memory) {
+      return;
+    }
+    if (good) {
+      memory.remember({
+        type: 'lesson',
+        text: `${FEEDBACK_LABEL[state.posture]}时的提醒对他有效`,
+        tags: [state.posture],
+        importance: 0.6,
+        source: 'feedback',
+      });
+    } else {
+      memory.remember({
+        type: 'preference',
+        text: '上一条提醒不太对味，换种说法',
+        tags: ['tone'],
+        importance: 0.45,
+        source: 'feedback',
+      });
+    }
+    setRatedAdvice(state.advice);
+  };
+
   return (
     <View style={styles.root}>
-      <DeskHeader state={state} onOpenTraining={onOpenTraining} />
+      <DeskHeader
+        state={state}
+        onOpenTraining={onOpenTraining}
+        showFeedback={showFeedback}
+        justRated={justRated}
+        onFeedback={onFeedback}
+      />
       <MetricStrip state={state} />
       <PostureScene state={state} />
     </View>
@@ -343,6 +408,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     marginTop: -1,
   },
+  feedbackRow: {flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8},
+  feedbackQ: {color: theme.colors.textMuted, fontSize: 11},
+  fbBtn: {paddingHorizontal: 2},
+  fbEmoji: {fontSize: 16},
+  feedbackThanks: {color: '#3A9E1F', fontSize: 11, fontWeight: theme.font.weightBold, marginTop: 8},
   metrics: {
     flexDirection: 'row',
     paddingHorizontal: 32,

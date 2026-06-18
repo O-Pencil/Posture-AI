@@ -36,3 +36,28 @@ export async function saveItems(items: MemoryItem[]): Promise<void> {
     // web / 无 FS：忽略，保持内存态
   }
 }
+
+const META = DIR + 'meta.json';
+
+/** 是否已完成 onboarding（首启问卷只走一次）。 */
+export async function loadOnboarded(): Promise<boolean> {
+  try {
+    const info = await FileSystem.getInfoAsync(META);
+    if (!info.exists) {
+      return false;
+    }
+    const meta = JSON.parse(await FileSystem.readAsStringAsync(META));
+    return Boolean(meta?.onboarded);
+  } catch {
+    return false;
+  }
+}
+
+export async function saveOnboarded(value: boolean): Promise<void> {
+  try {
+    await FileSystem.makeDirectoryAsync(DIR, {intermediates: true});
+    await FileSystem.writeAsStringAsync(META, JSON.stringify({onboarded: value}));
+  } catch {
+    // web / 无 FS：忽略
+  }
+}
