@@ -18,8 +18,9 @@ import React, {useMemo, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import Svg, {Circle, Path} from 'react-native-svg';
 
-import {DashboardState, SpineNode} from '../../posture/types';
+import {DashboardState, PostureAction, SpineNode} from '../../posture/types';
 import {ACTION_META} from '../../posture/actionTag';
+import {exerciseFor} from '../../posture/exercises';
 import {theme} from '../theme';
 import {CatFlipbook} from '../components/CatFlipbook';
 import {CatSprite} from '../components/CatSprite';
@@ -54,12 +55,18 @@ function spineCurvePath(c7: Pixel, t12: Pixel, l5: Pixel): string {
   return `M ${c7.x} ${c7.y} C ${c7.x} ${midUpper}, ${t12.x} ${midUpper}, ${t12.x} ${t12.y} S ${l5.x} ${midLower}, ${l5.x} ${l5.y}`;
 }
 
-function DeskHeader({state}: {state: DashboardState}): React.JSX.Element {
+function DeskHeader({
+  state,
+  onOpenTraining,
+}: {
+  state: DashboardState;
+  onOpenTraining?: (action: PostureAction) => void;
+}): React.JSX.Element {
   const feedback =
     state.advice ||
     'Your sitting posture is very standard, please keep it up, you have been sitting still for 3h 28min already!';
-  // 模型/规则给出的建议动作（HOLD/保持 不展示 chip）
-  const showAction = state.action != null && state.action !== 'HOLD';
+  // 仅当动作有配套例程时才把 chip 做成可点（HOLD/保持 无例程，不展示）
+  const trainable = state.action != null && state.action !== 'HOLD' && exerciseFor(state.action) != null;
 
   return (
     <View style={styles.header}>
@@ -70,11 +77,12 @@ function DeskHeader({state}: {state: DashboardState}): React.JSX.Element {
       <Text style={styles.feedback} numberOfLines={3}>
         {state.streaming ? `${feedback} ▍` : feedback}
       </Text>
-      {showAction && state.action ? (
-        <View style={styles.actionChip}>
+      {trainable && state.action ? (
+        <Pressable style={styles.actionChip} onPress={() => onOpenTraining?.(state.action as PostureAction)}>
           <View style={styles.actionDot} />
-          <Text style={styles.actionChipText}>建议动作 · {ACTION_META[state.action].label}</Text>
-        </View>
+          <Text style={styles.actionChipText}>去跟练 · {ACTION_META[state.action].label}</Text>
+          <Text style={styles.actionChevron}>›</Text>
+        </Pressable>
       ) : null}
     </View>
   );
@@ -253,10 +261,17 @@ function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
   );
 }
 
-export function DeskScreen({state}: {state: DashboardState; subtitle?: string}): React.JSX.Element {
+export function DeskScreen({
+  state,
+  onOpenTraining,
+}: {
+  state: DashboardState;
+  subtitle?: string;
+  onOpenTraining?: (action: PostureAction) => void;
+}): React.JSX.Element {
   return (
     <View style={styles.root}>
-      <DeskHeader state={state} />
+      <DeskHeader state={state} onOpenTraining={onOpenTraining} />
       <MetricStrip state={state} />
       <PostureScene state={state} />
     </View>
@@ -320,6 +335,13 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: 11,
     fontWeight: theme.font.weightBold,
+  },
+  actionChevron: {
+    color: theme.colors.primary,
+    fontSize: 14,
+    fontWeight: theme.font.weightBold,
+    marginLeft: 4,
+    marginTop: -1,
   },
   metrics: {
     flexDirection: 'row',

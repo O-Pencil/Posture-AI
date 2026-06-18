@@ -16,10 +16,11 @@ import {Tab, TabBar} from './components/TabBar';
 import {DeskScreen} from './screens/DeskScreen';
 import {PlantScreen} from './screens/PlantScreen';
 import {DataMode, SettingsScreen} from './screens/SettingsScreen';
+import {TrainingScreen} from './screens/TrainingScreen';
 import {theme} from './theme';
 import {FanIcon, GaugeIcon, SettingsIcon} from './icons';
 import {MockScenario} from '../posture/mock';
-import {DashboardState} from '../posture/types';
+import {DashboardState, PostureAction} from '../posture/types';
 import {GrowthState} from '../posture/growth';
 import {resumePendingDownloadIfNeeded} from '../mnn/modelDownloadService';
 
@@ -41,6 +42,8 @@ type Props = {
 
 export function AppShell({state, growth, mode, deskSubtitle, onUseSensor, onUseMock, onScenario}: Props): React.JSX.Element {
   const [tab, setTab] = useState('desk');
+  // 跟练页：由 Desk 建议动作 chip 点击弹出的全屏聚焦 overlay（不占 tab）
+  const [trainingAction, setTrainingAction] = useState<PostureAction | null>(null);
 
   useEffect(() => {
     resumePendingDownloadIfNeeded();
@@ -50,7 +53,7 @@ export function AppShell({state, growth, mode, deskSubtitle, onUseSensor, onUseM
     <SafeAreaView style={styles.root}>
       <StatusBar style="dark" />
       <ModelDownloadBanner onOpenSettings={() => setTab('settings')} />
-      {tab === 'desk' && <DeskScreen state={state} subtitle={deskSubtitle} />}
+      {tab === 'desk' && <DeskScreen state={state} subtitle={deskSubtitle} onOpenTraining={setTrainingAction} />}
       {tab === 'plant' && <PlantScreen growth={growth} />}
       {tab === 'settings' && (
         <SettingsScreen
@@ -62,6 +65,9 @@ export function AppShell({state, growth, mode, deskSubtitle, onUseSensor, onUseM
         />
       )}
       <TabBar tabs={TABS} value={tab} onChange={setTab} />
+      {trainingAction ? (
+        <TrainingScreen action={trainingAction} onClose={() => setTrainingAction(null)} />
+      ) : null}
     </SafeAreaView>
   );
 }
