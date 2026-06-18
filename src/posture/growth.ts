@@ -11,6 +11,7 @@
  */
 import type {PostureEngine} from './engine';
 import {PostureName} from './types';
+import {rolloverIfNewDay, upsertTodaySnapshot} from './dailyHistory';
 
 /** 5 个成长阶段（与 PlantScreen 一致）。 */
 export const STAGE_NAMES = ['Seed', 'Sprout', 'Sapling', 'Bud', 'Fruit'] as const;
@@ -113,6 +114,15 @@ export function createGrowthTracker(engine: PostureEngine, opts: GrowthOptions =
     points = clampPoints(points + delta);
     const event: GrowthEvent = {id: nextId++, time: nowLabel(), action, delta, score: points};
     log = [event, ...log].slice(0, LOG_CAP);
+    // 落每日快照（异常入态 good=0 / abnormal=1；良好发分 good=1 / abnormal=0）
+    const abnormalCount = delta < 0 ? 1 : 0;
+    const goodCount = delta > 0 ? 1 : 0;
+    void upsertTodaySnapshot({
+      points,
+      goodMinutes: goodCount,
+      abnormalCount,
+      goodCount,
+    });
     emit();
   };
 
@@ -155,6 +165,8 @@ export function createGrowthTracker(engine: PostureEngine, opts: GrowthOptions =
       if (unsubEngine) {
         return;
       }
+      // 启动时检查是否跨天，标 finalized
+      void rolloverIfNewDay();
       unsubEngine = engine.subscribe(s => onSample(s.posture));
       timer = setInterval(onTick, tickMs);
       emit();

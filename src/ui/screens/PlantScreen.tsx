@@ -15,6 +15,7 @@ import {theme} from '../theme';
 import {Card} from '../primitives/Card';
 import {SunIcon} from '../icons';
 import {GrowthState, STAGE_NAMES} from '../../posture/growth';
+import {LoopTabs} from '../components/LoopTabs';
 
 const STAGES = STAGE_NAMES.map((name, id) => ({id, name}));
 
@@ -97,7 +98,6 @@ function PlantSvg({stage}: {stage: number}): React.JSX.Element {
 
 export function PlantScreen({growth}: {growth: GrowthState}): React.JSX.Element {
   const stage = growth.stage;
-  const log = growth.log;
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.container}>
       <Text style={styles.title}>Posture Plant</Text>
@@ -138,33 +138,7 @@ export function PlantScreen({growth}: {growth: GrowthState}): React.JSX.Element 
         </View>
       </Card>
 
-      <Card style={styles.logCard}>
-        <View style={styles.logHeader}>
-          <Text style={styles.kicker}>SCORE LOG</Text>
-          <View style={styles.scoreRow}>
-            <Text style={styles.scoreNum}>{growth.points}</Text>
-            <Text style={styles.dim}> pts</Text>
-          </View>
-        </View>
-        {log.length === 0 ? (
-          <Text style={styles.emptyLog}>保持坐姿即可累积积分；异常坐姿会在此记录。</Text>
-        ) : (
-          log.map((e, i) => (
-            <View key={e.id} style={[styles.logRow, i < log.length - 1 && styles.logDivider]}>
-              <View style={styles.logTextBlock}>
-                <Text style={styles.logTime}>{e.time}</Text>
-                <Text style={styles.logAction} numberOfLines={1}>
-                  {e.action}
-                </Text>
-              </View>
-              <Text style={[styles.logDelta, {color: e.delta > 0 ? '#3A9E1F' : '#C20A0A'}]}>
-                {e.delta > 0 ? '+' : ''}
-                {e.delta}
-              </Text>
-            </View>
-          ))
-        )}
-      </Card>
+      <LoopTabs growth={growth} />
     </ScrollView>
   );
 }
@@ -205,16 +179,4 @@ const styles = StyleSheet.create({
   stageNum: {color: theme.colors.textMuted, fontSize: 10, fontWeight: theme.font.weightBold},
   stageName: {color: theme.colors.textMuted, fontSize: 11, marginTop: 2},
   stageActiveText: {color: theme.colors.primary, fontWeight: theme.font.weightBold},
-
-  logCard: {},
-  logHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8},
-  scoreRow: {flexDirection: 'row', alignItems: 'baseline'},
-  scoreNum: {color: theme.colors.primary, fontSize: theme.font.sizeXl, fontWeight: theme.font.weightHeavy},
-  logRow: {flexDirection: 'row', alignItems: 'center', paddingVertical: 10},
-  logDivider: {borderBottomWidth: 1, borderBottomColor: theme.colors.border},
-  logTextBlock: {flex: 1, minWidth: 0},
-  logTime: {color: theme.colors.textMuted, fontSize: 11},
-  logAction: {color: theme.colors.textSecondary, fontSize: 13, marginTop: 2},
-  logDelta: {fontSize: 14, fontWeight: theme.font.weightBold, marginLeft: 12},
-  emptyLog: {color: theme.colors.textMuted, fontSize: 12, lineHeight: 18, paddingVertical: 8},
 });
