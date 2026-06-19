@@ -1,7 +1,5 @@
-# 训练产物（在 GPU 机器生成，不入库）
+# 训练产物（在 GPU 机器生成的大文件不入库；小数据集入 git 便于复现）
 saves/
-data/train.jsonl
-data/val.jsonl
 MNN/
 *.mnn
 *.mnn.weight
