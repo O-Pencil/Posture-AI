@@ -18,6 +18,7 @@ import {PlantScreen} from './screens/PlantScreen';
 import {DataMode, SettingsScreen} from './screens/SettingsScreen';
 import {TrainingScreen} from './screens/TrainingScreen';
 import {OnboardingScreen} from './screens/OnboardingScreen';
+import {AssessScreen} from './screens/AssessScreen';
 import {theme} from './theme';
 import {FanIcon, GaugeIcon, SettingsIcon} from './icons';
 import {MockScenario} from '../posture/mock';
@@ -47,6 +48,8 @@ export function AppShell({state, growth, memory, mode, deskSubtitle, onUseSensor
   const [tab, setTab] = useState('desk');
   // 跟练页：由 Desk 建议动作 chip 点击弹出的全屏聚焦 overlay（不占 tab）
   const [trainingAction, setTrainingAction] = useState<PostureAction | null>(null);
+  // AI 评估页：由 Desk 入口下钻的全屏 overlay（不占 tab）
+  const [assessOpen, setAssessOpen] = useState(false);
   // 首启问卷：null=加载中，false=未完成→展示，true=已完成
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
@@ -60,7 +63,13 @@ export function AppShell({state, growth, memory, mode, deskSubtitle, onUseSensor
       <StatusBar style="dark" />
       <ModelDownloadBanner onOpenSettings={() => setTab('settings')} />
       {tab === 'desk' && (
-        <DeskScreen state={state} subtitle={deskSubtitle} onOpenTraining={setTrainingAction} memory={memory} />
+        <DeskScreen
+          state={state}
+          subtitle={deskSubtitle}
+          onOpenTraining={setTrainingAction}
+          onOpenAssess={() => setAssessOpen(true)}
+          memory={memory}
+        />
       )}
       {tab === 'plant' && <PlantScreen growth={growth} />}
       {tab === 'settings' && (
@@ -77,6 +86,7 @@ export function AppShell({state, growth, memory, mode, deskSubtitle, onUseSensor
       {trainingAction ? (
         <TrainingScreen action={trainingAction} memory={memory} onClose={() => setTrainingAction(null)} />
       ) : null}
+      {assessOpen ? <AssessScreen onClose={() => setAssessOpen(false)} /> : null}
       {onboarded === false ? (
         <OnboardingScreen
           onComplete={inputs => {

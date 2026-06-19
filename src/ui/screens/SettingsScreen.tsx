@@ -3,7 +3,7 @@
  * @description 设置屏：模型管理（含设备指标折叠）、模型基准测试、数据源、F7 演示台、关于。
  */
 import React, {useCallback, useEffect, useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import {theme} from '../theme';
 import {Card} from '../primitives/Card';
 import {ModelDownloadCard} from '../components/ModelDownloadCard';
@@ -12,6 +12,8 @@ import {MockScenario, SCENARIOS} from '../../posture/mock';
 import {DashboardState} from '../../posture/types';
 import {MemoryService} from '../../posture/memory/service';
 import {MemoryItem, MemoryType} from '../../posture/memory/types';
+import {loadAssessConfig, saveAssessConfig} from '../../assess/config';
+import {AssessBackend, AssessConfig, DEFAULT_ASSESS_CONFIG} from '../../assess/types';
 
 export type DataMode = 'loading' | 'sensor' | 'mock';
 
@@ -33,6 +35,85 @@ const TYPE_LABEL: Record<MemoryType, string> = {
   knowledge: '环境',
   entity: '称呼',
 };
+
+const ASSESS_BACKENDS: Array<{key: AssessBackend; label: string}> = [
+  {key: 'preset', label: '预置'},
+  {key: 'cloud', label: '云端'},
+  {key: 'local', label: '端侧 VL'},
+];
+
+function AssessConfigCard(): React.JSX.Element {
+  const [cfg, setCfg] = useState<AssessConfig>(DEFAULT_ASSESS_CONFIG);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    loadAssessConfig().then(setCfg);
+  }, []);
+
+  const setBackend = (backend: AssessBackend) => {
+    setCfg(c => ({...c, backend}));
+    setSaved(false);
+  };
+  const setCloud = (patch: Partial<AssessConfig['cloud']>) => {
+    setCfg(c => ({...c, cloud: {...c.cloud, ...patch}}));
+    setSaved(false);
+  };
+
+  return (
+    <Card style={styles.card}>
+      <Text style={styles.cardTitle}>评估模型</Text>
+      <View style={styles.rowGap}>
+        {ASSESS_BACKENDS.map(b => (
+          <Pill key={b.key} active={cfg.backend === b.key} label={b.label} onPress={() => setBackend(b.key)} />
+        ))}
+      </View>
+
+      {cfg.backend === 'cloud' ? (
+        <View style={styles.cloudForm}>
+          <TextInput
+            style={styles.input}
+            value={cfg.cloud.baseURL}
+            onChangeText={t => setCloud({baseURL: t})}
+            placeholder="baseURL（OpenAI/DashScope 兼容）"
+            placeholderTextColor={theme.colors.textMuted}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={cfg.cloud.apiKey}
+            onChangeText={t => setCloud({apiKey: t})}
+            placeholder="API Key"
+            placeholderTextColor={theme.colors.textMuted}
+            autoCapitalize="none"
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
+            value={cfg.cloud.model}
+            onChangeText={t => setCloud({model: t})}
+            placeholder="模型名，如 qwen-vl-max"
+            placeholderTextColor={theme.colors.textMuted}
+            autoCapitalize="none"
+          />
+        </View>
+      ) : null}
+
+      {cfg.backend === 'local' ? (
+        <Text style={styles.hint}>端侧 VL 需安装 VL 模型且原生支持 analyzeImage（步骤③）。未就绪时评估自动回退预置。</Text>
+      ) : null}
+
+      <Pressable
+        style={styles.saveBtn}
+        onPress={() => {
+          saveAssessConfig(cfg);
+          setSaved(true);
+        }}>
+        <Text style={styles.saveBtnText}>{saved ? '已保存 ✓' : '保存'}</Text>
+      </Pressable>
+      <Text style={styles.hint}>Key 仅存本机、不上传、不进 git。评估失败自动回退预置。</Text>
+    </Card>
+  );
+}
 
 function MemoryCard({memory}: {memory?: MemoryService}): React.JSX.Element | null {
   const [items, setItems] = useState<MemoryItem[]>([]);
@@ -129,6 +210,26 @@ const styles = StyleSheet.create({
   },
   memText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 18},
   memDelete: {color: theme.colors.textMuted, fontSize: 14, fontWeight: theme.font.weightBold},
+  cloudForm: {marginTop: 12, gap: 8},
+  input: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: theme.font.sizeSm,
+    color: theme.colors.textPrimary,
+    backgroundColor: theme.colors.surface,
+  },
+  saveBtn: {
+    marginTop: 12,
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.primary,
+  },
+  saveBtnText: {color: '#FFFFFF', fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
 });
 
 function Pill({active, label, onPress}: {active: boolean; label: string; onPress: () => void}): React.JSX.Element {
@@ -149,6 +250,8 @@ export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onS
       <ModelDownloadCard onModelsChanged={() => setMnnRefreshKey(k => k + 1)} />
 
       <BenchmarkPanel refreshKey={mnnRefreshKey} />
+
+      <AssessConfigCard />
 
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>数据源</Text>

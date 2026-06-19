@@ -67,12 +67,14 @@ function spineCurvePath(c7: Pixel, t12: Pixel, l5: Pixel): string {
 function DeskHeader({
   state,
   onOpenTraining,
+  onOpenAssess,
   showFeedback,
   justRated,
   onFeedback,
 }: {
   state: DashboardState;
   onOpenTraining?: (action: PostureAction) => void;
+  onOpenAssess?: () => void;
   showFeedback?: boolean;
   justRated?: boolean;
   onFeedback?: (good: boolean) => void;
@@ -85,6 +87,11 @@ function DeskHeader({
 
   return (
     <View style={styles.header}>
+      {onOpenAssess ? (
+        <Pressable style={styles.assessEntry} onPress={onOpenAssess}>
+          <Text style={styles.assessEntryText}>✦ AI 评估</Text>
+        </Pressable>
+      ) : null}
       <Text style={styles.kicker}>CATUNE</Text>
       <Text style={styles.greeting}>
         {greeting()}, <Text style={styles.highlight}>Xiao Yu</Text>
@@ -292,11 +299,13 @@ function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
 export function DeskScreen({
   state,
   onOpenTraining,
+  onOpenAssess,
   memory,
 }: {
   state: DashboardState;
   subtitle?: string;
   onOpenTraining?: (action: PostureAction) => void;
+  onOpenAssess?: () => void;
   memory?: MemoryService;
 }): React.JSX.Element {
   const [ratedAdvice, setRatedAdvice] = useState<string | null>(null);
@@ -333,6 +342,7 @@ export function DeskScreen({
       <DeskHeader
         state={state}
         onOpenTraining={onOpenTraining}
+        onOpenAssess={onOpenAssess}
         showFeedback={showFeedback}
         justRated={justRated}
         onFeedback={onFeedback}
@@ -353,6 +363,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingTop: 8,
     paddingBottom: 8,
+  },
+  assessEntry: {
+    position: 'absolute',
+    top: 6,
+    right: 24,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(251,75,0,0.35)',
+    backgroundColor: '#FCEAE0',
+    zIndex: 2,
+  },
+  assessEntryText: {
+    color: theme.colors.primary,
+    fontSize: 11,
+    fontWeight: theme.font.weightBold,
   },
   kicker: {
     color: theme.colors.textMuted,
