@@ -131,6 +131,61 @@ class MnnDebugModule(
         }
     }
 
+    /**
+     * 端侧 VL 体态评估：base64 图片 + prompt → 走已有 MnnPerceptionEngine.analyze() 图像路径，返回原始文本。
+     * 需当前活跃模型为 VL 模型，且 libMNN 含视觉支持；否则 analyze 返回 null/异常，JS 侧回退预置。
+     */
+    @ReactMethod
+    fun analyzeImage(imageBase64: String, prompt: String, promise: Promise) {
+        scope.launch {
+            try {
+                InferenceExecutor.resetLoadFailure()
+                val loaded = InferenceExecutor.ensureModelLoaded(reactContext)
+                if (!loaded) {
+                    promise.reject(
+                        "CATUNE_MNN_MODEL_NOT_READY",
+                        InferenceExecutor.loadError() ?: "MNN model is not ready",
+                    )
+                    return@launch
+                }
+                val engine = MnnPerceptionEngine.tryCreate(reactContext)
+                if (engine == null) {
+                    promise.reject("CATUNE_MNN_INFER_FAILED", "Engine unavailable")
+                    return@launch
+                }
+                val jpeg = try {
+                    android.util.Base64.decode(imageBase64, android.util.Base64.DEFAULT)
+                } catch (error: IllegalArgumentException) {
+                    promise.reject("CATUNE_MNN_BAD_IMAGE", "Invalid base64 image")
+                    return@launch
+                }
+                val result = engine.analyze(jpeg, null, 0, prompt)
+                if (result == null) {
+                    promise.reject("CATUNE_MNN_INFER_FAILED", MnnPerceptionEngine.getLastError())
+                    return@launch
+                }
+                val response = Arguments.createMap().apply {
+                    putString("rawOutput", result.rawOutput)
+                    putDouble("inferenceMs", result.result.inferenceMs.toDouble())
+                    putMap(
+                        "metrics",
+                        Arguments.createMap().apply {
+                            putDouble("ttftMs", result.metrics.ttftMs.toDouble())
+                            putDouble("prefillMs", result.metrics.prefillMs.toDouble())
+                            putDouble("decodeMs", result.metrics.decodeMs.toDouble())
+                            putInt("tokensGenerated", result.metrics.tokensGenerated)
+                            putDouble("decodeTps", result.metrics.decodeTps.toDouble())
+                            putString("backend", result.metrics.backend)
+                        },
+                    )
+                }
+                promise.resolve(response)
+            } catch (error: Throwable) {
+                promise.reject("CATUNE_MNN_ANALYZE_EXCEPTION", error.message, error)
+            }
+        }
+    }
+
     @ReactMethod
     fun inferTextStream(prompt: String, promise: Promise) {
         scope.launch {

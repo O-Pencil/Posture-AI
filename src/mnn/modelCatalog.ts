@@ -11,6 +11,8 @@ export type MnnModelDef = {
   files: readonly string[];
   /** emulator=模拟器联调；device=真机推荐；sme2=SME2 验收用大模型 */
   tags: readonly ('emulator' | 'device' | 'sme2')[];
+  /** 视觉模型（VL）：走 analyzeImage 图像路径用于体态评估；不作为文本教练默认。 */
+  vision?: boolean;
   emulatorNote?: string;
 };
 
@@ -28,6 +30,10 @@ const MNN_FILE_SET = [
   'tokenizer.txt',
   'embeddings_bf16.bin',
 ] as const;
+
+// VL 模型在 LLM 文件集基础上多视觉编码器文件。
+// ⚠ 下载前务必核对所选 HF 仓库实际文件名（不同导出可能为 visual.mnn 单文件或含 .weight），否则下载会 404。
+const VL_FILE_SET = [...MNN_FILE_SET, 'visual.mnn', 'visual.mnn.weight'] as const;
 
 export const MODEL_CATALOG: readonly MnnModelDef[] = [
   {
@@ -50,7 +56,24 @@ export const MODEL_CATALOG: readonly MnnModelDef[] = [
     tags: ['device', 'sme2'],
     emulatorNote: '体积大，模拟器易 OOM；仅建议在 SME2/大内存真机验收。',
   },
+  {
+    id: 'qwen2-vl-2b',
+    label: 'Qwen2-VL-2B（体态评估）',
+    sizeHint: '~1.5GB',
+    subdir: `${MNN_MODELS_ROOT}qwen2-vl-2b/`,
+    baseUrl: 'https://hf-mirror.com/taobao-mnn/Qwen2-VL-2B-Instruct-MNN/resolve/main/',
+    files: VL_FILE_SET,
+    tags: ['device', 'sme2'],
+    vision: true,
+    emulatorNote: '视觉模型，供 AI 评估的 analyzeImage 路径；仅真机、体积大、易 OOM。' +
+      '下载前核对仓库文件名；可能需 libMNN 含视觉支持重编。设为活跃模型后端侧 VL 评估才生效。',
+  },
 ];
+
+/** 视觉（VL）模型清单（用于端侧体态评估）。 */
+export function getVisionModels(): readonly MnnModelDef[] {
+  return MODEL_CATALOG.filter(m => m.vision);
+}
 
 export function getModelById(id: string): MnnModelDef | undefined {
   return MODEL_CATALOG.find(m => m.id === id);
