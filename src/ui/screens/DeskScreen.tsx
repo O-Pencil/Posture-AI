@@ -38,6 +38,8 @@ import {LEAN_ATLAS} from '../assets/leanAtlas';
 import {anchorsAt} from '../assets/catAnchors';
 
 const PORTAL_IMAGE = require('../../../public/portal.png');
+const DESK_IMAGE = require('../../../public/desk.png');
+const PLANT_IMAGE = require('../../../public/plant.png');
 /** 左右倾翻页的可视角度范围（lumbarRoll 度）→ 第 0..N-1 帧。按视频实拍幅度可调。 */
 const LEAN_RANGE_DEG = 25;
 /** 点位校准模式：开启后点击猫身打印该点的 (u,v) + 当前帧号，用于填 catAnchors 的关键帧表。 */
@@ -240,6 +242,21 @@ function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
               : {width: nextWidth, height: nextHeight},
           );
         }}>
+
+        {/* 桌子层：场景背景，位于底部 */}
+        <Image 
+          source={DESK_IMAGE} 
+          style={styles.deskImage} 
+          resizeMode="cover"
+        />
+
+        {/* 植物层：在桌子左侧 */}
+        <Image 
+          source={PLANT_IMAGE} 
+          style={styles.plantImage} 
+          resizeMode="contain"
+        />
+
         {/* 猫盒子：主视觉 + 点位层共用同一矩形，点位用比例坐标自动贴合 */}
         <View style={boxStyle}>
           {useSprite && LEAN_ATLAS.source ? (
@@ -521,5 +538,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
+  },
+  deskImage: {
+    position: 'absolute',
+    top: 220,
+    alignSelf: 'center',
+    width: 420,
+    height: 400,
+    zIndex: 0,
+  },
+  plantImage: {
+    position: 'absolute',
+    top: 290,
+    left: 20,
+    width: 200,
+    height: 140,
+    zIndex: 1,
   },
 });
