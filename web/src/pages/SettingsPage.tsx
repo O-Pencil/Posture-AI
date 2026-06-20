@@ -1,17 +1,32 @@
 /**
  * [WHO]: 导出 SettingsPage（函数组件）
- * [FROM]: react (useState), @/components/haptic/haptic-switch (HapticSwitch)
+ * [FROM]: react (useState), @/components/haptic/haptic-switch (HapticSwitch), @tabler/icons-react
  * [TO]: 被 App.tsx 消费
- * [HERE]: web/src/pages/SettingsPage.tsx · 设置页（设备 / AI / MCP / 通知 / 关于）
+ * [HERE]: web/src/pages/SettingsPage.tsx · 设置页（设备 / AI / 通知 / 关于）
  */
 
 import { useState } from "react"
 import { HapticSwitch } from "@/components/haptic/haptic-switch"
+import {
+  IconCpu,
+  IconBrain,
+  IconBell,
+  IconInfoCircle,
+} from "@tabler/icons-react"
+
+function SectionHeader({ icon: Icon, label }: { icon: React.FC<{ size?: number; className?: string }>; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <Icon size={14} className="text-[#9B9590]" />
+      <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider">{label}</div>
+    </div>
+  )
+}
 
 function DeviceSection() {
   return (
     <div>
-      <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider mb-3">DEVICE</div>
+      <SectionHeader icon={IconCpu} label="DEVICE" />
 
       {/* Connected Device */}
       <div className="skeuo-card p-5">
@@ -136,7 +151,7 @@ function DeviceSection() {
 function ModelSection() {
   return (
     <div>
-      <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider mb-3">AI MODEL</div>
+      <SectionHeader icon={IconBrain} label="AI MODEL" />
       <div className="skeuo-card p-4 flex items-center gap-3">
         <div
           className="size-9 rounded-xl flex items-center justify-center"
@@ -154,7 +169,7 @@ function ModelSection() {
         <button className="text-sm text-[#fb4b00] font-medium">Install</button>
       </div>
       <p className="text-[10px] text-[#9B9590] mt-2 px-1">
-        Falls back to heuristic analysis without model, <span className="text-[#666666]">MCP still works</span>.
+        Falls back to rule-based analysis when model is unavailable.
       </p>
     </div>
   )
@@ -167,7 +182,7 @@ function NotificationSection() {
 
   return (
     <div>
-      <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider mb-3">REMINDERS</div>
+      <SectionHeader icon={IconBell} label="REMINDERS" />
       <div className="skeuo-card overflow-hidden divide-y divide-[rgba(0,0,0,0.04)]">
         <div className="px-4 py-3.5 flex items-center justify-between">
           <div>
@@ -203,7 +218,7 @@ function AboutSection() {
   ]
   return (
     <div>
-      <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider mb-3">ABOUT</div>
+      <SectionHeader icon={IconInfoCircle} label="ABOUT" />
       <div className="skeuo-card p-4">
         <div className="flex items-center gap-3 mb-4">
           <div

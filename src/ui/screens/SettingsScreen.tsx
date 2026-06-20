@@ -23,6 +23,7 @@ import {loadAssessConfig, saveAssessConfig} from '../../assess/config';
 import {AssessBackend, AssessConfig, DEFAULT_ASSESS_CONFIG} from '../../assess/types';
 import {AssessReadiness, checkAssessReadiness} from '../../assess/readiness';
 import {Locale, useLocale, useT} from '../i18n';
+import {IconCpu, IconBrain, IconBell, IconInfoCircle} from '@tabler/icons-react-native';
 
 export type DataMode = 'loading' | 'sensor' | 'mock';
 
@@ -320,12 +321,18 @@ export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onS
       <Text style={styles.title}>{t('settings.title')}</Text>
 
       {/* — 核心：模型与推理 — */}
-      <Text style={styles.sectionLabel}>{t('settings.group.core')}</Text>
+      <View style={styles.sectionLabel}>
+        <IconCpu size={14} color={theme.colors.textMuted} />
+        <Text style={styles.sectionLabelText}>{t('settings.group.core')}</Text>
+      </View>
       <ModelDownloadCard onModelsChanged={() => setMnnRefreshKey(k => k + 1)} />
       <BenchmarkPanel refreshKey={mnnRefreshKey} />
 
       {/* — 数据源 — */}
-      <Text style={styles.sectionLabel}>{t('settings.group.dataSource')}</Text>
+      <View style={styles.sectionLabel}>
+        <IconBrain size={14} color={theme.colors.textMuted} />
+        <Text style={styles.sectionLabelText}>{t('settings.group.dataSource')}</Text>
+      </View>
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>{t('settings.data.title')}</Text>
         <View style={styles.rowGap}>
@@ -353,12 +360,18 @@ export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onS
       </Card>
 
       {/* — 智能 — */}
-      <Text style={styles.sectionLabel}>{t('settings.group.intelligence')}</Text>
+      <View style={styles.sectionLabel}>
+        <IconBell size={14} color={theme.colors.textMuted} />
+        <Text style={styles.sectionLabelText}>{t('settings.group.intelligence')}</Text>
+      </View>
       <AssessConfigCard />
       <MemoryCard memory={memory} />
 
       {/* — 通用 — */}
-      <Text style={styles.sectionLabel}>{t('settings.group.general')}</Text>
+      <View style={styles.sectionLabel}>
+        <IconInfoCircle size={14} color={theme.colors.textMuted} />
+        <Text style={styles.sectionLabelText}>{t('settings.group.general')}</Text>
+      </View>
       <LanguageCard />
 
       <Card style={styles.card}>

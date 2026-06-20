@@ -1,18 +1,50 @@
 /**
  * @file TabBar.tsx
- * @description 底部 Haptic 标签栏（RN 原语 + SVG 图标，从 web/ TabBar 重写）：浮动胶囊条 + 选中态高亮。
+ * @description 底部 Haptic 标签栏（RN 原语 + SVG 图标，从 web/ TabBar 重写）：浮动胶囊条 + 选中态高亮 + 弹跳动画。
  *
  * [WHO] 导出 `Tab` 类型、`TabBar`
- * [FROM] 依赖 `react`、`react-native`(Pressable/View/Text)、`../theme`、`../icons`(IconProps)
+ * [FROM] 依赖 `react`、`react-native`(Animated/Pressable/View/Text)、`../theme`、`../icons`(IconProps)
  * [TO] 被 `AppShell` 消费
  * [HERE] src/ui/components/TabBar.tsx · 底部标签栏
  */
-import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {Animated, Pressable, StyleSheet, Text, View} from 'react-native';
 import {theme} from '../theme';
 import {IconProps} from '../icons';
 
 export type Tab = {value: string; label: string; Icon: React.FC<IconProps>};
+
+function AnimatedTab({
+  tab,
+  active,
+  onPress,
+}: {
+  tab: Tab;
+  active: boolean;
+  onPress: () => void;
+}): React.JSX.Element {
+  const scale = useRef(new Animated.Value(active ? 1 : 0.92)).current;
+  const color = active ? theme.colors.textPrimary : theme.colors.textMuted;
+  const Icon = tab.Icon;
+
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: active ? 1 : 0.92,
+      useNativeDriver: true,
+      stiffness: 400,
+      damping: 20,
+    }).start();
+  }, [active]);
+
+  return (
+    <Pressable style={[styles.tab, active && styles.tabActive]} onPress={onPress}>
+      <Animated.View style={{transform: [{scale}]}}>
+        <Icon size={20} color={color} />
+      </Animated.View>
+      <Text style={[styles.label, {color}]}>{tab.label}</Text>
+    </Pressable>
+  );
+}
 
 export function TabBar({
   tabs,
@@ -26,20 +58,14 @@ export function TabBar({
   return (
     <View style={styles.wrap} pointerEvents="box-none">
       <View style={styles.bar}>
-        {tabs.map(tab => {
-          const active = tab.value === value;
-          const color = active ? theme.colors.textPrimary : theme.colors.textMuted;
-          const Icon = tab.Icon;
-          return (
-            <Pressable
-              key={tab.value}
-              style={[styles.tab, active && styles.tabActive]}
-              onPress={() => onChange(tab.value)}>
-              <Icon size={20} color={color} />
-              <Text style={[styles.label, {color}]}>{tab.label}</Text>
-            </Pressable>
-          );
-        })}
+        {tabs.map(tab => (
+          <AnimatedTab
+            key={tab.value}
+            tab={tab}
+            active={tab.value === value}
+            onPress={() => onChange(tab.value)}
+          />
+        ))}
       </View>
     </View>
   );
