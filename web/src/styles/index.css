@@ -13,6 +13,7 @@
   /* --- Typography --- */
   --font-heading: var(--font-sans);
   --font-sans: 'Geist Variable', sans-serif;
+  --font-display: 'Fredoka', sans-serif;
 
   /* --- shadcn Color Mapping --- */
   --color-sidebar-ring: var(--sidebar-ring);

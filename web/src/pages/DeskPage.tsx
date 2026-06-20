@@ -32,18 +32,21 @@ const SENSOR_MOCK_FRAMES = [
 function DeskHeader() {
   return (
     <header className="shrink-0 px-8 pt-9 pb-2">
-      <div className="text-[8px] font-semibold uppercase tracking-[0.06em] text-[#a9a29b]">
+      <div
+        className="text-[11px] font-medium uppercase tracking-[0.06em] text-[#a9a29b]"
+        style={{ fontFamily: "'Fredoka', sans-serif" }}
+      >
         CATUNE
       </div>
       <div
         className="mt-1 text-[13px] leading-none text-[#222222]"
-        style={{ fontFamily: "'Quicksand', sans-serif" }}
+        style={{ fontFamily: "'Fredoka', sans-serif" }}
       >
         Good afternoon, <span className="text-[#fb4b00]">{MOCK_DATA.userName}</span>
       </div>
       <p
         className="mt-2 max-w-[280px] text-[12px] font-bold leading-[1.22] text-[#111111]"
-        style={{ fontFamily: "'Quicksand', sans-serif" }}
+        style={{ fontFamily: "'Fredoka', sans-serif" }}
       >
         {MOCK_DATA.message}
       </p>

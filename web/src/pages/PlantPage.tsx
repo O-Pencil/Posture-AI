@@ -127,7 +127,7 @@ export function PlantPage() {
       <div className="pt-2 pb-1">
         <div
           className="text-lg font-bold text-[#141414]"
-          style={{ fontFamily: "'Quicksand', sans-serif" }}
+          style={{ fontFamily: "'Fredoka', sans-serif" }}
         >
           Posture Plant
         </div>
@@ -137,10 +137,15 @@ export function PlantPage() {
       <div className="skeuo-card p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider">PLANT</div>
+            <div
+              className="text-[11px] text-[#9B9590] font-medium tracking-wider"
+              style={{ fontFamily: "'Fredoka', sans-serif" }}
+            >
+              PLANT
+            </div>
             <div
               className="text-lg font-bold text-[#141414]"
-              style={{ fontFamily: "'Quicksand', sans-serif" }}
+              style={{ fontFamily: "'Fredoka', sans-serif" }}
             >
               Today's Plant
             </div>

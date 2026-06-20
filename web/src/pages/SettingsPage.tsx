@@ -18,7 +18,12 @@ function SectionHeader({ icon: Icon, label }: { icon: React.FC<{ size?: number; 
   return (
     <div className="flex items-center gap-2 mb-3">
       <Icon size={14} className="text-[#9B9590]" />
-      <div className="text-[10px] font-mono text-[#9B9590] font-bold tracking-wider">{label}</div>
+      <div
+        className="text-[12px] text-[#9B9590] font-medium tracking-wider"
+        style={{ fontFamily: "'Fredoka', sans-serif" }}
+      >
+        {label}
+      </div>
     </div>
   )
 }
@@ -263,7 +268,7 @@ export function SettingsPage() {
       <div className="pt-2 pb-1">
         <div
           className="text-lg font-bold text-[#141414]"
-          style={{ fontFamily: "'Quicksand', sans-serif" }}
+          style={{ fontFamily: "'Fredoka', sans-serif" }}
         >
           Settings
         </div>
