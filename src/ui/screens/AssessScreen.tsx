@@ -172,7 +172,7 @@ export function AssessScreen({onClose, onGoSettings}: {onClose: () => void; onGo
 }
 
 const styles = StyleSheet.create({
-  root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingTop: 48},
+  root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingTop: 48, fontFamily: theme.font.body},
   topBar: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16},
   closeBtn: {width: 32, height: 32, alignItems: 'center', justifyContent: 'center'},
   closeText: {color: theme.colors.textSecondary, fontSize: 20, fontWeight: theme.font.weightBold},

@@ -263,7 +263,7 @@ function AboutSection() {
 
 export function SettingsPage() {
   return (
-    <div className="pb-24 px-4 space-y-5">
+    <div className="bg-white pb-24 px-4 space-y-5">
       {/* Header */}
       <div className="pt-2 pb-1">
         <div

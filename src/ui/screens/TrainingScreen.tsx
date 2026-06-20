@@ -235,7 +235,7 @@ export function TrainingScreen({
 }
 
 const styles = StyleSheet.create({
-  root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingHorizontal: 24, paddingTop: 48},
+  root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingHorizontal: 24, paddingTop: 48, fontFamily: theme.font.body},
   topBar: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
   closeBtn: {width: 32, height: 32, alignItems: 'center', justifyContent: 'center'},
   closeText: {color: theme.colors.textSecondary, fontSize: 20, fontWeight: theme.font.weightBold},

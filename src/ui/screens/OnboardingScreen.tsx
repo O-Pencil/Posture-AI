@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     zIndex: 10,
     elevation: 10,
+    fontFamily: theme.font.body,
   },
   scroll: {flex: 1},
   body: {padding: 28, paddingTop: 64, paddingBottom: 24},

@@ -28,6 +28,10 @@ export const font = {
   displayMedium: 'Fredoka_500Medium' as const,
   displaySemiBold: 'Fredoka_600SemiBold' as const,
   displayBold: 'Fredoka_700Bold' as const,
+  // 正文字体（Geist，与 web 统一）
+  body: 'Geist_400Regular' as const,
+  bodyMedium: 'Geist_500Medium' as const,
+  bodyBold: 'Geist_700Bold' as const,
 };
 
 /** RN 阴影（iOS shadow* + Android elevation；RNW 会转 boxShadow）。 */

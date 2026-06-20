@@ -149,7 +149,7 @@ export function PlantScreen({growth}: {growth: GrowthState}): React.JSX.Element 
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: theme.colors.background},
   container: {padding: theme.spacing.lg, paddingTop: theme.spacing.xl, paddingBottom: 120, gap: theme.spacing.md},
-  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontFamily: theme.font.displaySemiBold, paddingHorizontal: 4, marginBottom: 8},
+  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontFamily: theme.font.displaySemiBold, marginBottom: theme.spacing.lg},
 
   plantCard: {gap: 16},
   plantHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'},

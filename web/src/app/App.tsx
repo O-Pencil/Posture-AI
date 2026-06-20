@@ -78,7 +78,7 @@ function App() {
   ]
 
   return (
-    <div className="min-h-screen bg-white text-[#141414]">
+    <div className="min-h-screen text-[#141414]" style={{ backgroundColor: '#F2F0EC' }}>
       <main className="mx-auto flex min-h-screen max-w-lg flex-col overflow-hidden">
         {activeTab === "desk" && <DeskPage />}
         {activeTab === "plant" && <PlantPage />}

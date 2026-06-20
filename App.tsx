@@ -13,6 +13,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {useFonts, Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold} from '@expo-google-fonts/fredoka';
+import {Geist_400Regular, Geist_500Medium, Geist_700Bold} from '@expo-google-fonts/geist';
 
 import {AppShell} from './src/ui/AppShell';
 import {createPostureEngine} from './src/posture/engine';
@@ -48,6 +49,9 @@ function App(): React.JSX.Element {
     Fredoka_500Medium,
     Fredoka_600SemiBold,
     Fredoka_700Bold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_700Bold,
   });
 
   // locale state 独立于 useRef 容器，让 engine / growth 通过 getter 拿到当前值

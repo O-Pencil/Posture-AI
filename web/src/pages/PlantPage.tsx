@@ -122,7 +122,7 @@ export function PlantPage() {
   const currentScore = SCORE_LOG[0]?.score ?? 0
 
   return (
-    <div className="pb-24 px-4 space-y-3">
+    <div className="pb-24 px-4 space-y-5">
       {/* Header */}
       <div className="pt-2 pb-1">
         <div
