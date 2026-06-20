@@ -205,7 +205,8 @@ function PostureScene({state}: {state: DashboardState}): React.JSX.Element {
   // 渲染方式：默认雪碧图；两者都就绪时可切到旧的逐帧关键帧渲染做对比
   const [renderMode, setRenderMode] = useState<RenderMode>('sprite');
   const useSprite = renderMode === 'sprite' && hasAtlas;
-  const showModeToggle = hasAtlas && hasFrames;
+  // demo：固定雪碧图（效果优于逐帧），隐藏切换避免现场误触回退到卡顿的关键帧模式
+  const showModeToggle = false;
   // 建议动作 → 高亮对应脊柱节点（把"模型说的动作"指到猫身上）
   const highlightNode: SpineNode | null = state.action ? ACTION_META[state.action].node : null;
   const boxStyle = useMemo(() => [styles.sceneVisual, visualSize ?? undefined], [visualSize]);

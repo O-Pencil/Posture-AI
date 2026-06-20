@@ -17,6 +17,7 @@ import {createPostureEngine} from './src/posture/engine';
 import {createAdviceOrchestrator} from './src/posture/adviceOrchestrator';
 import {createMemoryService} from './src/posture/memory/service';
 import {createGrowthTracker, GrowthState} from './src/posture/growth';
+import {createReminder} from './src/posture/reminder';
 import {createMockSource, MockScenario, MockSource} from './src/posture/mock';
 import {createSensorSource, SensorSource} from './src/posture/sensorSource';
 import {DashboardState} from './src/posture/types';
@@ -47,6 +48,8 @@ function App(): React.JSX.Element {
   const adviceRef = useRef(createAdviceOrchestrator(engineRef.current, memoryRef.current));
   // 植物成长累加器（真实坐姿 → 积分/阶段/日志，驱动 Plant 页）
   const growthRef = useRef(createGrowthTracker(engineRef.current));
+  // 异常坐姿震动提醒（非异常→异常入态那一下，带冷却）
+  const reminderRef = useRef(createReminder(engineRef.current));
 
   const [k, setK] = useState<DashboardState>(INITIAL);
   const [growth, setGrowth] = useState<GrowthState>(() => growthRef.current.getState());
@@ -82,12 +85,14 @@ function App(): React.JSX.Element {
     const unsubscribeGrowth = growthRef.current.subscribe(setGrowth);
     adviceRef.current.start();
     growthRef.current.start();
+    reminderRef.current.start();
     useSensor();
     return () => {
       unsubscribe();
       unsubscribeGrowth();
       adviceRef.current.stop();
       growthRef.current.stop();
+      reminderRef.current.stop();
       sensorRef.current.stop();
       mockRef.current.stop();
     };
