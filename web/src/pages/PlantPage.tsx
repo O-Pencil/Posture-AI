@@ -124,9 +124,9 @@ export function PlantPage() {
   return (
     <div className="pb-24 px-4 space-y-5">
       {/* Header */}
-      <div className="pt-2 pb-1">
+      <div className="pt-5 pb-1">
         <div
-          className="text-lg font-bold text-[#141414]"
+          className="text-[22px] font-semibold text-[#141414]"
           style={{ fontFamily: "'Fredoka', sans-serif" }}
         >
           Posture Plant

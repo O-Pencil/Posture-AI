@@ -16,7 +16,7 @@ import {
 
 function SectionHeader({ icon: Icon, label }: { icon: React.FC<{ size?: number; className?: string }>; label: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
+    <div className="flex items-center gap-1.5 mt-6 mb-2">
       <Icon size={14} className="text-[#9B9590]" />
       <div
         className="text-[12px] text-[#9B9590] font-medium tracking-wider"
@@ -265,9 +265,9 @@ export function SettingsPage() {
   return (
     <div className="bg-white pb-24 px-4 space-y-5">
       {/* Header */}
-      <div className="pt-2 pb-1">
+      <div className="pt-4 pb-1">
         <div
-          className="text-lg font-bold text-[#141414]"
+          className="text-[22px] font-semibold text-[#141414]"
           style={{ fontFamily: "'Fredoka', sans-serif" }}
         >
           Settings
