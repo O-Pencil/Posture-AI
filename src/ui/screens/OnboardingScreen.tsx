@@ -83,7 +83,7 @@ export function OnboardingScreen({onComplete}: {onComplete: (inputs: RememberInp
           style={styles.input}
           value={name}
           onChangeText={setName}
-          placeholder="小宇"
+          placeholder="小雨"
           placeholderTextColor={theme.colors.textMuted}
           maxLength={12}
         />
