@@ -31,7 +31,7 @@ export const THRESHOLDS = {
 
 // ---------------- 安全链：本地查表文案 + 禁词 ----------------
 
-const SAFE_FALLBACK = '注意调整坐姿，让脊柱回到自然中立位，必要时起身活动一下。';
+const SAFE_FALLBACK = '注意调整坐姿，让脊柱回到自然中立位，必要时起身活动一下喵～';
 
 /** 禁词：诊断 / 治疗 / 承诺 / 营销（对齐技术实现文档 §7.2）。 */
 export const BANNED_WORDS = [
@@ -42,12 +42,12 @@ export const BANNED_WORDS = [
 ];
 
 const ACTION_TEXT: Record<string, string> = {
-  neck_retraction: '头部有些前倾，试着收下巴、让耳朵回到肩膀正上方，做几次颈部回缩。',
-  thoracic_extension: '上背有点含胸驼背，挺一下胸椎、打开肩膀，做几次胸椎伸展。',
-  scapular_retraction: '身体向一侧偏，把重心摆正、肩胛骨向后向下收一收。',
+  neck_retraction: '头部有些前倾，试着收下巴、让耳朵回到肩膀正上方，做几次颈部回缩喵～',
+  thoracic_extension: '上背有点含胸驼背，挺一下胸椎、打开肩膀，做几次胸椎伸展喵～',
+  scapular_retraction: '身体向一侧偏，把重心摆正、肩胛骨向后向下收一收喵～',
 };
 
-const NORMAL_TEXT = '坐姿不错，保持脊柱自然中立，继续加油。';
+const NORMAL_TEXT = '坐姿不错，保持脊柱自然中立，继续加油喵～';
 
 function isSafe(text: string): boolean {
   return !BANNED_WORDS.some(w => text.includes(w));
@@ -67,7 +67,7 @@ function adviceFor(actionId: string | null, severityLevel: number, posture: Post
   } else {
     base = SAFE_FALLBACK;
   }
-  const text = severityLevel >= 3 ? `${base} 久坐较久了，建议起身走动 1-2 分钟。` : base;
+  const text = severityLevel >= 3 ? `${base} 久坐挺久啦，起来走两步喵～` : base;
   return sanitize(text);
 }
 

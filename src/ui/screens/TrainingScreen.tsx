@@ -193,7 +193,7 @@ export function TrainingScreen({
           第 {rep} / {exercise.reps} 组
         </Text>
       ) : (
-        <Text style={styles.repText}>真棒，完成啦 🎉</Text>
+        <Text style={styles.repText}>真棒，完成啦，辛苦啦喵～ 🎉</Text>
       )}
 
       <View style={styles.steps}>

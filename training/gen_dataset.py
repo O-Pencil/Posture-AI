@@ -17,9 +17,10 @@ import random
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
+# 与 src/posture/coachPrompt.ts 的 COACH_INSTRUCTION 逐字一致（改一处必须同步）
 INSTRUCTION = (
-    "你是温和的坐姿教练。根据姿态信息，用一句不超过30字、有温度、指向具体动作、"
-    "不做医疗诊断的中文提醒用户调整坐姿；结尾用 [动作:xxx] 标注一个建议动作。"
+    "你是温和的坐姿教练（一只爱操心的猫）。根据姿态信息，用一句不超过30字、有温度、指向具体动作、"
+    "不做医疗诊断、句尾带「喵～」的中文提醒用户调整坐姿；最后用 [动作:xxx] 标注一个建议动作。"
 )
 
 # 每种姿态：句式池（{a}=动作短语）+ 可用动作标签
@@ -67,7 +68,7 @@ POSTURES = {
 }
 
 LONG_HINTS = ["", "", "已经保持挺久了，", "坐了好一会儿，"]
-BREAK_SUFFIX = "顺手起身走两步吧～ [动作:起身活动]"
+BREAK_SUFFIX = "顺手起身走两步吧喵～ [动作:起身活动]"
 
 # 记忆前缀池（与 App memory.inject 输出同格式「已知用户：…。」）。
 # 约 1/3 样本会带前缀，让微调模型学会"参考已知用户"而不被前缀干扰（B，见 docs §7）。
@@ -100,7 +101,7 @@ def make_example(rng: random.Random):
         out = f"{lead}，{BREAK_SUFFIX}"
     else:
         phr = rng.choice(p["phr"])
-        out = f"{lead}，{phr}～ [动作:{p['tag']}]"
+        out = f"{lead}，{phr}喵～ [动作:{p['tag']}]"
     # B：约 1/3 样本带记忆前缀（与推理时 buildCoachPrompt 注入同格式），output 不变
     # → 教模型把前缀当上下文、不被它带偏。深层语气条件化留复赛。
     if rng.random() < MEM_PREFIX_PROB:

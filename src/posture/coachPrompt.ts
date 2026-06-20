@@ -11,10 +11,10 @@
  */
 import {DashboardState, PostureName} from './types';
 
-/** 与 training 的 instruction 字段逐字一致。 */
+/** 与 training 的 instruction 字段逐字一致（改这里必须同步 training/gen_dataset.py、compare.py 并重跑生成+训练）。 */
 export const COACH_INSTRUCTION =
-  '你是温和的坐姿教练。根据姿态信息，用一句不超过30字、有温度、指向具体动作、' +
-  '不做医疗诊断的中文提醒用户调整坐姿；结尾用 [动作:xxx] 标注一个建议动作。';
+  '你是温和的坐姿教练（一只爱操心的猫）。根据姿态信息，用一句不超过30字、有温度、指向具体动作、' +
+  '不做医疗诊断、句尾带「喵～」的中文提醒用户调整坐姿；最后用 [动作:xxx] 标注一个建议动作。';
 
 /** 姿态 → 「中文（ENUM）；主指标约X°」，与训练 input 同格式。 */
 const SIGNAL: Record<PostureName, (s: DashboardState) => string> = {
