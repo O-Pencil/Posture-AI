@@ -37,11 +37,11 @@ const TYPE_LABEL: Record<MemoryType, string> = {
   entity: '称呼',
 };
 
-// 端侧 VL 优先展示（用户从评估页跳来时先看到端侧）
+// 口语化标签（不暴露云端/端侧/VL）。手机本地优先展示。
 const ASSESS_BACKENDS: Array<{key: AssessBackend; label: string}> = [
-  {key: 'local', label: '端侧 VL'},
-  {key: 'cloud', label: '云端'},
-  {key: 'preset', label: '预置'},
+  {key: 'local', label: '手机本地'},
+  {key: 'cloud', label: '联网评估'},
+  {key: 'preset', label: '示例'},
 ];
 
 function AssessConfigCard(): React.JSX.Element {
@@ -68,10 +68,10 @@ function AssessConfigCard(): React.JSX.Element {
 
   return (
     <Card style={styles.card}>
-      <Text style={styles.cardTitle}>评估模型</Text>
+      <Text style={styles.cardTitle}>AI 体态评估</Text>
       {readiness ? (
         <Text style={styles.assessRec}>
-          推荐 {readiness.recommend === 'local' ? '端侧 VL' : '云端'} · {readiness.recommendReason}
+          推荐「{readiness.recommend === 'local' ? '手机本地' : '联网评估'}」 · {readiness.recommendReason}
         </Text>
       ) : null}
       <View style={styles.rowGap}>
@@ -82,17 +82,18 @@ function AssessConfigCard(): React.JSX.Element {
 
       {cfg.backend === 'local' && readiness ? (
         <Text style={[styles.hint, readiness.ready ? styles.assessOk : undefined]}>
-          {readiness.ready ? '端侧 VL 已就绪 ✓' : `端侧 VL 未就绪：${readiness.hint ?? '需带 MNN 的安卓构建 + 下载启用 VL 模型'}`}
+          {readiness.ready ? '「手机本地」已就绪 ✓' : `「手机本地」${readiness.hint ?? '需要先下载评估专用模型'}`}
         </Text>
       ) : null}
 
       {cfg.backend === 'cloud' ? (
         <View style={styles.cloudForm}>
+          <Text style={styles.hint}>「联网评估」需要填一次服务信息（一般由团队提前配好）。</Text>
           <TextInput
             style={styles.input}
             value={cfg.cloud.baseURL}
             onChangeText={t => setCloud({baseURL: t})}
-            placeholder="baseURL（OpenAI/DashScope 兼容）"
+            placeholder="服务地址（baseURL）"
             placeholderTextColor={theme.colors.textMuted}
             autoCapitalize="none"
           />
@@ -100,7 +101,7 @@ function AssessConfigCard(): React.JSX.Element {
             style={styles.input}
             value={cfg.cloud.apiKey}
             onChangeText={t => setCloud({apiKey: t})}
-            placeholder="API Key"
+            placeholder="服务密钥"
             placeholderTextColor={theme.colors.textMuted}
             autoCapitalize="none"
             secureTextEntry
@@ -109,7 +110,7 @@ function AssessConfigCard(): React.JSX.Element {
             style={styles.input}
             value={cfg.cloud.model}
             onChangeText={t => setCloud({model: t})}
-            placeholder="模型名，如 qwen-vl-max"
+            placeholder="评估模型名称（如 qwen-vl-max）"
             placeholderTextColor={theme.colors.textMuted}
             autoCapitalize="none"
           />
@@ -124,7 +125,7 @@ function AssessConfigCard(): React.JSX.Element {
         }}>
         <Text style={styles.saveBtnText}>{saved ? '已保存 ✓' : '保存'}</Text>
       </Pressable>
-      <Text style={styles.hint}>Key 仅存本机、不上传、不进 git。评估失败自动回退预置。</Text>
+      <Text style={styles.hint}>信息只存在手机本机、不会上传。临时用不了时会先给示例结果。</Text>
     </Card>
   );
 }

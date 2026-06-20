@@ -32,14 +32,14 @@ async function deviceRecommendation(): Promise<{recommend: AssessBackend; recomm
   try {
     const p = await getDeviceProfile();
     if (p.tier === 'high') {
-      return {recommend: 'local', recommendReason: `设备较强（${p.totalMemoryGB}GB），推荐端侧 VL，更私密、离线`};
+      return {recommend: 'local', recommendReason: '你的手机性能不错，可以试「手机本地」'};
     }
     if (p.tier === 'mainstream' && p.totalMemoryGB >= 8) {
-      return {recommend: 'local', recommendReason: '设备主流，可试端侧 VL；吃力就切云端'};
+      return {recommend: 'local', recommendReason: '手机性能尚可，本地或联网都行'};
     }
-    return {recommend: 'cloud', recommendReason: `设备性能有限（${p.totalMemoryGB}GB），端侧 VL 体积大易卡/OOM，推荐云端`};
+    return {recommend: 'cloud', recommendReason: '建议用「联网」评估，更准更稳'};
   } catch {
-    return {recommend: 'cloud', recommendReason: '无法读取设备信息，默认推荐云端'};
+    return {recommend: 'cloud', recommendReason: '建议用「联网」评估，更准更稳'};
   }
 }
 
@@ -53,21 +53,21 @@ export async function checkAssessReadiness(config: AssessConfig): Promise<Assess
 
   if (config.backend === 'cloud') {
     const ready = config.cloud.apiKey.trim().length > 0;
-    return {backend: 'cloud', ready, hint: ready ? undefined : '云端未填 API Key', ...base};
+    return {backend: 'cloud', ready, hint: ready ? undefined : '还没开启，去设置里配置一下就能用', ...base};
   }
 
-  // local（端侧 VL）
+  // local（手机本地）
   if (!isLocalVlAvailable()) {
-    return {backend: 'local', ready: false, hint: '端侧 VL 原生未就绪（需带 MNN 的安卓构建）', ...base};
+    return {backend: 'local', ready: false, hint: '「手机本地」评估暂不可用', ...base};
   }
   try {
     const st = await CatuneMnn?.getStatus?.();
     const active = st?.activeModelId ? getModelById(st.activeModelId) : undefined;
     if (!active?.vision) {
-      return {backend: 'local', ready: false, hint: '当前活跃模型不是视觉(VL)模型，请在模型管理下载并启用', ...base};
+      return {backend: 'local', ready: false, hint: '还需要下载一个评估专用模型', ...base};
     }
     return {backend: 'local', ready: true, ...base};
   } catch {
-    return {backend: 'local', ready: false, hint: '端侧模型状态读取失败', ...base};
+    return {backend: 'local', ready: false, hint: '「手机本地」评估暂不可用', ...base};
   }
 }

@@ -21,7 +21,8 @@ import {theme} from '../theme';
 type Phase = 'idle' | 'loading' | 'done';
 
 const SEV_COLOR: Record<Severity, string> = {ok: '#3A9E1F', mild: '#E08A00', warn: '#C20A0A'};
-const SOURCE_LABEL = {local: '端侧 VL', cloud: '云端', preset: '预置'} as const;
+// 给普通用户看：只区分「真评估」与「示例」，不暴露云端/本地
+const SOURCE_LABEL = {local: 'AI 实测', cloud: 'AI 实测', preset: '示例'} as const;
 
 export function AssessScreen({onClose, onGoSettings}: {onClose: () => void; onGoSettings?: () => void}): React.JSX.Element {
   const service = useMemo(() => createAssessService(), []);
@@ -74,35 +75,31 @@ export function AssessScreen({onClose, onGoSettings}: {onClose: () => void; onGo
       <ScrollView contentContainerStyle={styles.body}>
         {phase === 'idle' ? (
           <>
-            <Text style={styles.intro}>拍/选侧身坐姿照片，AI 给结构化体态观察与建议。仅评估可见体态，非医疗诊断。</Text>
+            <Text style={styles.intro}>拍一张或选一张侧身坐姿照片，AI 帮你看看体态、给点小建议。仅供参考，非医疗诊断。</Text>
 
             {readiness && !readiness.ready ? (
-              // 未配置可用模型：短引导 + 跳设置（默认会优先看到端侧 VL）
+              // 未就绪：口语化短引导 + 跳设置（不暴露技术细节）
               <View style={styles.guard}>
-                <Text style={styles.guardTitle}>还没有可用的评估模型</Text>
-                {readiness.hint ? <Text style={styles.guardHint}>{readiness.hint}</Text> : null}
-                <Text style={styles.guardRec}>建议：{readiness.recommendReason}</Text>
+                <Text style={styles.guardTitle}>还没开启 AI 体态评估</Text>
+                <Text style={styles.guardHint}>在设置里开启一次，就能拍照看体态啦。</Text>
                 <View style={styles.pickRow}>
                   <Pressable style={[styles.btn, styles.btnPrimary]} onPress={onGoSettings}>
-                    <Text style={styles.btnPrimaryText}>去设置配置 ›</Text>
+                    <Text style={styles.btnPrimaryText}>去设置开启 ›</Text>
                   </Pressable>
                   <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => run(false)}>
-                    <Text style={styles.btnGhostText}>先用预置体验</Text>
+                    <Text style={styles.btnGhostText}>先看示例</Text>
                   </Pressable>
                 </View>
               </View>
             ) : (
-              <>
-                {readiness ? <Text style={styles.backendTag}>评估后端：{SOURCE_LABEL[readiness.backend]}</Text> : null}
-                <View style={styles.pickRow}>
-                  <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => run(true)}>
-                    <Text style={styles.btnPrimaryText}>拍照</Text>
-                  </Pressable>
-                  <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => run(false)}>
-                    <Text style={styles.btnGhostText}>从相册选</Text>
-                  </Pressable>
-                </View>
-              </>
+              <View style={styles.pickRow}>
+                <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => run(true)}>
+                  <Text style={styles.btnPrimaryText}>拍照</Text>
+                </Pressable>
+                <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => run(false)}>
+                  <Text style={styles.btnGhostText}>从相册选</Text>
+                </Pressable>
+              </View>
             )}
           </>
         ) : null}
