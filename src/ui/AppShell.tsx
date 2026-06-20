@@ -16,11 +16,12 @@ import {Tab, TabBar} from './components/TabBar';
 import {DeskScreen} from './screens/DeskScreen';
 import {PlantScreen} from './screens/PlantScreen';
 import {DataMode, SettingsScreen} from './screens/SettingsScreen';
+import {MonitorScreen} from './screens/MonitorScreen';
 import {TrainingScreen} from './screens/TrainingScreen';
 import {OnboardingScreen} from './screens/OnboardingScreen';
 import {AssessScreen} from './screens/AssessScreen';
 import {theme} from './theme';
-import {FanIcon, GaugeIcon, SettingsIcon} from './icons';
+import {FanIcon, GaugeIcon, MonitorIcon, SettingsIcon} from './icons';
 import {MockScenario} from '../posture/mock';
 import {DashboardState, PostureAction} from '../posture/types';
 import {GrowthState} from '../posture/growth';
@@ -30,6 +31,7 @@ import {resumePendingDownloadIfNeeded} from '../mnn/modelDownloadService';
 const TABS: Tab[] = [
   {value: 'desk', label: 'Desk', Icon: GaugeIcon},
   {value: 'plant', label: 'Plant', Icon: FanIcon},
+  {value: 'monitor', label: 'Monitor', Icon: MonitorIcon},
   {value: 'settings', label: 'Settings', Icon: SettingsIcon},
 ];
 
@@ -72,6 +74,7 @@ export function AppShell({state, growth, memory, mode, deskSubtitle, onUseSensor
         />
       )}
       {tab === 'plant' && <PlantScreen growth={growth} />}
+      {tab === 'monitor' && <MonitorScreen state={state} mode={mode} />}
       {tab === 'settings' && (
         <SettingsScreen
           state={state}

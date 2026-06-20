@@ -31,6 +31,16 @@ export function GaugeIcon(p: IconProps): React.JSX.Element {
   );
 }
 
+/** 活动 / 监控（Monitor 标签，lucide activity）。 */
+export function MonitorIcon(p: IconProps): React.JSX.Element {
+  const s = p.size ?? 24;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 24 24">
+      <Path d="M22 12h-4l-3 9L9 3l-3 9H2" {...stroke(p)} />
+    </Svg>
+  );
+}
+
 /** 风叶 / 植物（Plant 标签，对齐 web FanIcon）。 */
 export function FanIcon(p: IconProps): React.JSX.Element {
   const s = p.size ?? 24;

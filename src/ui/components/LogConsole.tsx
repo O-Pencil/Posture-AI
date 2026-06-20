@@ -35,7 +35,7 @@ function hms(ts: number): string {
   return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
-export function LogConsole(): React.JSX.Element {
+export function LogConsole({maxHeight = 220}: {maxHeight?: number}): React.JSX.Element {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filter, setFilter] = useState<'all' | LogCategory>('all');
 
@@ -64,7 +64,7 @@ export function LogConsole(): React.JSX.Element {
         ))}
       </View>
 
-      <ScrollView style={styles.box} nestedScrollEnabled>
+      <ScrollView style={[styles.box, {maxHeight}]} nestedScrollEnabled>
         {shown.length === 0 ? (
           <Text style={styles.empty}>暂无日志。倾斜手机、触发提醒或端侧推理后，这里会实时滚动打印。</Text>
         ) : (
