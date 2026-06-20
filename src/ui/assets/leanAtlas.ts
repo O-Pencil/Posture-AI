@@ -4,7 +4,7 @@
  *
  * 打包（在你的 Mac 上，一条命令搞定，自动写好下方 meta）：
  *   node scripts/pack-atlas.mjs lean
- *   （脚本会按帧数算 8×N 网格、scale 到 320×480、ffmpeg tile 拼图，并把 source/cols/rows/count 写回本文件）
+ *   （自动读源帧尺寸，默认全分辨率拼图；老设备可 lean 360 540 8 降纹理）
  * 没装 ffmpeg 时脚本会打印手动命令；手动打包后再跑一次脚本写 meta。
  *
  * [WHO] 导出 `AtlasMeta`、`LEAN_ATLAS`
@@ -21,13 +21,18 @@ export type AtlasMeta = {
   rows: number;
   /** 有效帧数（尾部空格不算）。 */
   count: number;
+  /** 图集单格像素宽/高（与 public/frames 源帧一致时最清晰）。 */
+  cellW?: number;
+  cellH?: number;
 };
 
 // AUTO-GENERATED-ATLAS-START
 export const LEAN_ATLAS: AtlasMeta = {
   source: require('../../../public/atlas/lean_atlas.png'),
-  cols: 8,
-  rows: 8,
+  cols: 10,
+  rows: 6,
   count: 60,
+  cellW: 540,
+  cellH: 810,
 };
 // AUTO-GENERATED-ATLAS-END

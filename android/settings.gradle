@@ -1,4 +1,13 @@
 pluginManagement {
+  // 国内网络 dl.google.com 易超时：镜像优先，官方源作回退
+  repositories {
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
   def reactNativeGradlePlugin = new File(
     providers.exec {
       workingDir(rootDir)

@@ -71,6 +71,9 @@ export function CatSprite({
   const onFrameChangeRef = useRef(onFrameChange);
   onFrameChangeRef.current = onFrameChange;
 
+  const w = Math.max(1, Math.round(cellWidth));
+  const h = Math.max(1, Math.round(cellHeight));
+
   // 角度 → 目标帧，UI 线程缓动平移（不触发 React 重渲染图集）
   useEffect(() => {
     const target = angleToIndex(angle, count, minDeg, maxDeg, invert);
@@ -100,8 +103,8 @@ export function CatSprite({
   // 阶梯式（snap）插值：每帧在 [i-0.5, i+0.5) 内保持整格位置，半整数处近乎瞬跳到下一格。
   // 雪碧图必须整格对齐——线性平移会让两格同时露出=横向拖影，不是旋转。行优先：col=i%cols, row=floor(i/cols)。
   const {inputRange, xOut, yOut} = useMemo(() => {
-    const X = (i: number) => -(i % cols) * cellWidth;
-    const Y = (i: number) => -Math.floor(i / cols) * cellHeight;
+    const X = (i: number) => -(i % cols) * w;
+    const Y = (i: number) => -Math.floor(i / cols) * h;
     const input: number[] = [];
     const xs: number[] = [];
     const ys: number[] = [];
@@ -124,9 +127,9 @@ export function CatSprite({
       ys.push(ys[0] ?? 0);
     }
     return {inputRange: input, xOut: xs, yOut: ys};
-  }, [count, cols, cellWidth, cellHeight]);
+  }, [count, cols, w, h]);
 
-  if (cellWidth <= 0 || cellHeight <= 0 || count < 1) {
+  if (w <= 0 || h <= 0 || count < 1) {
     return null;
   }
 
@@ -140,9 +143,10 @@ export function CatSprite({
         source={atlas}
         fadeDuration={0}
         resizeMode="stretch"
+        renderToHardwareTextureAndroid
         style={{
-          width: cols * cellWidth,
-          height: rows * cellHeight,
+          width: cols * w,
+          height: rows * h,
           transform: [{translateX}, {translateY}],
         }}
       />
