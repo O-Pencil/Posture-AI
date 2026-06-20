@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   sourceTag: {
     alignSelf: 'flex-start',
     color: theme.colors.primary,
-    fontSize: 10,
+    fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     backgroundColor: '#FCEAE0',
     paddingHorizontal: 6,

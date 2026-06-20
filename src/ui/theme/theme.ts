@@ -9,14 +9,14 @@
  */
 import {colors} from './colors';
 
-export const spacing = {xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24};
+export const spacing = {xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32};
 
 /** 对齐 web haptic 半径：surface 4 / frame 8 / shell 16 / pill。 */
 export const radius = {sm: 8, md: 12, lg: 16, pill: 9999};
 
 export const font = {
-  sizeXs: 11,
-  sizeSm: 13,
+  sizeXs: 12,
+  sizeSm: 14,
   sizeMd: 15,
   sizeLg: 18,
   sizeXl: 22,

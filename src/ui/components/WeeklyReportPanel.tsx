@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: theme.radius.sm,
   },
   barFillEmpty: {backgroundColor: theme.colors.border, height: 4},
-  barValue: {color: theme.colors.textSecondary, fontSize: 10, fontWeight: theme.font.weightBold, marginTop: 4},
-  barLabel: {color: theme.colors.textMuted, fontSize: 10},
+  barValue: {color: theme.colors.textSecondary, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold, marginTop: 4},
+  barLabel: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs},
   barLabelWeekend: {color: theme.colors.primary, fontWeight: theme.font.weightBold},
   summaryRow: {flexDirection: 'row', gap: 8, marginBottom: 12},
   summaryCell: {
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   summaryValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeLg, fontWeight: theme.font.weightHeavy},
-  summaryLabel: {color: theme.colors.textMuted, fontSize: 10, marginTop: 2},
+  summaryLabel: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 2},
   aiBlock: {
     backgroundColor: '#FFFAF5',
     borderRadius: theme.radius.md,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F2D5B7',
   },
-  aiLabel: {color: theme.colors.primary, fontSize: 10, fontWeight: theme.font.weightBold, marginBottom: 4, letterSpacing: 0.5},
+  aiLabel: {color: theme.colors.primary, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold, marginBottom: 4, letterSpacing: 0.5},
   aiText: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, lineHeight: 20},
   empty: {alignItems: 'center', paddingVertical: 24, paddingHorizontal: 12},
   emptyTitle: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},

@@ -152,7 +152,7 @@ const optionStyles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     backgroundColor: '#1B7A3E',
   },
-  recBadgeText: {color: '#FFFFFF', fontSize: 9, fontWeight: theme.font.weightBold},
+  recBadgeText: {color: '#FFFFFF', fontSize: 10, fontWeight: theme.font.weightBold},
   label: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold},
   sizeHint: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 2},
   statusPill: {
@@ -165,8 +165,8 @@ const optionStyles = StyleSheet.create({
   statusPillReady: {backgroundColor: '#E9F8EE'},
   statusPillWarn: {backgroundColor: '#FFF4DC'},
   statusPillMuted: {backgroundColor: theme.colors.surfaceMuted},
-  statusPillText: {fontSize: 9, color: theme.colors.textSecondary, fontWeight: theme.font.weightBold},
-  reason: {color: theme.colors.textMuted, fontSize: 10, marginTop: 6, lineHeight: 13},
+  statusPillText: {fontSize: 10, color: theme.colors.textSecondary, fontWeight: theme.font.weightBold},
+  reason: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 6, lineHeight: 16},
 });
 
 // ─── 子组件：设备指标（折叠） ────────────────────────────────────────────────

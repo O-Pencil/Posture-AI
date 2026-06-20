@@ -5,7 +5,7 @@
  * [WHO] 导出 `SettingsScreen`、`DataMode`
  * [FROM] 依赖 `react`、`react-native`、`../theme`、`../primitives/Card`、`../components/ModelDownloadCard`、
  *   `./BenchmarkScreen`、`../../posture/mock`、`../../posture/types`、`../../posture/memory/service`、
- *   `../../assess/config`、`../../assess/types`、`../../assess/readiness`
+ *   `../../assess/config`、`../../assess/types`、`../../assess/readiness`、`@tabler/icons-react-native`
  * [TO] 被 `AppShell` 在 settings tab 渲染
  * [HERE] src/ui/screens/SettingsScreen.tsx · 设置页布局
  */
@@ -220,17 +220,21 @@ function MemoryCard({memory}: {memory?: MemoryService}): React.JSX.Element | nul
 
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: theme.colors.surface},
-  container: {padding: theme.spacing.lg, paddingTop: 8, paddingBottom: 120},
-  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontWeight: theme.font.weightHeavy, marginBottom: 16},
+  container: {padding: theme.spacing.lg, paddingTop: theme.spacing.lg, paddingBottom: 120},
+  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontWeight: theme.font.weightHeavy, marginBottom: theme.spacing.lg},
   sectionLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: theme.spacing.xxl,
+    marginBottom: theme.spacing.sm,
+    paddingLeft: 2,
+  },
+  sectionLabelText: {
     color: theme.colors.textMuted,
     fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginTop: 20,
-    marginBottom: 8,
-    paddingLeft: 2,
   },
   card: {marginBottom: theme.spacing.md},
   cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold, marginBottom: 12},
@@ -260,7 +264,7 @@ const styles = StyleSheet.create({
   },
   memTag: {
     color: theme.colors.primary,
-    fontSize: 10,
+    fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     backgroundColor: '#FCEAE0',
     paddingHorizontal: 6,
@@ -270,7 +274,7 @@ const styles = StyleSheet.create({
   },
   memText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 18},
   memDelete: {color: theme.colors.textMuted, fontSize: 14, fontWeight: theme.font.weightBold},
-  assessRec: {color: theme.colors.primary, fontSize: theme.font.sizeXs, marginTop: 4, marginBottom: 10, lineHeight: 17},
+  assessRec: {color: theme.colors.primary, fontSize: theme.font.sizeXs, marginTop: 4, marginBottom: 10, lineHeight: 18},
   assessOk: {color: '#3A9E1F'},
   cloudForm: {marginTop: 12, gap: 8},
   input: {

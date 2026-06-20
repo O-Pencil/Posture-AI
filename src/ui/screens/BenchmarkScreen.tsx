@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     backgroundColor: theme.colors.surface,
   },
-  metricLabel: {color: theme.colors.textMuted, fontSize: 9, fontWeight: theme.font.weightBold},
+  metricLabel: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold},
   metricValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: 4},
   infoRow: {
     flexDirection: 'row',

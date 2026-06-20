@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   statValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeLg, fontWeight: theme.font.weightHeavy},
-  statLabel: {color: theme.colors.textMuted, fontSize: 10, marginTop: 2},
+  statLabel: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 2},
   aiBlock: {
     backgroundColor: '#FFFAF5',
     borderRadius: theme.radius.md,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F2D5B7',
   },
-  aiLabel: {color: theme.colors.primary, fontSize: 10, fontWeight: theme.font.weightBold, marginBottom: 4, letterSpacing: 0.5},
+  aiLabel: {color: theme.colors.primary, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold, marginBottom: 4, letterSpacing: 0.5},
   aiText: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, lineHeight: 20},
   empty: {alignItems: 'center', paddingVertical: 24, paddingHorizontal: 12},
   emptyTitle: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},

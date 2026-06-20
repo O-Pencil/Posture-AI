@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
   fileName: {
     marginTop: 2,
     color: theme.colors.textMuted,
-    fontSize: 10,
-    lineHeight: 14,
+    fontSize: theme.font.sizeXs,
+    lineHeight: 16,
   },
   bar: {
     height: 4,
