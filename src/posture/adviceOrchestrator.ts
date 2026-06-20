@@ -13,6 +13,7 @@ import {DashboardState, PostureName} from './types';
 import {buildCoachPrompt} from './coachPrompt';
 import {MemoryService} from './memory/service';
 import {isModelAvailable, streamInfer} from '../mnn/inferStreamClient';
+import {logEvent} from '../debug/logBus';
 
 const MIN_INTERVAL_MS = 12000; // 两次模型调用最小间隔（生成慢，避免堆积）
 const HOLD_REPEAT_MS = 120000; // 同一异常姿态久持 → 每 2 分钟再鼓励一次
@@ -43,7 +44,11 @@ export function createAdviceOrchestrator(engine: PostureEngine, memory?: MemoryS
     let acc = '';
     // 个性化前缀：按当前姿态 + 风格相关记忆，注入极简一段（无合适记忆则空串）
     const memoryPrefix = memory ? memory.inject([s.posture, 'tone'], {maxItems: 3, maxChars: 60}) : '';
-    cancel = streamInfer(buildCoachPrompt(s, memoryPrefix), {
+    const prompt = buildCoachPrompt(s, memoryPrefix);
+    // 演示日志：端侧模型推理 输入
+    logEvent('model', '端侧模型推理开始');
+    logEvent('infer', `输入 → ${prompt.replace(/\n/g, ' ')}`);
+    cancel = streamInfer(prompt, {
       onToken: chunk => {
         acc += chunk;
         engine.setModelAdvice(acc.trim(), {streaming: true});
@@ -51,12 +56,14 @@ export function createAdviceOrchestrator(engine: PostureEngine, memory?: MemoryS
       onDone: () => {
         if (acc.trim()) {
           engine.setModelAdvice(acc.trim(), {streaming: false});
+          logEvent('infer', `输出 ← ${acc.trim()}`);
         }
         inFlight = false;
         cancel = null;
       },
       onError: () => {
         // 失败：保留引擎里已有的规则文案，不动
+        logEvent('model', '端侧推理失败/不可用 → 规则兜底');
         inFlight = false;
         cancel = null;
       },

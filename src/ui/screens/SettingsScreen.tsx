@@ -7,6 +7,7 @@ import {Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-na
 import {theme} from '../theme';
 import {Card} from '../primitives/Card';
 import {ModelDownloadCard} from '../components/ModelDownloadCard';
+import {LogConsole} from '../components/LogConsole';
 import {BenchmarkPanel} from './BenchmarkScreen';
 import {MockScenario, SCENARIOS} from '../../posture/mock';
 import {DashboardState} from '../../posture/types';
@@ -267,6 +268,8 @@ export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onS
       <ModelDownloadCard onModelsChanged={() => setMnnRefreshKey(k => k + 1)} />
 
       <BenchmarkPanel refreshKey={mnnRefreshKey} />
+
+      <LogConsole />
 
       <AssessConfigCard />
 

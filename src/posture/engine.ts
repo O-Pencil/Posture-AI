@@ -21,6 +21,9 @@ import {
   PostureSignals,
 } from './types';
 import {actionForPosture, parseActionTag} from './actionTag';
+import {logEvent} from '../debug/logBus';
+
+let lastSensorLogTs = 0;
 
 /** 与 PRD 阈值一致：胸椎后凸>15°=驼背；颈前倾>20°；腰椎侧倾<-10°。 */
 export const THRESHOLDS = {
@@ -168,6 +171,12 @@ export function createPostureEngine(): PostureEngine {
     getState: () => state,
     update(neckPitch: number, thorPitch: number, lumbarRoll: number) {
       const {posture} = classifyAndAction(neckPitch, thorPitch, lumbarRoll);
+      // 演示日志：传感器输入（10Hz → 节流 1Hz）
+      const nowTs = Date.now();
+      if (nowTs - lastSensorLogTs > 1000) {
+        lastSensorLogTs = nowTs;
+        logEvent('sensor', `输入 颈${neckPitch.toFixed(0)}° 胸${thorPitch.toFixed(0)}° 腰${lumbarRoll.toFixed(0)}°`);
+      }
       totalSamples += 1;
       if (posture === 'NORMAL') {
         healthySamples += 1;
@@ -185,6 +194,9 @@ export function createPostureEngine(): PostureEngine {
       // 建议粘性：姿态类别变化（或首次）→ 重算规则文案并清掉模型态；否则保留当前文案（含模型流式结果）
       const postureChanged = posture !== state.posture || state.advice === '';
       if (postureChanged) {
+        if (posture !== state.posture) {
+          logEvent('flow', `姿态 → ${POSTURE_LABELS[posture]}（不驼背分 ${score}）`);
+        }
         const feedback = ruleFallback(signalsFrom(next));
         state = {
           ...next,

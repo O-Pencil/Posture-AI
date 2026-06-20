@@ -11,7 +11,8 @@
  */
 import {Vibration} from 'react-native';
 import {PostureEngine} from './engine';
-import {PostureName} from './types';
+import {POSTURE_LABELS, PostureName} from './types';
+import {logEvent} from '../debug/logBus';
 
 const ABNORMAL: PostureName[] = ['SLUMPED', 'TECH_NECK', 'LEFT_LEAN'];
 /** 两次震动最小间隔，避免姿态抖动反复触发。 */
@@ -42,6 +43,7 @@ export function createReminder(engine: PostureEngine, opts: {cooldownMs?: number
         // 仅「非异常 → 异常」的入态那一下震动，且过冷却
         if (isAbnormal && !wasAbnormal && Date.now() - lastBuzzTs >= cooldownMs) {
           lastBuzzTs = Date.now();
+          logEvent('flow', `⚡ 震动提醒（${POSTURE_LABELS[s.posture]}）`);
           try {
             Vibration.vibrate(PATTERN);
           } catch {
