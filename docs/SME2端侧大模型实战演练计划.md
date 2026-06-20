@@ -3,12 +3,13 @@
 > 版本：**2026-06-16**  
 > 适用项目：Catune / Omni-Posture Master  
 > 关系说明：本文是 `端侧模型对接计划.md` 的实操版。  
-> **当前进度摘要**（详见 [联调进度与实测记录](./联调进度与实测记录.md)）：
+> **当前进度摘要**（详见 [联调进度与实测记录](./联调进度与实测记录.md) §7）：
 >
 > - App 内 MNN 链路已通；默认联调模型 **Qwen2.5-0.5B**  
-> - 真机：`hw sme2=false`，`backend=CPU`，**TPS ~88.7**，中文 OK  
+> - 真机（小米14）：`hw sme2=false`，`lib sme2=true`，`backend=CPU/NEON`，**TPS ~63–88**，中文 OK  
+> - Mac Docker A2：`MNN_SME2=ON` 编译 + qemu 中文推理 OK，但 **`sme2:0`**（不能当 SME2 运行证据）  
 > - 模拟器：可测加载/指标，**不可验 SME2 / 中文质量**  
-> - 待办：SME2 真机 + Qwen3-1.7B + demo 录制
+> - **待办（P0）**：借 `hw sme2=true` 真机 → logcat `sme2:1` + App `backend=SME2` + TPS 对比
 
 ---
 
