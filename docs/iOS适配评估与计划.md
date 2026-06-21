@@ -75,7 +75,9 @@ npx expo run:ios --device
 3) App 内下载模型（`Documents/mnn_models/qwen2.5-0.5b/`，`expo-file-system` 与安卓对齐）→ Settings 基准测试看中文输出 + TPS。
 
 > 注意点（按 MNN 版本可能要微调）：
-> - MNN iOS 的 cmake 开关/产物路径因版本而异，`build-mnn-ios.sh` 是起点；头文件需含 MNN core + `transformers/llm/engine/include`（脚本已尝试汇总）。
+> - **cmake 开关已对齐安卓已验证的 libMNN 配置**：`MNN_BUILD_LLM / MNN_KLEIDIAI / MNN_SME2 / MNN_ARM82 / MNN_LOW_MEMORY / MNN_CPU_WEIGHT_DEQUANT_GEMM`（+ iOS 专属 `SHARED_LIBS=OFF / SEP_BUILD=OFF / AAPL_FMWK=OFF / METAL=OFF`）。
+> - **头文件不拷贝**：podspec 的 `HEADER_SEARCH_PATHS` 直接指向 `third_party/MNN` 的 4 个目录（`include`、`transformers/llm/engine/include`、`tools/audio/include`、`3rd_party`），与安卓 `cpp/CMakeLists.txt` 完全一致。MNN 源码用与安卓**同一份**（本地 `third_party/MNN`，gitignore 不入库）。
+> - 若 `MNN_SME2/MNN_KLEIDIAI` 在 Apple clang 上报错：**可去掉**——A18 Pro 无 SME2，端侧仍可跑、只少 SME2 内核（不影响功能）。
 > - 脚本默认只编 **device arm64**；要同时跑模拟器需 xcframework（device+sim）。
 > - A18 Pro **有 SME、无 SME2** → iOS 端侧走 NEON/SME，不是 SME2（SME2 考核点用安卓口径）。
 > - 这套原生**无法在本仓库 CI/Linux 编译验证**，首次真机构建大概率要按报错小修（MNN 头路径/符号）。
