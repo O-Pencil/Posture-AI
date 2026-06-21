@@ -7,12 +7,12 @@
  * [WHO] 导出 `Reminder`、`createReminder(engine, opts?)`
  * [FROM] 依赖 `react-native`(Vibration)、./engine(PostureEngine)、./types(PostureName)、./utils(ABNORMAL_POSTURES)
  * [TO] 被 App.tsx 启动
- * [HERE] src/posture/reminder.ts · 异常坐姿震动提醒
+ * [HERE] src/platform/reminder.ts · 异常坐姿震动提醒
  */
 import {Vibration} from 'react-native';
-import {PostureEngine} from './engine';
-import {PostureName, getPostureLabel} from './types';
-import {ABNORMAL_POSTURES} from './utils';
+import {PostureEngine} from '../posture/engine';
+import {PostureName, getPostureLabel} from '../posture/types';
+import {ABNORMAL_POSTURES} from '../posture/utils';
 import {logEvent} from '../debug/logBus';
 
 /** 两次震动最小间隔，避免姿态抖动反复触发。 */

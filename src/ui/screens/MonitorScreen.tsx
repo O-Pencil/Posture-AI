@@ -53,13 +53,13 @@ export function MonitorScreen({state, mode}: {state: DashboardState; mode: DataM
 
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: theme.colors.surface},
-  container: {padding: theme.spacing.lg, paddingTop: 8, paddingBottom: 120},
-  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontWeight: theme.font.weightHeavy, marginBottom: 16},
+  container: {padding: theme.spacing.lg, paddingTop: theme.spacing.sm2, paddingBottom: 120},
+  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontWeight: theme.font.weightHeavy, marginBottom: theme.spacing.lg},
   card: {marginBottom: theme.spacing.md},
   row: {flexDirection: 'row', gap: theme.spacing.md},
-  rowGap: {marginTop: 12},
+  rowGap: {marginTop: theme.spacing.md2},
   stat: {flex: 1},
   statLabel: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold},
   statValue: {color: theme.colors.primary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold, marginTop: 3},
-  hint: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 12},
+  hint: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: theme.spacing.md2},
 });

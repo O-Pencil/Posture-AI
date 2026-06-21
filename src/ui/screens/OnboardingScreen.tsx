@@ -11,7 +11,7 @@
 import React, {useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 
-import {RememberInput} from '../../posture/memory/types';
+import {RememberInput} from '../../platform/memory/types';
 import {theme} from '../theme';
 import {useT} from '../i18n';
 
@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
     fontFamily: theme.font.body,
   },
   scroll: {flex: 1},
-  body: {padding: 28, paddingTop: 64, paddingBottom: 24},
+  body: {padding: 28, paddingTop: 64, paddingBottom: theme.spacing.xxl},
   kicker: {color: theme.colors.textMuted, fontSize: 11, fontFamily: theme.font.displayMedium, letterSpacing: 1},
-  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontFamily: theme.font.displaySemiBold, marginTop: 6},
-  subtitle: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, lineHeight: 20, marginTop: 8},
-  q: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold, marginTop: 26, marginBottom: 12},
-  row: {flexDirection: 'row', flexWrap: 'wrap', gap: 10},
+  title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontFamily: theme.font.displaySemiBold, marginTop: theme.spacing.sm},
+  subtitle: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, lineHeight: 20, marginTop: theme.spacing.sm2},
+  q: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold, marginTop: 26, marginBottom: theme.spacing.md2},
+  row: {flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md},
   chip: {
-    paddingVertical: 10,
+    paddingVertical: theme.spacing.md,
     paddingHorizontal: 18,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
@@ -143,12 +143,12 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: theme.spacing.md2,
     fontSize: theme.font.sizeMd,
     color: theme.colors.textPrimary,
     backgroundColor: theme.colors.surface,
   },
-  actions: {flexDirection: 'row', gap: 12, paddingHorizontal: 28, paddingBottom: 36, paddingTop: 8},
+  actions: {flexDirection: 'row', gap: theme.spacing.md2, paddingHorizontal: 28, paddingBottom: 36, paddingTop: theme.spacing.sm2},
   btn: {flex: 1, paddingVertical: 14, borderRadius: theme.radius.md, alignItems: 'center'},
   btnGhost: {borderWidth: 1, borderColor: theme.colors.border},
   btnGhostText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},

@@ -10,7 +10,7 @@
  * UI 全在 src/ui（RN 原语，RNW 兼容）；逻辑全在 src/posture。web(RNW) 无传感器 → 自动回退 mock。
  * 端侧 Qwen+MNN 为安卓原生支线（docs/端侧模型对接计划.md）。
  */
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {useFonts, Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold} from '@expo-google-fonts/fredoka';
 import {Geist_400Regular, Geist_500Medium, Geist_700Bold} from '@expo-google-fonts/geist';
@@ -18,11 +18,11 @@ import {Geist_400Regular, Geist_500Medium, Geist_700Bold} from '@expo-google-fon
 import {AppShell} from './src/ui/AppShell';
 import {createPostureEngine} from './src/posture/engine';
 import {createAdviceOrchestrator} from './src/posture/adviceOrchestrator';
-import {createMemoryService} from './src/posture/memory/service';
+import {createMemoryService} from './src/platform/memory/service';
 import {createGrowthTracker, GrowthState} from './src/posture/growth';
-import {createReminder} from './src/posture/reminder';
+import {createReminder} from './src/platform/reminder';
 import {createMockSource, MockScenario, MockSource} from './src/posture/mock';
-import {createSensorSource, SensorSource} from './src/posture/sensorSource';
+import {createSensorSource, SensorSource} from './src/platform/sensorSource';
 import {DashboardState} from './src/posture/types';
 import {Locale, LocaleProvider, useT} from './src/ui/i18n';
 
@@ -109,7 +109,7 @@ function App(): React.JSX.Element {
     adviceRef.current.start();
     growthRef.current.start();
     reminderRef.current.start();
-    useSensor();
+    void useSensor();
     memoryRef.current.ready.then(() => {
       const saved = memoryRef.current.locale();
       localeRef.current = saved;
@@ -124,7 +124,9 @@ function App(): React.JSX.Element {
       sensorRef.current.stop();
       mockRef.current.stop();
     };
+    // refs 是 stable 的（useRef），无需列入 deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   }, []);
 
   // locale 变化：engine 重算 + emit；growth 重新 snapshot

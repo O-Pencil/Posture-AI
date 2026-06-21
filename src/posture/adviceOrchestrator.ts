@@ -11,7 +11,7 @@
 import {PostureEngine} from './engine';
 import {DashboardState, PostureName} from './types';
 import {buildCoachPrompt} from './coachPrompt';
-import {MemoryService} from './memory/service';
+import {MemoryService} from '../platform/memory/service';
 import {isModelAvailable, streamInfer} from '../mnn/inferStreamClient';
 import {logEvent} from '../debug/logBus';
 import {ABNORMAL_POSTURES} from './utils';

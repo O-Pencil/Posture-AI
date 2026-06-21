@@ -17,8 +17,8 @@ import {ModelDownloadCard} from '../components/ModelDownloadCard';
 import {BenchmarkPanel} from './BenchmarkScreen';
 import {MockScenario, SCENARIOS} from '../../posture/mock';
 import {DashboardState} from '../../posture/types';
-import {MemoryService} from '../../posture/memory/service';
-import {MemoryItem, MemoryType} from '../../posture/memory/types';
+import {MemoryService} from '../../platform/memory/service';
+import {MemoryItem, MemoryType} from '../../platform/memory/types';
 import {loadAssessConfig, saveAssessConfig} from '../../assess/config';
 import {AssessBackend, AssessConfig, DEFAULT_ASSESS_CONFIG} from '../../assess/types';
 import {AssessReadiness, checkAssessReadiness} from '../../assess/readiness';
@@ -225,10 +225,10 @@ const styles = StyleSheet.create({
   sectionLabel: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: theme.spacing.sm,
     marginTop: theme.spacing.xxl,
     marginBottom: theme.spacing.sm,
-    paddingLeft: 2,
+    paddingLeft: theme.spacing.xxs,
   },
   sectionLabelText: {
     color: theme.colors.textMuted,
@@ -237,13 +237,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   card: {marginBottom: theme.spacing.md},
-  cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontFamily: theme.font.displayMedium, marginBottom: 12},
+  cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontFamily: theme.font.displayMedium, marginBottom: theme.spacing.md2},
   rowGap: {flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm},
   wrapRow: {flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm},
-  hint: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 10, lineHeight: 18},
+  hint: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: theme.spacing.md, lineHeight: 18},
   pill: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: theme.spacing.sm2,
+    paddingHorizontal: theme.spacing.lg,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -252,13 +252,13 @@ const styles = StyleSheet.create({
   pillActive: {borderColor: theme.colors.primary, backgroundColor: '#FCEAE0'},
   pillText: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm},
   pillTextActive: {color: theme.colors.primary, fontWeight: theme.font.weightBold},
-  memHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12},
+  memHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md2},
   memClear: {color: theme.colors.primary, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold},
   memRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingVertical: 8,
+    gap: theme.spacing.md,
+    paddingVertical: theme.spacing.sm2,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
   },
@@ -267,31 +267,31 @@ const styles = StyleSheet.create({
     fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     backgroundColor: '#FCEAE0',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xxs,
     borderRadius: 6,
     overflow: 'hidden',
   },
   memText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 18},
-  memDelete: {color: theme.colors.textMuted, fontSize: 14, fontWeight: theme.font.weightBold},
-  assessRec: {color: theme.colors.primary, fontSize: theme.font.sizeXs, marginTop: 4, marginBottom: 10, lineHeight: 18},
+  memDelete: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
+  assessRec: {color: theme.colors.primary, fontSize: theme.font.sizeXs, marginTop: theme.spacing.xs, marginBottom: theme.spacing.md, lineHeight: 18},
   assessOk: {color: '#3A9E1F'},
-  cloudForm: {marginTop: 12, gap: 8},
+  cloudForm: {marginTop: theme.spacing.md2, gap: theme.spacing.sm2},
   input: {
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: theme.spacing.md2,
+    paddingVertical: theme.spacing.md,
     fontSize: theme.font.sizeSm,
     color: theme.colors.textPrimary,
     backgroundColor: theme.colors.surface,
   },
   saveBtn: {
-    marginTop: 12,
+    marginTop: theme.spacing.md2,
     alignSelf: 'flex-start',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
+    paddingVertical: theme.spacing.sm2,
+    paddingHorizontal: theme.spacing.xl,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.primary,
   },
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: theme.spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
@@ -392,7 +392,7 @@ export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onS
           <Text style={styles.aboutLabel}>{t('settings.about.framework')}</Text>
           <Text style={styles.aboutValue}>MNN + SME2</Text>
         </View>
-        <Text style={[styles.hint, {marginTop: 12}]}>{t('settings.about.body')}</Text>
+        <Text style={[styles.hint, {marginTop: theme.spacing.md2}]}>{t('settings.about.body')}</Text>
       </Card>
     </ScrollView>
   );

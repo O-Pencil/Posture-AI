@@ -21,7 +21,7 @@ import Svg, {Circle, Path} from 'react-native-svg';
 import {DashboardState, PostureAction, PostureName, SpineNode} from '../../posture/types';
 import {getActionMeta} from '../../posture/actionTag';
 import {getExercise} from '../../posture/exercises';
-import {MemoryService} from '../../posture/memory/service';
+import {MemoryService} from '../../platform/memory/service';
 import {useLocale, useT} from '../i18n';
 import {theme} from '../theme';
 import {CatFlipbook} from '../components/CatFlipbook';
@@ -389,10 +389,10 @@ const styles = StyleSheet.create({
   },
   assessEntry: {
     position: 'absolute',
-    top: 6,
-    right: 24,
+    top: theme.spacing.sm,
+    right: theme.spacing.xxl,
     paddingVertical: 5,
-    paddingHorizontal: 12,
+    paddingHorizontal: theme.spacing.md2,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     borderColor: 'rgba(251,75,0,0.35)',
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     fontSize: theme.font.sizeSm,
     fontFamily: theme.font.displayMedium,
     lineHeight: 20,
-    marginTop: 6,
+    marginTop: theme.spacing.sm,
   },
   highlight: {
     color: theme.colors.primary,
@@ -425,16 +425,16 @@ const styles = StyleSheet.create({
     fontSize: theme.font.sizeSm,
     fontWeight: theme.font.weightBold,
     lineHeight: 20,
-    marginTop: 8,
+    marginTop: theme.spacing.sm2,
     maxWidth: 320,
   },
   actionChip: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginTop: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
+    marginTop: theme.spacing.sm2,
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
     borderRadius: theme.radius.pill,
     backgroundColor: '#FCEAE0',
     borderWidth: 1,
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: theme.colors.primary,
-    marginRight: 6,
+    marginRight: theme.spacing.sm,
   },
   actionChipText: {
     color: theme.colors.primary,
@@ -454,21 +454,21 @@ const styles = StyleSheet.create({
   },
   actionChevron: {
     color: theme.colors.primary,
-    fontSize: 14,
+    fontSize: theme.font.sizeSm,
     fontWeight: theme.font.weightBold,
-    marginLeft: 4,
+    marginLeft: theme.spacing.xs,
     marginTop: -1,
   },
-  feedbackRow: {flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10},
+  feedbackRow: {flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md, marginTop: theme.spacing.md},
   feedbackQ: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs},
-  fbBtn: {paddingHorizontal: 2},
+  fbBtn: {paddingHorizontal: theme.spacing.xxs},
   fbEmoji: {fontSize: 16},
-  feedbackThanks: {color: '#3A9E1F', fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold, marginTop: 10},
+  feedbackThanks: {color: '#3A9E1F', fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold, marginTop: theme.spacing.md},
   metrics: {
     flexDirection: 'row',
     paddingHorizontal: theme.spacing.xl,
     paddingBottom: theme.spacing.sm,
-    gap: 16,
+    gap: theme.spacing.lg,
   },
   metricItem: {
     flex: 1,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     fontSize: theme.font.sizeLg,
     fontWeight: theme.font.weightHeavy,
     lineHeight: 22,
-    marginTop: 4,
+    marginTop: theme.spacing.xs,
   },
   scene: {
     flex: 1,
@@ -510,18 +510,18 @@ const styles = StyleSheet.create({
   },
   modeToggle: {
     position: 'absolute',
-    top: 4,
-    right: 8,
+    top: theme.spacing.xs,
+    right: theme.spacing.sm2,
     flexDirection: 'row',
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    padding: 2,
+    padding: theme.spacing.xxs,
   },
   modeSeg: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
     borderRadius: theme.radius.pill,
   },
   modeSegActive: {
@@ -537,14 +537,14 @@ const styles = StyleSheet.create({
   },
   calibrateBadge: {
     position: 'absolute',
-    top: 6,
-    left: 6,
+    top: theme.spacing.sm,
+    left: theme.spacing.sm,
     color: '#FB4B00',
     fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xxs,
     borderRadius: 6,
   },
   deskImage: {
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   plantImage: {
     position: 'absolute',
     top: 290,
-    left: 20,
+    left: theme.spacing.xl,
     width: 200,
     height: 140,
     zIndex: 1,

@@ -76,12 +76,12 @@ const styles = StyleSheet.create({
   container: {padding: theme.spacing.lg, paddingTop: theme.spacing.xl, paddingBottom: 120, gap: theme.spacing.md},
   title: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXl, fontFamily: theme.font.displaySemiBold, marginBottom: theme.spacing.lg},
 
-  plantCard: {gap: 16},
+  plantCard: {gap: theme.spacing.lg},
   plantHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'},
   kicker: {color: theme.colors.textMuted, fontSize: 11, fontFamily: theme.font.displayMedium, letterSpacing: 1},
-  cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeLg, fontFamily: theme.font.displayMedium, marginTop: 4},
+  cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeLg, fontFamily: theme.font.displayMedium, marginTop: theme.spacing.xs},
   dim: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs},
-  stageText: {color: theme.colors.primary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: 2},
+  stageText: {color: theme.colors.primary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: theme.spacing.xxs},
 
   scene: {
     height: 224,
@@ -100,12 +100,12 @@ const styles = StyleSheet.create({
     top: 112,
     backgroundColor: '#F5F0E8',
   },
-  sun: {position: 'absolute', top: 12, right: 12, opacity: 0.35},
+  sun: {position: 'absolute', top: theme.spacing.md2, right: theme.spacing.md2, opacity: 0.35},
 
-  selector: {flexDirection: 'row', gap: 6},
-  stageBtn: {flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: theme.radius.md, borderWidth: 1, borderColor: 'transparent'},
+  selector: {flexDirection: 'row', gap: theme.spacing.sm},
+  stageBtn: {flex: 1, alignItems: 'center', paddingVertical: theme.spacing.md, borderRadius: theme.radius.md, borderWidth: 1, borderColor: 'transparent'},
   stageBtnActive: {backgroundColor: 'rgba(251,75,0,0.10)', borderColor: 'rgba(251,75,0,0.40)'},
   stageNum: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold},
-  stageName: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 2},
+  stageName: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: theme.spacing.xxs},
   stageActiveText: {color: theme.colors.primary, fontWeight: theme.font.weightBold},
 });

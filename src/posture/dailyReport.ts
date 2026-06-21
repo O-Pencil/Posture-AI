@@ -14,13 +14,11 @@ import {tr, type Locale} from '../ui/i18n';
 import {GrowthState} from './growth';
 import {
   DailyHistory,
-  DailySnapshot,
   getCachedHistory,
   getWeekSnapshots,
-  loadDailyHistory,
   todayKey,
   WeekDay,
-} from './dailyHistory';
+} from '../platform/dailyHistory';
 
 export type DailyReport = {
   hasData: boolean;
@@ -44,7 +42,13 @@ export type WeeklyReport = {
 };
 
 // 重新导出 WeekDay 给 UI 组件用（避免 UI 直接依赖 dailyHistory）
-export type {WeekDay} from './dailyHistory';
+export type {WeekDay} from '../platform/dailyHistory';
+
+// ─── 日报常量（评分边界） ─────────────────────────────────────────────────
+// 无异常 + 多少条正向日志算"great"（而非"steady"）。
+const DAILY_GREAT_GOOD_LOG_MIN = 4;
+// 周报"good 占绝对多数"判定：good / abnormal 至少 2 倍。
+const WEEKLY_GOOD_DOMINANCE_RATIO = 2;
 
 // ─── 日报 ──────────────────────────────────────────────────────────────────
 
@@ -134,7 +138,7 @@ function generateDailyComment(
   const goodCount = todayLog.filter(e => e.delta > 0).length;
 
   if (totalAbnormal === 0) {
-    if (goodCount >= 4) return tr(locale, 'report.daily.great');
+    if (goodCount >= DAILY_GREAT_GOOD_LOG_MIN) return tr(locale, 'report.daily.great');
     return tr(locale, 'report.daily.steady');
   }
 
@@ -178,7 +182,7 @@ function generateWeeklySummary(week: WeekDay[], locale: Locale): string {
   if (totalAbnormal === 0 && totalGood > 0) {
     return tr(locale, 'report.weekly.zeroAbnormal');
   }
-  if (totalGood > totalAbnormal * 2) {
+  if (totalGood > totalAbnormal * WEEKLY_GOOD_DOMINANCE_RATIO) {
     return tr(locale, 'report.weekly.goodMore', {good: totalGood, bad: totalAbnormal});
   }
   return tr(locale, 'report.weekly.badMore', {good: totalGood, bad: totalAbnormal});

@@ -5,7 +5,7 @@
  * [WHO] 导出 `ModelInstallState`、`DownloadState`、`InstalledModelInfo`、`readActiveModelId`、
  *   `writeActiveModelId`、`readDownloadState`、`writeDownloadState`、`modelDir`、`fileSizeBytes`、
  *   `formatBytes`、`deleteModelFiles`、`getInstalledModels`
- * [FROM] 依赖 `expo-file-system`、`./modelCatalog`
+ * [FROM] 依赖 `expo-file-system/legacy`、`./modelCatalog`
  * [TO] 被 `modelDownloadService`、`ModelDownloadCard` 引用
  * [HERE] src/mnn/modelStorage.ts · 模型文件存储与状态管理
  */
@@ -18,6 +18,7 @@ import {
   MnnModelDef,
   MODEL_CATALOG,
 } from './modelCatalog';
+import * as FileSystem from 'expo-file-system/legacy';
 
 export type ModelInstallState = 'missing' | 'partial' | 'ready';
 

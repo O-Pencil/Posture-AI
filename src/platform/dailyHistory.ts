@@ -7,10 +7,10 @@
  * [WHO] 导出 `DailySnapshot` / `DailyHistory` / `loadDailyHistory` / `upsertTodaySnapshot` / `getWeekSnapshots`
  * [FROM] 依赖 expo-file-system（持久化）
  * [TO] 被 App.tsx 启动时加载 + growth 心跳后调用 upsertTodaySnapshot；周报从 getWeekSnapshots 读
- * [HERE] src/posture/dailyHistory.ts · 每日快照
+ * [HERE] src/platform/dailyHistory.ts · 每日快照
  */
 import * as FileSystem from 'expo-file-system/legacy';
-import {pad} from './utils';
+import {pad} from '../posture/utils';
 
 /** 单日快照（聚合数据）。 */
 export type DailySnapshot = {

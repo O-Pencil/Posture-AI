@@ -115,7 +115,7 @@ export function AssessScreen({onClose, onGoSettings}: {onClose: () => void; onGo
         {phase === 'loading' ? (
           <View style={styles.loading}>
             {imageUri ? <Image source={{uri: imageUri}} style={styles.preview} resizeMode="cover" /> : null}
-            <ActivityIndicator color={theme.colors.primary} style={{marginTop: 20}} />
+            <ActivityIndicator color={theme.colors.primary} style={{marginTop: theme.spacing.xl}} />
             <Text style={styles.loadingText}>{t('assess.loading.hint')}</Text>
           </View>
         ) : null}
@@ -173,14 +173,14 @@ export function AssessScreen({onClose, onGoSettings}: {onClose: () => void; onGo
 
 const styles = StyleSheet.create({
   root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingTop: 48, fontFamily: theme.font.body},
-  topBar: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16},
+  topBar: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.spacing.lg},
   closeBtn: {width: 32, height: 32, alignItems: 'center', justifyContent: 'center'},
   closeText: {color: theme.colors.textSecondary, fontSize: 20, fontWeight: theme.font.weightBold},
   kicker: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontFamily: theme.font.displayMedium},
-  body: {padding: 24, paddingBottom: 40},
-  intro: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, lineHeight: 20, marginTop: 8},
+  body: {padding: theme.spacing.xxl, paddingBottom: 40},
+  intro: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, lineHeight: 20, marginTop: theme.spacing.sm2},
   guard: {
-    marginTop: 20,
+    marginTop: theme.spacing.xl,
     padding: 14,
     borderRadius: theme.radius.md,
     backgroundColor: '#FCEAE0',
@@ -188,17 +188,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(251,75,0,0.3)',
   },
   guardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontFamily: theme.font.displayMedium},
-  guardHint: {color: theme.colors.textSecondary, fontSize: theme.font.sizeXs, marginTop: 6, lineHeight: 17},
-  pickRow: {flexDirection: 'row', gap: 12, marginTop: 24},
+  guardHint: {color: theme.colors.textSecondary, fontSize: theme.font.sizeXs, marginTop: theme.spacing.sm, lineHeight: 17},
+  pickRow: {flexDirection: 'row', gap: theme.spacing.md2, marginTop: theme.spacing.xxl},
   btn: {flex: 1, paddingVertical: 14, borderRadius: theme.radius.md, alignItems: 'center'},
   btnPrimary: {backgroundColor: theme.colors.primary},
   btnPrimaryText: {color: '#FFFFFF', fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
   btnGhost: {borderWidth: 1, borderColor: theme.colors.border},
   btnGhostText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
-  loading: {alignItems: 'center', marginTop: 24},
+  loading: {alignItems: 'center', marginTop: theme.spacing.xxl},
   preview: {width: 160, height: 213, borderRadius: theme.radius.md, backgroundColor: theme.colors.surfaceMuted},
-  loadingText: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, marginTop: 10},
-  resultHead: {flexDirection: 'row', gap: 14, alignItems: 'center', marginTop: 8},
+  loadingText: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, marginTop: theme.spacing.md},
+  resultHead: {flexDirection: 'row', gap: 14, alignItems: 'center', marginTop: theme.spacing.sm2},
   thumb: {width: 72, height: 96, borderRadius: theme.radius.md, backgroundColor: theme.colors.surfaceMuted},
   sourceTag: {
     alignSelf: 'flex-start',
@@ -206,14 +206,14 @@ const styles = StyleSheet.create({
     fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     backgroundColor: '#FCEAE0',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xxs,
     borderRadius: 6,
     overflow: 'hidden',
-    marginBottom: 6,
+    marginBottom: theme.spacing.sm,
   },
   summary: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold, lineHeight: 22},
-  section: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: 24, marginBottom: 10},
+  section: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: theme.spacing.xxl, marginBottom: theme.spacing.md},
   obsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   },
   obsLabel: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm},
   obsValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
-  sugRow: {flexDirection: 'row', gap: 8, paddingVertical: 5},
+  sugRow: {flexDirection: 'row', gap: theme.spacing.sm2, paddingVertical: 5},
   sugDot: {color: theme.colors.primary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold},
   sugText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 20},
 });

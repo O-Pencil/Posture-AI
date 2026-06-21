@@ -33,6 +33,15 @@ export const THRESHOLDS = {
   lumbarLeanDeg: -10,
 };
 
+/** 行为常量：评分/严重度/节流，与 PRD 风险等级一致。 */
+// 异常姿态持续多久开始影响打分（分钟）。
+const DURATION_FOR_BUMP_MIN = 45;
+// 严重度等级阈值（超出阈值多少度 = level 1/2/3）。
+const SEVERITY_EXCESS_MINOR = 10;
+const SEVERITY_EXCESS_MAJOR = 20;
+// 传感器演示日志节流：1Hz（10Hz 数据流节流到演示日志 1Hz）。
+const SENSOR_LOG_THROTTLE_MS = 1000;
+
 // ---------------- 安全链：本地查表文案 + 禁词 ----------------
 
 /** locale 感知的禁词（诊断 / 治疗 / 承诺 / 营销）。model 输出也按 locale 检查。 */
@@ -111,8 +120,8 @@ function severityOf(posture: PostureName, s: PostureSignals): number {
   } else if (posture === 'LEFT_LEAN') {
     excess = Math.abs(s.lumbarRollDeg) - Math.abs(THRESHOLDS.lumbarLeanDeg);
   }
-  const base = excess >= 20 ? 3 : excess >= 10 ? 2 : 1;
-  return s.durationMin >= 45 ? Math.min(3, base + 1) : base;
+  const base = excess >= SEVERITY_EXCESS_MAJOR ? 3 : excess >= SEVERITY_EXCESS_MINOR ? 2 : 1;
+  return s.durationMin >= DURATION_FOR_BUMP_MIN ? Math.min(3, base + 1) : base;
 }
 
 /** 纯规则兜底：复用阈值，离线 100% 可用。 */
@@ -188,7 +197,7 @@ export function createPostureEngine(opts: EngineOptions = {}): PostureEngine {
       const {posture} = classifyAndAction(neckPitch, thorPitch, lumbarRoll);
       // 演示日志：传感器输入（10Hz → 节流 1Hz）
       const nowTs = Date.now();
-      if (nowTs - lastSensorLogTs > 1000) {
+      if (nowTs - lastSensorLogTs > SENSOR_LOG_THROTTLE_MS) {
         lastSensorLogTs = nowTs;
         logEvent('sensor', `输入 颈${neckPitch.toFixed(0)}° 胸${thorPitch.toFixed(0)}° 腰${lumbarRoll.toFixed(0)}°`);
       }

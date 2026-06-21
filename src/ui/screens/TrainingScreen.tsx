@@ -15,7 +15,7 @@ import Svg, {Circle} from 'react-native-svg';
 import {getExercise} from '../../posture/exercises';
 import {PostureAction} from '../../posture/types';
 import {getActionMeta} from '../../posture/actionTag';
-import {MemoryService} from '../../posture/memory/service';
+import {MemoryService} from '../../platform/memory/service';
 import {theme} from '../theme';
 import {useLocale, useT} from '../i18n';
 
@@ -235,38 +235,38 @@ export function TrainingScreen({
 }
 
 const styles = StyleSheet.create({
-  root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingHorizontal: 24, paddingTop: 48, fontFamily: theme.font.body},
+  root: {...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.xxl, paddingTop: 48, fontFamily: theme.font.body},
   topBar: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
   closeBtn: {width: 32, height: 32, alignItems: 'center', justifyContent: 'center'},
   closeText: {color: theme.colors.textSecondary, fontSize: 20, fontWeight: theme.font.weightBold},
   kicker: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontFamily: theme.font.displayMedium},
-  intro: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, textAlign: 'center', marginTop: 10, lineHeight: 20},
+  intro: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm, textAlign: 'center', marginTop: theme.spacing.md, lineHeight: 20},
   ringWrap: {alignSelf: 'center', marginTop: 28, width: RING, height: RING, alignItems: 'center', justifyContent: 'center'},
   ringCenter: {...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center'},
   bigSec: {color: theme.colors.textPrimary, fontSize: 40, fontWeight: theme.font.weightHeavy, lineHeight: 44},
-  phaseLabel: {color: theme.colors.primary, fontSize: theme.font.sizeSm, fontFamily: theme.font.displayMedium, marginTop: 2},
+  phaseLabel: {color: theme.colors.primary, fontSize: theme.font.sizeSm, fontFamily: theme.font.displayMedium, marginTop: theme.spacing.xxs},
   doneMark: {color: '#3A9E1F', fontSize: 48, fontWeight: theme.font.weightHeavy},
   repText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold, textAlign: 'center', marginTop: 18},
-  steps: {marginTop: 22, gap: 10},
-  stepRow: {flexDirection: 'row', alignItems: 'center', gap: 12},
+  steps: {marginTop: 22, gap: theme.spacing.md},
+  stepRow: {flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md2},
   stepNum: {
     width: 22,
     height: 22,
     borderRadius: 11,
     backgroundColor: '#FCEAE0',
     color: theme.colors.primary,
-    fontSize: 12,
+    fontSize: theme.font.sizeXs,
     fontWeight: theme.font.weightBold,
     textAlign: 'center',
     lineHeight: 22,
     overflow: 'hidden',
   },
   stepText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 20},
-  fbRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 20},
+  fbRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: theme.spacing.lg, marginTop: theme.spacing.xl},
   fbQ: {color: theme.colors.textMuted, fontSize: theme.font.sizeSm},
-  fbEmoji: {fontSize: 22},
-  fbThanks: {color: '#3A9E1F', fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, textAlign: 'center', marginTop: 20},
-  actions: {flexDirection: 'row', gap: 12, marginTop: 'auto', marginBottom: 36},
+  fbEmoji: {fontSize: theme.font.sizeXl},
+  fbThanks: {color: '#3A9E1F', fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, textAlign: 'center', marginTop: theme.spacing.xl},
+  actions: {flexDirection: 'row', gap: theme.spacing.md2, marginTop: 'auto', marginBottom: 36},
   btn: {flex: 1, paddingVertical: 14, borderRadius: theme.radius.md, alignItems: 'center'},
   btnGhost: {borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface},
   btnGhostText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},

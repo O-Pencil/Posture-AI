@@ -8,11 +8,11 @@
  * [WHO] 导出 `SensorSource`、`createSensorSource(engine, intervalMs)`
  * [FROM] 依赖 `expo-sensors`(DeviceMotion)、`./engine`(PostureEngine 类型)
  * [TO] 被 App.tsx 启动；不可用时由 App 回退到 mock
- * [HERE] src/posture/sensorSource.ts · 手机 IMU 数据源（3 节点映射，iOS/Android）
+ * [HERE] src/platform/sensorSource.ts · 手机 IMU 数据源（3 节点映射，iOS/Android）
  */
 import {DeviceMotion} from 'expo-sensors';
-import type {PostureEngine} from './engine';
-import {clamp} from './utils';
+import type {PostureEngine} from '../posture/engine';
+import {clamp} from '../posture/utils';
 
 const RAD2DEG = 180 / Math.PI;
 

@@ -12,7 +12,7 @@
 import {tr, type Locale} from '../ui/i18n';
 import type {PostureEngine} from './engine';
 import {PostureName} from './types';
-import {rolloverIfNewDay, upsertTodaySnapshot} from './dailyHistory';
+import {rolloverIfNewDay, upsertTodaySnapshot} from '../platform/dailyHistory';
 import {pad} from './utils';
 
 /** 5 个成长阶段（与 PlantScreen 一致）。 */

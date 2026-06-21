@@ -1,6 +1,11 @@
 /**
  * @file BenchmarkScreen.tsx
  * @description 模型基准测试：可编辑 Prompt、输出展示、推理指标（录像证真端侧模型）。
+ *
+ * [WHO] 导出 `BenchmarkPanel`
+ * [FROM] 依赖 `react`、`react-native`(NativeModules/Pressable/TextInput)、`../theme`、`../primitives/Card`、`../i18n`
+ * [TO] 被 SettingsScreen 嵌入（settings.assess 区域）
+ * [HERE] src/ui/screens/BenchmarkScreen.tsx · 模型基准测试面板
  */
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {NativeModules, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
@@ -107,37 +112,37 @@ function formatRunDetail(run: BenchRun, t: T): string {
 const styles = StyleSheet.create({
   card: {marginBottom: theme.spacing.md},
   cardTitle: {color: theme.colors.textPrimary, fontSize: theme.font.sizeMd, fontFamily: theme.font.displayMedium},
-  subtitle: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: 6, lineHeight: 17},
+  subtitle: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: theme.spacing.sm, lineHeight: 17},
   previewBanner: {
-    marginTop: 10,
-    padding: 10,
+    marginTop: theme.spacing.md,
+    padding: theme.spacing.md,
     borderRadius: theme.radius.md,
     backgroundColor: '#F5F5F5',
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
   previewBannerText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeXs, lineHeight: 17},
-  body: {marginTop: 12},
+  body: {marginTop: theme.spacing.md2},
   sectionLabel: {
     color: theme.colors.textMuted,
     fontSize: theme.font.sizeXs,
     fontFamily: theme.font.displayMedium,
     marginTop: 14,
-    marginBottom: 6,
+    marginBottom: theme.spacing.sm,
   },
   sectionHint: {
     color: theme.colors.textSecondary,
     fontSize: theme.font.sizeXs,
     lineHeight: 16,
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm2,
   },
   promptInput: {
     minHeight: 72,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: theme.spacing.md2,
+    paddingVertical: theme.spacing.md,
     color: theme.colors.textPrimary,
     fontSize: theme.font.sizeSm,
     lineHeight: 20,
@@ -150,13 +155,13 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
     backgroundColor: '#FAFAFA',
-    padding: 12,
+    padding: theme.spacing.md2,
     minHeight: 88,
   },
   ioBoxPreview: {opacity: 0.85},
   outputText: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, lineHeight: 22},
   outputPlaceholder: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, lineHeight: 20},
-  metricGrid: {flexDirection: 'row', flexWrap: 'wrap', gap: 8},
+  metricGrid: {flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm2},
   metricTile: {
     width: '31%',
     minWidth: 96,
@@ -164,16 +169,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.sm,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    paddingVertical: theme.spacing.sm2,
+    paddingHorizontal: theme.spacing.sm2,
     backgroundColor: theme.colors.surface,
   },
   metricLabel: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold},
-  metricValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: 4},
+  metricValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginTop: theme.spacing.xs},
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: theme.spacing.md2,
     paddingVertical: 5,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
@@ -186,10 +191,10 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
-  btnRow: {flexDirection: 'row', gap: theme.spacing.sm, marginTop: 10},
+  btnRow: {flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.md},
   btn: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: theme.spacing.md,
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -200,7 +205,7 @@ const styles = StyleSheet.create({
   btnDisabled: {opacity: 0.5},
   btnText: {color: theme.colors.textPrimary, fontSize: theme.font.sizeXs, fontWeight: theme.font.weightBold},
   btnTextPrimary: {color: theme.colors.primary},
-  errorText: {color: bad, fontSize: theme.font.sizeXs, marginTop: 8, lineHeight: 17},
+  errorText: {color: bad, fontSize: theme.font.sizeXs, marginTop: theme.spacing.sm2, lineHeight: 17},
 });
 
 function MetricTile({label, value}: {label: string; value: string}): React.JSX.Element {

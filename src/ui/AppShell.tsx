@@ -25,7 +25,7 @@ import {FanIcon, GaugeIcon, MonitorIcon, SettingsIcon} from './icons';
 import {MockScenario} from '../posture/mock';
 import {DashboardState, PostureAction} from '../posture/types';
 import {GrowthState} from '../posture/growth';
-import {MemoryService} from '../posture/memory/service';
+import {MemoryService} from '../platform/memory/service';
 import {resumePendingDownloadIfNeeded} from '../mnn/modelDownloadService';
 import {useT} from './i18n';
 

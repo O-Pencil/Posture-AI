@@ -12,7 +12,6 @@
  */
 
 import React from 'react';
-import {it, jest} from '@jest/globals';
 import renderer, {act} from 'react-test-renderer';
 import App from '../App';
 
