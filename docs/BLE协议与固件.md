@@ -19,7 +19,7 @@
 ## 2. 烧录固件（Arduino IDE）
 1. 装 **ESP32 板支持包**（Boards Manager → esp32 by Espressif），板选 **ESP32S3 Dev Module**。
 2. 库管理器装 **Adafruit BNO08x**（BLE 用板自带 `BLEDevice`，无需额外装）。
-3. 接线：BNO085 的 SDA/SCL 接 ESP32 默认 I2C（或改 `catune_node.ino` 顶部 `I2C_SDA/I2C_SCL`）；3V3、GND 接好。
+3. 接线（最小化，单节点，不用 TCA9548A）：BNO085 `VIN→3V3`、`GND→GND`、`SDA→GPIO8`、`SCL→GPIO9`（ESP32-S3）。经典 ESP32 改 21/22 并改 `catune_node.ino` 顶部 `I2C_SDA/I2C_SCL`。开机串口会跑 **I2C 扫描**，应看到 `0x4A <- BNO085`。
 4. 打开 `firmware/catune_node/catune_node.ino`，`NODE_ID` 单节点保持 `1`（胸）；编译上传。
 5. 串口看到「Catune-Node 广播中…」即成功。
 
