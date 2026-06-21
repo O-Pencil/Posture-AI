@@ -23,6 +23,7 @@ import {createGrowthTracker, GrowthState} from './src/posture/growth';
 import {createReminder} from './src/platform/reminder';
 import {createMockSource, MockScenario, MockSource} from './src/posture/mock';
 import {createSensorSource, SensorSource} from './src/platform/sensorSource';
+import {BleSensorSource, BleStatus, createBleSensorSource} from './src/platform/bleSensorSource';
 import {DashboardState} from './src/posture/types';
 import {Locale, LocaleProvider, useT} from './src/ui/i18n';
 
@@ -40,7 +41,7 @@ const INITIAL: DashboardState = {
   action: null,
 };
 
-type Mode = 'loading' | 'sensor' | 'mock';
+type Mode = 'loading' | 'sensor' | 'mock' | 'ble';
 
 function App(): React.JSX.Element {
   // 加载 Fredoka 字体（圆润可爱标题字体）
@@ -62,6 +63,8 @@ function App(): React.JSX.Element {
   // 引擎 / 成长累加器用 getter 读 locale → 切语言时调用 setLocale() 触发 emit
   const engineRef = useRef(createPostureEngine({getLocale: () => localeRef.current}));
   const sensorRef = useRef<SensorSource>(createSensorSource(engineRef.current));
+  // 硬件数据源（ESP32+BNO085 姿态带，BLE）；连上后取代手机 IMU
+  const bleRef = useRef<BleSensorSource>(createBleSensorSource(engineRef.current));
   const mockRef = useRef<MockSource>(createMockSource(engineRef.current));
   // 语义记忆（教练"懂你"）：本地存储，注入教练 prompt 个性化；写入由 onboarding/反馈钩子调用
   const memoryRef = useRef(createMemoryService());
@@ -77,8 +80,10 @@ function App(): React.JSX.Element {
   const [k, setK] = useState<DashboardState>(INITIAL);
   const [growth, setGrowth] = useState<GrowthState>(() => growthRef.current.getState());
   const [mode, setMode] = useState<Mode>('loading');
+  const [bleStatus, setBleStatus] = useState<BleStatus>('idle');
 
   const useSensor = async () => {
+    bleRef.current.stop();
     mockRef.current.stop();
     const ok = await sensorRef.current.start();
     if (ok) {
@@ -90,6 +95,7 @@ function App(): React.JSX.Element {
   };
 
   const useMock = () => {
+    bleRef.current.stop();
     sensorRef.current.stop();
     mockRef.current.resume();
     mockRef.current.start();
@@ -97,15 +103,30 @@ function App(): React.JSX.Element {
   };
 
   const pinScenario = (scenario: MockScenario) => {
+    bleRef.current.stop();
     sensorRef.current.stop();
     mockRef.current.start();
     mockRef.current.setScenario(scenario);
     setMode('mock');
   };
 
+  // 连硬件姿态带（BLE）；连上取代手机 IMU，连不上回退手机 IMU
+  const useBle = async () => {
+    sensorRef.current.stop();
+    mockRef.current.stop();
+    const ok = await bleRef.current.start();
+    if (ok) {
+      setMode('ble');
+    } else {
+      useSensor();
+    }
+  };
+  const calibrateBle = () => bleRef.current.calibrate();
+
   useEffect(() => {
     const unsubscribe = engineRef.current.subscribe(setK);
     const unsubscribeGrowth = growthRef.current.subscribe(setGrowth);
+    bleRef.current.onStatus(s => setBleStatus(s));
     adviceRef.current.start();
     growthRef.current.start();
     reminderRef.current.start();
@@ -122,6 +143,7 @@ function App(): React.JSX.Element {
       growthRef.current.stop();
       reminderRef.current.stop();
       sensorRef.current.stop();
+      bleRef.current.stop();
       mockRef.current.stop();
     };
     // refs 是 stable 的（useRef），无需列入 deps
@@ -156,8 +178,11 @@ function App(): React.JSX.Element {
         growth={growth}
         memory={memoryRef.current}
         mode={mode}
+        bleStatus={bleStatus}
         onUseSensor={useSensor}
         onUseMock={useMock}
+        onUseBle={useBle}
+        onCalibrate={calibrateBle}
         onScenario={pinScenario}
       />
     </LocaleProvider>
@@ -169,30 +194,45 @@ function AppContent({
   growth,
   memory,
   mode,
+  bleStatus,
   onUseSensor,
   onUseMock,
+  onUseBle,
+  onCalibrate,
   onScenario,
 }: {
   state: DashboardState;
   growth: GrowthState;
   memory: ReturnType<typeof createMemoryService>;
   mode: Mode;
+  bleStatus: BleStatus;
   onUseSensor: () => Promise<void>;
   onUseMock: () => void;
+  onUseBle: () => Promise<void>;
+  onCalibrate: () => void;
   onScenario: (s: MockScenario) => void;
 }): React.JSX.Element {
   const t = useT();
   const subtitle =
-    mode === 'sensor' ? t('settings.data.activeSensor') : mode === 'mock' ? t('settings.data.activeMock') : t('settings.data.loading');
+    mode === 'ble'
+      ? '数据源：硬件姿态带（BLE）'
+      : mode === 'sensor'
+      ? t('settings.data.activeSensor')
+      : mode === 'mock'
+      ? t('settings.data.activeMock')
+      : t('settings.data.loading');
   return (
     <AppShell
       state={state}
       growth={growth}
       memory={memory}
       mode={mode}
+      bleStatus={bleStatus}
       deskSubtitle={subtitle}
       onUseSensor={onUseSensor}
       onUseMock={onUseMock}
+      onUseBle={onUseBle}
+      onCalibrate={onCalibrate}
       onScenario={onScenario}
     />
   );

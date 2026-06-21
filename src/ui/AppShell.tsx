@@ -25,6 +25,7 @@ import {FanIcon, GaugeIcon, MonitorIcon, SettingsIcon} from './icons';
 import {MockScenario} from '../posture/mock';
 import {DashboardState, PostureAction} from '../posture/types';
 import {GrowthState} from '../posture/growth';
+import {BleStatus} from '../platform/bleSensorSource';
 import {MemoryService} from '../platform/memory/service';
 import {resumePendingDownloadIfNeeded} from '../mnn/modelDownloadService';
 import {useT} from './i18n';
@@ -34,13 +35,28 @@ type Props = {
   growth: GrowthState;
   memory: MemoryService;
   mode: DataMode;
+  bleStatus?: BleStatus;
   deskSubtitle?: string;
   onUseSensor: () => void;
   onUseMock: () => void;
+  onUseBle?: () => void;
+  onCalibrate?: () => void;
   onScenario: (s: MockScenario) => void;
 };
 
-export function AppShell({state, growth, memory, mode, deskSubtitle, onUseSensor, onUseMock, onScenario}: Props): React.JSX.Element {
+export function AppShell({
+  state,
+  growth,
+  memory,
+  mode,
+  bleStatus,
+  deskSubtitle,
+  onUseSensor,
+  onUseMock,
+  onUseBle,
+  onCalibrate,
+  onScenario,
+}: Props): React.JSX.Element {
   const t = useT();
   const TABS: Tab[] = useMemo(
     () => [
@@ -84,8 +100,11 @@ export function AppShell({state, growth, memory, mode, deskSubtitle, onUseSensor
           state={state}
           mode={mode}
           memory={memory}
+          bleStatus={bleStatus}
           onUseSensor={onUseSensor}
           onUseMock={onUseMock}
+          onUseBle={onUseBle}
+          onCalibrate={onCalibrate}
           onScenario={onScenario}
         />
       )}

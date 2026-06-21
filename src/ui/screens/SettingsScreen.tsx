@@ -25,14 +25,18 @@ import {AssessReadiness, checkAssessReadiness} from '../../assess/readiness';
 import {Locale, useLocale, useT} from '../i18n';
 import {IconCpu, IconBrain, IconBell, IconInfoCircle} from '@tabler/icons-react-native';
 
-export type DataMode = 'loading' | 'sensor' | 'mock';
+export type DataMode = 'loading' | 'sensor' | 'mock' | 'ble';
+export type BleStatusLite = 'idle' | 'scanning' | 'connecting' | 'connected' | 'error';
 
 type Props = {
   state: DashboardState;
   mode: DataMode;
   memory?: MemoryService;
+  bleStatus?: BleStatusLite;
   onUseSensor: () => void;
   onUseMock: () => void;
+  onUseBle?: () => void;
+  onCalibrate?: () => void;
   onScenario: (s: MockScenario) => void;
 };
 
@@ -316,9 +320,26 @@ function Pill({active, label, onPress}: {active: boolean; label: string; onPress
   );
 }
 
-export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onScenario}: Props): React.JSX.Element {
+export function SettingsScreen({
+  state,
+  mode,
+  memory,
+  bleStatus,
+  onUseSensor,
+  onUseMock,
+  onUseBle,
+  onCalibrate,
+  onScenario,
+}: Props): React.JSX.Element {
   const t = useT();
   const [mnnRefreshKey, setMnnRefreshKey] = useState(0);
+  const bleLabel: Record<string, string> = {
+    idle: '未连接',
+    scanning: '扫描中…',
+    connecting: '连接中…',
+    connected: '已连接',
+    error: '连接失败',
+  };
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.container}>
@@ -339,13 +360,25 @@ export function SettingsScreen({state, mode, memory, onUseSensor, onUseMock, onS
       </View>
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>{t('settings.data.title')}</Text>
-        <View style={styles.rowGap}>
+        <View style={styles.wrapRow}>
+          {onUseBle ? <Pill active={mode === 'ble'} label="硬件姿态带" onPress={onUseBle} /> : null}
           <Pill active={mode === 'sensor'} label={t('settings.data.sensor')} onPress={onUseSensor} />
           <Pill active={mode === 'mock'} label={t('settings.data.mock')} onPress={onUseMock} />
         </View>
-        <Text style={styles.hint}>
-          {mode === 'sensor' ? t('settings.data.activeSensor') : mode === 'mock' ? t('settings.data.activeMock') : t('settings.data.loading')}
-        </Text>
+        {mode === 'ble' ? (
+          <View>
+            <Text style={styles.hint}>硬件姿态带（ESP32+BNO085 · BLE）：{bleLabel[bleStatus ?? 'idle']}</Text>
+            {bleStatus === 'connected' && onCalibrate ? (
+              <Pressable style={styles.saveBtn} onPress={onCalibrate}>
+                <Text style={styles.saveBtnText}>坐直校准</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : (
+          <Text style={styles.hint}>
+            {mode === 'sensor' ? t('settings.data.activeSensor') : mode === 'mock' ? t('settings.data.activeMock') : t('settings.data.loading')}
+          </Text>
+        )}
       </Card>
 
       <Card style={styles.card}>

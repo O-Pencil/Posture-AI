@@ -12,11 +12,17 @@
       "infoPlist": {
         "NSMotionUsageDescription": "用于读取手机姿态（倾斜角度）来演示坐姿评估。",
         "NSCameraUsageDescription": "用于拍摄侧身坐姿照片做 AI 体态评估。",
-        "NSPhotoLibraryUsageDescription": "用于从相册选择侧身坐姿照片做 AI 体态评估。"
+        "NSPhotoLibraryUsageDescription": "用于从相册选择侧身坐姿照片做 AI 体态评估。",
+        "NSBluetoothAlwaysUsageDescription": "用于连接坐姿姿态带（ESP32+BNO085）读取体态数据。"
       }
     },
     "android": {
-      "package": "com.catune"
+      "package": "com.catune",
+      "permissions": [
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro"
