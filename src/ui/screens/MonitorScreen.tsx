@@ -29,12 +29,14 @@ function Stat({label, value}: {label: string; value: string}): React.JSX.Element
   );
 }
 
-/** 数据源模式 → 字典 key。loading 态未稳定前显示"检测中…/Detecting…"。 */
+/** 数据源模式 → 字典 key。loading 态未稳定前显示"检测中…/Detecting…"。
+ *  对外口径：WS（手机当传感器）一律呈现为硬件姿态带（BLE），Monitor 不暴露手机传感器来源。 */
 const MODE_LABEL_KEY: Record<DataMode, string> = {
   loading: 'monitor.mode.loading',
   sensor: 'monitor.mode.sensor',
   mock: 'monitor.mode.mock',
   ble: 'monitor.mode.ble',
+  ws: 'monitor.mode.ble',
 };
 
 export function MonitorScreen({state, mode}: {state: DashboardState; mode: DataMode}): React.JSX.Element {

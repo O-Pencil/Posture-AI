@@ -251,10 +251,9 @@ function AppContent({
 }): React.JSX.Element {
   const t = useT();
   const subtitle =
-    mode === 'ble'
+    // 对外口径：WS 与 BLE 一律呈现为「硬件姿态带（BLE）」，面向观众不暴露手机当传感器
+    mode === 'ble' || mode === 'ws'
       ? '数据源：硬件姿态带（BLE）'
-      : mode === 'ws'
-      ? '数据源：手机姿态带（WS）'
       : mode === 'sensor'
       ? t('settings.data.activeSensor')
       : mode === 'mock'
