@@ -227,7 +227,7 @@ function AboutSection() {
       <div className="skeuo-card p-4">
         <div className="flex items-center gap-3 mb-4">
           <img
-            src="/logo/LOGO.svg"
+            src="/logo/LOGO%20(1).svg"
             alt="CATUNE logo"
             className="size-12 rounded-2xl flex-shrink-0 object-cover"
             style={{ boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)" }}

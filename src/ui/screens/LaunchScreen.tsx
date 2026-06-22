@@ -1,16 +1,18 @@
 /**
  * @file LaunchScreen.tsx
- * @description 欢迎启动页：Aurora 呼吸绿光 + LOGO-2 + 引导文案 + Get Start!
+ * @description 欢迎启动页：welcome.png 背景 + Logo + 引导文案 + Get Start!
  */
 import React from 'react';
-import {Image, Pressable, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 
 import {APP_NAME} from '../../constants/appMeta';
-import {Aurora} from '../components/aurora/Aurora';
+import {AppSafeArea} from '../components/AppSafeArea';
+import {AppLogo} from '../components/AppLogo';
+import {WelcomeBreathOverlay} from '../components/WelcomeBreathOverlay';
 import {theme} from '../theme';
 import {useT} from '../i18n';
 
-const LAUNCH_LOGO = require('../../../public/logo/LOGO-2.png');
+const WELCOME_BG = require('../../../public/welcome.png');
 
 type Props = {
   onStart: () => void;
@@ -20,12 +22,13 @@ export function LaunchScreen({onStart}: Props): React.JSX.Element {
   const t = useT();
 
   return (
-    <SafeAreaView style={styles.root}>
-      <View style={styles.auroraWrap}>
-        <Aurora />
+    <AppSafeArea style={styles.root}>
+      <View style={styles.bgWrap}>
+        <Image source={WELCOME_BG} style={styles.bg} resizeMode="cover" accessibilityIgnoresInvertColors />
+        <WelcomeBreathOverlay />
       </View>
       <View style={styles.content}>
-        <Image source={LAUNCH_LOGO} style={styles.logo} resizeMode="contain" accessibilityLabel="CATUNE logo" />
+        <AppLogo size={132} style={styles.logo} />
         <Text style={styles.brand}>{APP_NAME}</Text>
         <Text style={styles.tagline}>{t('launch.tagline')}</Text>
       </View>
@@ -38,7 +41,7 @@ export function LaunchScreen({onStart}: Props): React.JSX.Element {
           <Text style={styles.ctaText}>{t('launch.cta')}</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </AppSafeArea>
   );
 }
 
@@ -47,12 +50,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  auroraWrap: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '52%',
+  bgWrap: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  bg: {
+    width: '100%',
+    height: '100%',
   },
   content: {
     flex: 1,
@@ -62,9 +65,6 @@ const styles = StyleSheet.create({
     paddingTop: theme.spacing.xxxl,
   },
   logo: {
-    width: 132,
-    height: 132,
-    borderRadius: 32,
     marginBottom: theme.spacing.xl,
   },
   brand: {

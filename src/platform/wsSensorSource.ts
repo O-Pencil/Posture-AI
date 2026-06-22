@@ -2,7 +2,7 @@
  * @file wsSensorSource.ts
  * @description 保底数据源：通过 WebSocket 接收「另一台手机(浏览器)」发来的姿态角（JSON {nodeId,pitch,roll}），
  *   按映射喂 engine.update。ESP32 没烧通时用——一台手机贴背当姿态带，另一台跑 App。详见 scripts/ws-relay/README.md。
- *   与 sensorSource(手机 IMU)/ble(硬件)/mock 并列；连上后取代手机 IMU。映射默认 node-T(背)：pitch→胸、roll→腰。
+ *   与 sensorSource(手机 IMU)/ble(硬件)/mock 并列；连上后取代手机 IMU。映射默认 node-T(背)：pitch→胸、roll→腰、颈由胸推算。
  *
  * [WHO] 导出 `WsStatus`/`WsSensorSource`/`createWsSensorSource`
  * [FROM] 依赖 全局 `WebSocket`(RN 内置)、./wsConfig(地址/映射)、../posture/engine(PostureEngine 类型)

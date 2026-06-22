@@ -8,8 +8,10 @@
  * [HERE] src/ui/AppShell.tsx · 应用外壳（Tab 导航）
  */
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Animated, Easing, SafeAreaView, StyleSheet} from 'react-native';
+import {Animated, Easing, StyleSheet} from 'react-native';
 import {StatusBar} from 'expo-status-bar';
+
+import {AppSafeArea} from './components/AppSafeArea';
 
 import {ModelDownloadBanner} from './components/ModelDownloadBanner';
 import {Tab, TabBar} from './components/TabBar';
@@ -21,6 +23,7 @@ import {TrainingScreen} from './screens/TrainingScreen';
 import {OnboardingScreen} from './screens/OnboardingScreen';
 import {AssessScreen} from './screens/AssessScreen';
 import {theme} from './theme';
+import {shellBackgroundForTab} from './theme/shellChrome';
 import {FanIcon, GaugeIcon, MonitorIcon, SettingsIcon} from './icons';
 import {MockScenario} from '../posture/mock';
 import {DashboardState, PostureAction} from '../posture/types';
@@ -38,11 +41,14 @@ type Props = {
   mode: DataMode;
   bleStatus?: BleStatus;
   wsStatus?: WsStatus;
+  wsSendStatus?: WsStatus;
+  wsSendInfo?: string;
   deskSubtitle?: string;
   onUseSensor: () => void;
   onUseMock: () => void;
   onUseBle?: () => void;
   onUseWs?: () => void;
+  onUseWsSend?: () => void;
   onCalibrate?: () => void;
   onScenario: (s: MockScenario) => void;
 };
@@ -54,11 +60,14 @@ export function AppShell({
   mode,
   bleStatus,
   wsStatus,
+  wsSendStatus,
+  wsSendInfo,
   deskSubtitle,
   onUseSensor,
   onUseMock,
   onUseBle,
   onUseWs,
+  onUseWsSend,
   onCalibrate,
   onScenario,
 }: Props): React.JSX.Element {
@@ -104,8 +113,10 @@ export function AppShell({
     memory.ready.then(() => setOnboarded(memory.isOnboarded()));
   }, [memory]);
 
+  const shellBg = shellBackgroundForTab(tab);
+
   return (
-    <SafeAreaView style={styles.root}>
+    <AppSafeArea style={[styles.root, {backgroundColor: shellBg}]}>
       <StatusBar style="dark" />
       <ModelDownloadBanner onOpenSettings={() => setTab('settings')} />
       {tab === 'desk' && (
@@ -136,10 +147,13 @@ export function AppShell({
           memory={memory}
           bleStatus={bleStatus}
           wsStatus={wsStatus}
+          wsSendStatus={wsSendStatus}
+          wsSendInfo={wsSendInfo}
           onUseSensor={onUseSensor}
           onUseMock={onUseMock}
           onUseBle={onUseBle}
           onUseWs={onUseWs}
+          onUseWsSend={onUseWsSend}
           onCalibrate={onCalibrate}
           onScenario={onScenario}
         />
@@ -165,10 +179,10 @@ export function AppShell({
           }}
         />
       ) : null}
-    </SafeAreaView>
+    </AppSafeArea>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: theme.colors.surface, fontFamily: theme.font.body},
+  root: {flex: 1, fontFamily: theme.font.body},
 });

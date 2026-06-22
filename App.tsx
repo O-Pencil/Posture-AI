@@ -12,6 +12,7 @@
  */
 import React, {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Platform, View} from 'react-native';
+import {SafeAreaProvider, initialWindowMetrics} from 'react-native-safe-area-context';
 import {useFonts, Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold} from '@expo-google-fonts/fredoka';
 import {Geist_400Regular, Geist_500Medium, Geist_700Bold} from '@expo-google-fonts/geist';
 import {Quicksand_600SemiBold, Quicksand_700Bold} from '@expo-google-fonts/quicksand';
@@ -31,6 +32,7 @@ import {createWsSensorSource, WsSensorSource, WsStatus} from './src/platform/wsS
 import {createWsSenderSource, WsSenderSource} from './src/platform/wsSenderSource';
 import {DashboardState} from './src/posture/types';
 import {Locale, LocaleProvider, tr, useT} from './src/ui/i18n';
+import * as Device from 'expo-device';
 
 function buildInitialState(locale: Locale): DashboardState {
   return {
@@ -78,7 +80,7 @@ function App(): React.JSX.Element {
   const bleRef = useRef<BleSensorSource>(createBleSensorSource(engineRef.current));
   // 保底数据源（另一台手机当姿态带，WS）；ESP32 没烧通时用
   const wsRef = useRef<WsSensorSource>(createWsSensorSource(engineRef.current));
-  const wsSenderRef = useRef<WsSenderSource>(createWsSenderSource());
+  const wsSenderRef = useRef<WsSenderSource>(createWsSenderSource(engineRef.current));
   const mockRef = useRef<MockSource>(createMockSource(engineRef.current));
   // 语义记忆（教练"懂你"）：本地存储，注入教练 prompt 个性化；写入由 onboarding/反馈钩子调用
   const memoryRef = useRef(createMemoryService());
@@ -97,6 +99,7 @@ function App(): React.JSX.Element {
   const [bleStatus, setBleStatus] = useState<BleStatus>('idle');
   const [wsStatus, setWsStatus] = useState<WsStatus>('idle');
   const [wsSendStatus, setWsSendStatus] = useState<WsStatus>('idle');
+  const [wsSendInfo, setWsSendInfo] = useState<string | undefined>();
 
   // 停掉除当前要启用之外的所有数据源（数据源互斥）
   const stopOthers = (keep: 'sensor' | 'mock' | 'ble' | 'ws' | 'ws-send') => {
@@ -165,11 +168,8 @@ function App(): React.JSX.Element {
     const ok = await wsSenderRef.current.start();
     if (ok) {
       setMode('ws-send');
-    } else if (Platform.OS === 'web') {
-      useMockFallback();
-    } else {
-      useSensor();
     }
+    // 失败时不回退手机传感器，保留「姿态发送方」可选并显示 wsSendStatus 错误
   };
 
   // 坐直校准：作用于当前激活的姿态带（BLE / WS 接收）
@@ -193,12 +193,17 @@ function App(): React.JSX.Element {
     const unsubscribeGrowth = growthRef.current.subscribe(setGrowth);
     bleRef.current.onStatus(s => setBleStatus(s));
     wsRef.current.onStatus(s => setWsStatus(s));
-    wsSenderRef.current.onStatus(s => setWsSendStatus(s));
+    wsSenderRef.current.onStatus((s, info) => {
+      setWsSendStatus(s);
+      setWsSendInfo(info);
+    });
     adviceRef.current.start();
     growthRef.current.start();
     reminderRef.current.start();
-    // Web 无本机陀螺仪：直接当 WS 接收端（Desk/Monitor 看 iPhone 发来的姿态）
-    void (Platform.OS === 'web' ? useWs() : useSensor());
+    // Web / 安卓模拟器：WS 接收；iPhone 真机：本机 IMU（发送方在 Settings 手动切）
+    const boot =
+      Platform.OS === 'web' || (Platform.OS === 'android' && Device.isDevice === false) ? useWs() : useSensor();
+    void boot;
     memoryRef.current.ready.then(() => {
       const saved = memoryRef.current.locale();
       localeRef.current = saved;
@@ -236,41 +241,38 @@ function App(): React.JSX.Element {
     void saveLaunchSeen(true).then(() => setLaunchSeen(true));
   };
 
-  // 字体 / 启动页状态加载中
-  if (!fontsLoaded || launchSeen === null) {
-    return (
-      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF'}}>
-        <ActivityIndicator size="small" color="#141414" />
-      </View>
-    );
-  }
-
-  if (!launchSeen) {
-    return (
-      <LocaleProvider locale={locale} onChange={handleLocaleChange}>
-        <LaunchScreen onStart={handleLaunchStart} />
-      </LocaleProvider>
-    );
-  }
-
   return (
-    <LocaleProvider locale={locale} onChange={handleLocaleChange}>
-      <AppContent
-        state={k}
-        growth={growth}
-        memory={memoryRef.current}
-        mode={mode}
-        bleStatus={bleStatus}
-        wsStatus={mode === 'ws-send' ? wsSendStatus : wsStatus}
-        onUseSensor={useSensor}
-        onUseMock={useMock}
-        onUseBle={useBle}
-        onUseWs={useWs}
-        onUseWsSend={useWsSend}
-        onCalibrate={calibrate}
-        onScenario={pinScenario}
-      />
-    </LocaleProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      {!fontsLoaded || launchSeen === null ? (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF'}}>
+          <ActivityIndicator size="small" color="#141414" />
+        </View>
+      ) : !launchSeen ? (
+        <LocaleProvider locale={locale} onChange={handleLocaleChange}>
+          <LaunchScreen onStart={handleLaunchStart} />
+        </LocaleProvider>
+      ) : (
+        <LocaleProvider locale={locale} onChange={handleLocaleChange}>
+          <AppContent
+            state={k}
+            growth={growth}
+            memory={memoryRef.current}
+            mode={mode}
+            bleStatus={bleStatus}
+            wsStatus={wsStatus}
+            wsSendStatus={wsSendStatus}
+            wsSendInfo={wsSendInfo}
+            onUseSensor={useSensor}
+            onUseMock={useMock}
+            onUseBle={useBle}
+            onUseWs={useWs}
+            onUseWsSend={useWsSend}
+            onCalibrate={calibrate}
+            onScenario={pinScenario}
+          />
+        </LocaleProvider>
+      )}
+    </SafeAreaProvider>
   );
 }
 
@@ -281,6 +283,8 @@ function AppContent({
   mode,
   bleStatus,
   wsStatus,
+  wsSendStatus,
+  wsSendInfo,
   onUseSensor,
   onUseMock,
   onUseBle,
@@ -295,6 +299,8 @@ function AppContent({
   mode: Mode;
   bleStatus: BleStatus;
   wsStatus: WsStatus;
+  wsSendStatus: WsStatus;
+  wsSendInfo?: string;
   onUseSensor: () => Promise<void>;
   onUseMock: () => void;
   onUseBle: () => Promise<void>;
@@ -308,13 +314,8 @@ function AppContent({
     // 对外口径：WS 与 BLE 一律呈现为「硬件姿态带（BLE）」，面向观众不暴露手机当传感器
     mode === 'ble' || mode === 'ws'
       ? '数据源：硬件姿态带（BLE）'
-<<<<<<< HEAD
-=======
-      : mode === 'ws'
-      ? '数据源：手机姿态带（WS）'
       : mode === 'ws-send'
       ? '本机：姿态发送方（WS）'
->>>>>>> e4956a0 (feat(branding): 正式化 CATUNE 品牌、版本号与 Android 覆盖升级)
       : mode === 'sensor'
       ? t('settings.data.activeSensor')
       : mode === 'mock'
@@ -328,6 +329,8 @@ function AppContent({
       mode={mode}
       bleStatus={bleStatus}
       wsStatus={wsStatus}
+      wsSendStatus={wsSendStatus}
+      wsSendInfo={wsSendInfo}
       deskSubtitle={subtitle}
       onUseSensor={onUseSensor}
       onUseMock={onUseMock}

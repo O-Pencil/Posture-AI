@@ -1,11 +1,11 @@
 /**
  * @file AppLogo.tsx
- * @description CATUNE 品牌 Logo（三端通用，源自 public/logo/LOGO.png）。
+ * @description CATUNE 品牌 Logo（Web 用 LOGO (1).svg，原生用同源 PNG）。
  */
 import React from 'react';
-import {Image, ImageStyle, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
+import {Image, ImageStyle, Platform, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 
-const LOGO_SOURCE = require('../../../public/logo/LOGO.png');
+import {LOGO_PNG, LOGO_SVG_URI} from '../../constants/logo';
 
 type Props = {
   size?: number;
@@ -15,10 +15,12 @@ type Props = {
 
 export function AppLogo({size = 48, style, imageStyle}: Props): React.JSX.Element {
   const radius = Math.round(size * 0.24);
+  const source = Platform.OS === 'web' ? {uri: LOGO_SVG_URI} : LOGO_PNG;
+
   return (
     <View style={[styles.wrap, {width: size, height: size, borderRadius: radius}, style]}>
       <Image
-        source={LOGO_SOURCE}
+        source={source}
         style={[{width: size, height: size, borderRadius: radius}, imageStyle]}
         resizeMode="cover"
         accessibilityLabel="CATUNE logo"

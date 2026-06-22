@@ -91,17 +91,19 @@ android {
     namespace 'com.catune'
 
     def versionProps = new Properties()
-    def versionPropsFile = rootProject.file('../version.properties')
-    if (versionPropsFile.canRead()) {
-        versionProps.load(new FileInputStream(versionPropsFile))
+    def versionPropsFile = new File(projectRoot, 'version.properties')
+    if (versionPropsFile.exists()) {
+        versionPropsFile.withInputStream { versionProps.load(it) }
     }
+    def appVersionCode = (versionProps.get('VERSION_CODE') ?: '1').toString().trim().toInteger()
+    def appVersionName = (versionProps.get('VERSION_NAME') ?: '1.0.0').toString().trim()
 
     defaultConfig {
         applicationId 'com.catune'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (versionProps['VERSION_CODE'] ?: '1').toInteger()
-        versionName versionProps['VERSION_NAME'] ?: '1.0.0'
+        versionCode appVersionCode
+        versionName appVersionName
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
 

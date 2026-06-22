@@ -38,6 +38,8 @@ type Props = {
   memory?: MemoryService;
   bleStatus?: BleStatusLite;
   wsStatus?: WsStatusLite;
+  wsSendStatus?: WsStatusLite;
+  wsSendInfo?: string;
   onUseSensor: () => void;
   onUseMock: () => void;
   onUseBle?: () => void;
@@ -172,16 +174,24 @@ const WS_MAPPING_HINT: Record<WsMapping, string> = {
   '3-axis': 'pitch→颈+胸 · roll→腰',
 };
 
-/** 保底数据源：另一台手机当姿态带（WS）。自管 url/映射持久化；连接/校准走 App。 */
+type WsRole = 'receive' | 'send';
+
+/** 保底数据源：另一台手机当姿态带（WS）。角色与连接分离，避免 iPhone 误点接收后切不回发送。 */
 function WsConfigCard({
+  wsRole,
   mode,
   wsStatus,
+  wsSendStatus,
+  wsSendInfo,
   onUseWs,
   onUseWsSend,
   onCalibrate,
 }: {
+  wsRole: WsRole;
   mode: DataMode;
   wsStatus?: WsStatusLite;
+  wsSendStatus?: WsStatusLite;
+  wsSendInfo?: string;
   onUseWs?: () => void;
   onUseWsSend?: () => void;
   onCalibrate?: () => void;
@@ -196,7 +206,9 @@ function WsConfigCard({
     return null;
   }
 
-  const isSender = mode === 'ws-send';
+  const isSender = wsRole === 'send';
+  const activeStatus = isSender ? wsSendStatus : wsStatus;
+  const connected = isSender ? mode === 'ws-send' && wsSendStatus === 'connected' : mode === 'ws' && wsStatus === 'connected';
 
   const setUrl = (url: string) => {
     const next = {...cfg, url};
@@ -240,15 +252,18 @@ function WsConfigCard({
       ) : null}
       {isSender && onUseWsSend ? (
         <Pressable style={styles.saveBtn} onPress={onUseWsSend}>
-          <Text style={styles.saveBtnText}>{mode === 'ws-send' && wsStatus === 'connected' ? '重新发送' : '开始发送'}</Text>
+          <Text style={styles.saveBtnText}>{connected ? '重新发送' : '开始发送'}</Text>
         </Pressable>
       ) : onUseWs ? (
         <Pressable style={styles.saveBtn} onPress={onUseWs}>
-          <Text style={styles.saveBtnText}>{mode === 'ws' ? '重新连接' : '连接'}</Text>
+          <Text style={styles.saveBtnText}>{connected ? '重新连接' : '连接'}</Text>
         </Pressable>
       ) : null}
-      <Text style={styles.hint}>状态：{WS_STATUS_LABEL[wsStatus ?? 'idle']}</Text>
-      {mode === 'ws' && wsStatus === 'connected' && onCalibrate ? (
+      <Text style={styles.hint}>
+        状态：{WS_STATUS_LABEL[activeStatus ?? 'idle']}
+        {isSender && activeStatus === 'error' && wsSendInfo ? `（${wsSendInfo}）` : ''}
+      </Text>
+      {!isSender && mode === 'ws' && wsStatus === 'connected' && onCalibrate ? (
         <Pressable style={styles.saveBtn} onPress={onCalibrate}>
           <Text style={styles.saveBtnText}>坐直校准</Text>
         </Pressable>
@@ -454,6 +469,8 @@ export function SettingsScreen({
   memory,
   bleStatus,
   wsStatus,
+  wsSendStatus,
+  wsSendInfo,
   onUseSensor,
   onUseMock,
   onUseBle,
@@ -464,6 +481,17 @@ export function SettingsScreen({
 }: Props): React.JSX.Element {
   const t = useT();
   const [mnnRefreshKey, setMnnRefreshKey] = useState(0);
+  const defaultWsRole: WsRole = Platform.OS === 'web' ? 'receive' : 'send';
+  const [wsRole, setWsRole] = useState<WsRole>(defaultWsRole);
+
+  useEffect(() => {
+    if (mode === 'ws-send') {
+      setWsRole('send');
+    } else if (mode === 'ws') {
+      // iPhone 只做发送端；误连接收后仍默认展示发送 UI
+      setWsRole(Platform.OS === 'ios' ? 'send' : 'receive');
+    }
+  }, [mode]);
   // BLE 状态 → i18n key。键名与 BleStatusLite 严格对齐；空值兜底 idle。
   const BLE_STATUS_KEY: Record<BleStatusLite, string> = {
     idle: 'settings.ble.status.idle',
@@ -494,8 +522,15 @@ export function SettingsScreen({
         <Text style={styles.cardTitle}>{t('settings.data.title')}</Text>
         <View style={styles.wrapRow}>
           {onUseBle ? <Pill active={mode === 'ble'} label={t('settings.data.hardwareBand')} onPress={onUseBle} /> : null}
-          {onUseWs ? <Pill active={mode === 'ws'} label="手机姿态带" onPress={onUseWs} /> : null}
-          {onUseWsSend ? <Pill active={mode === 'ws-send'} label="姿态发送方" onPress={onUseWsSend} /> : null}
+          {Platform.OS === 'web' && onUseWs ? (
+            <Pill active={wsRole === 'receive'} label="手机姿态带" onPress={() => setWsRole('receive')} />
+          ) : null}
+          {Platform.OS === 'android' && onUseWs ? (
+            <Pill active={wsRole === 'receive'} label="手机姿态带" onPress={() => setWsRole('receive')} />
+          ) : null}
+          {onUseWsSend ? (
+            <Pill active={wsRole === 'send'} label="姿态发送方" onPress={() => setWsRole('send')} />
+          ) : null}
           <Pill active={mode === 'sensor'} label={t('settings.data.sensor')} onPress={onUseSensor} />
           <Pill active={mode === 'mock'} label={t('settings.data.mock')} onPress={onUseMock} />
         </View>
@@ -523,7 +558,16 @@ export function SettingsScreen({
         )}
       </Card>
 
-      <WsConfigCard mode={mode} wsStatus={wsStatus} onUseWs={onUseWs} onUseWsSend={onUseWsSend} onCalibrate={onCalibrate} />
+      <WsConfigCard
+        wsRole={wsRole}
+        mode={mode}
+        wsStatus={wsStatus}
+        wsSendStatus={wsSendStatus}
+        wsSendInfo={wsSendInfo}
+        onUseWs={onUseWs}
+        onUseWsSend={onUseWsSend}
+        onCalibrate={onCalibrate}
+      />
 
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>{t('settings.mock.title')}</Text>

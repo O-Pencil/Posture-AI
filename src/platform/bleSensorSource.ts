@@ -12,6 +12,7 @@
  */
 import {PermissionsAndroid, Platform} from 'react-native';
 import type {PostureEngine} from '../posture/engine';
+import {inferNeckFromThor} from '../posture/spineKinematics';
 
 /** BLE 协议常量（App 与 ESP32 固件必须一致）。 */
 export const CATUNE_BLE = {
@@ -129,6 +130,9 @@ export function createBleSensorSource(engine: PostureEngine): BleSensorSource {
       latest.lumbar = relR;
     } else if (nodeId === 2) {
       latest.lumbar = relR; // 腰 L5（覆盖单节点估计）
+    }
+    if (!(0 in lastRaw)) {
+      latest.neck = inferNeckFromThor(latest.thor);
     }
     engine.update(latest.neck, latest.thor, latest.lumbar);
   };

@@ -101,6 +101,8 @@ const ffmpegArgs = [
   join(framesDir, pattern),
   '-frames:v',
   '1',
+  '-update',
+  '1',
   '-vf',
   `scale=${cellW}:${cellH}:flags=lanczos,tile=${cols}x${rows}`,
   atlasPath,

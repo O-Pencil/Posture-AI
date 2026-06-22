@@ -1,39 +1,58 @@
-# 两台手机保底方案（WS）：手机当姿态带
+# 两台手机保底方案（WS）：iPhone 发送 · App/Web 接收
 
-ESP32 没烧通时的保底链路：**iPhone(传感器,浏览器) → Mac 中转 → 安卓 App**。映射 **背 = Node-T**（前倾=驼背、左右倾=侧倾）。
+ESP32 没烧通时的保底链路：**iPhone App(姿态发送方) → Mac 中转 → Catune Web 或安卓 App 接收**。映射 **背 = Node-T**（前倾=驼背、左右倾=侧倾）。
 
 ```
-iPhone 浏览器(ws-sender.html)  ──ngrok https/wss──►  Mac: server.mjs  ──ws://内网IP──►  安卓 App(wsSensorSource)
-   读 DeviceOrientation                              中转广播                          engine.update(0, pitch, roll)
+iPhone App(姿态发送方)  ──ws://Mac:8787──►  server.mjs  ──ws──►  Catune Web（Desk/Monitor）
+                                    └──ws──►  安卓 App（手机姿态带）
 ```
 
-## 跑起来（Mac）
+## 推荐用法（无需 ngrok、无需单独 receiver 页）
+
+### 1. Mac 启动中转
 ```bash
 cd scripts/ws-relay
 npm i ws                 # 仅首次
-node server.mjs          # 启动后会打印 ws://<内网IP>:8787
+node server.mjs
 ```
 
-## iPhone 当传感器（关键：iOS 强制 HTTPS）
-iOS Safari 只有 **HTTPS** 才允许读运动传感器，所以发送页要走 HTTPS：
+### 2. Mac 打开 Catune Web 当接收方（完整 App UI）
 ```bash
-ngrok http 8787          # 另开一个终端
+cd ../..                 # Posture-AI 根目录
+npm run web              # 默认 http://localhost:8083
 ```
-- iPhone 打开 ngrok 给的 **https 地址** → 点「开始（授权运动）」→ 允许「运动与方向」。
-- 竖着贴上背、屏幕朝外。页面实时显示 `pitch / roll`，状态变「发送中」即通。
+- 浏览器打开 Expo Web 地址
+- **自动**连 `ws://127.0.0.1:8787`，模式为「手机姿态带」
+- 看 **Desk**（猫/分数）和 **Monitor**（颈胸腰角度日志）
 
-> 没有 ngrok 也可用自签 HTTPS，但 ngrok 最省事。安卓 App 是**原生**，不受 HTTPS 限制，直接用 `ws://内网IP:8787`。
+### 3. iPhone 当传感器
+- Catune App → Settings → WS 地址填 `ws://<Mac内网IP>:8787`
+- 选 **「姿态发送方」** → 开始发送 → 竖握贴背
+- Mac Web 上猫和角度应随 iPhone 倾斜变化
 
-## 安卓 App 接收
-1. Settings → 「手机姿态带（WS）」卡片 → 填 `ws://<Mac内网IP>:8787`（server 启动时打印的那个）。
-2. 选映射：**单点·背(Node-T)**（推荐，前倾=驼背/侧倾）或 **单机·演三态**（pitch 同时给颈+胸，一台手机演满三态）。
-3. 点「连接」→ 状态「已连接」→ 坐直点「坐直校准」归零 → 倾身体，看 Desk 猫/分数/Monitor 日志动。
+### 4. 安卓真机（可选，与 Web 接收逻辑相同）
+- Settings → **手机姿态带** → 同一 ws 地址 → **单点·背(Node-T)** → 连接 → 坐直校准
+
+## 备选：浏览器当传感器（需 ngrok，无 App 时）
+
+iOS Safari 只有 **HTTPS** 才允许读运动传感器：
+```bash
+ngrok http 8787
+```
+- iPhone 打开 ngrok **https** 地址（`/` 发送页）
+
+Mac 桌面模拟：`http://localhost:8787/?mode=simulate`
 
 ## 协议（WS，JSON）
+
 | 字段 | 含义 |
 | --- | --- |
 | `nodeId` | 1 = 胸 Node-T（保底单点） |
-| `pitch` | 前后俯仰（°，iOS beta） → 胸(驼背) |
-| `roll` | 左右翻滚（°，iOS gamma） → 腰(侧倾) |
+| `pitch` | 前后俯仰（°） → 胸(驼背) |
+| `roll` | 左右翻滚（°） → 腰(侧倾) |
 
-> 与硬件 BLE 是两条独立保底链路：BLE 走二进制四元数（[docs/BLE协议与固件.md](../../docs/BLE协议与固件.md)），WS 走 JSON 欧拉角。两者最终都汇到同一个 `engine.update`，引擎/AI/UI 零改动。
+接收端 node-T 映射（`wsSensorSource.ts` / Web App 共用）：
+- 胸 = pitch − baseline，腰 = roll − baseline
+- 颈 = 生理曲度残余 8° + 胸椎超出 deadband 部分的 0.55 倍联动（`spineKinematics.ts`）
+
+> 与硬件 BLE 是两条独立保底链路，最终都汇到同一个 `engine.update`。
