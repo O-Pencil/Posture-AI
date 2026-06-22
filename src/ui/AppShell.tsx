@@ -26,6 +26,7 @@ import {MockScenario} from '../posture/mock';
 import {DashboardState, PostureAction} from '../posture/types';
 import {GrowthState} from '../posture/growth';
 import {BleStatus} from '../platform/bleSensorSource';
+import {WsStatus} from '../platform/wsSensorSource';
 import {MemoryService} from '../platform/memory/service';
 import {resumePendingDownloadIfNeeded} from '../mnn/modelDownloadService';
 import {useT} from './i18n';
@@ -36,10 +37,12 @@ type Props = {
   memory: MemoryService;
   mode: DataMode;
   bleStatus?: BleStatus;
+  wsStatus?: WsStatus;
   deskSubtitle?: string;
   onUseSensor: () => void;
   onUseMock: () => void;
   onUseBle?: () => void;
+  onUseWs?: () => void;
   onCalibrate?: () => void;
   onScenario: (s: MockScenario) => void;
 };
@@ -50,10 +53,12 @@ export function AppShell({
   memory,
   mode,
   bleStatus,
+  wsStatus,
   deskSubtitle,
   onUseSensor,
   onUseMock,
   onUseBle,
+  onUseWs,
   onCalibrate,
   onScenario,
 }: Props): React.JSX.Element {
@@ -101,9 +106,11 @@ export function AppShell({
           mode={mode}
           memory={memory}
           bleStatus={bleStatus}
+          wsStatus={wsStatus}
           onUseSensor={onUseSensor}
           onUseMock={onUseMock}
           onUseBle={onUseBle}
+          onUseWs={onUseWs}
           onCalibrate={onCalibrate}
           onScenario={onScenario}
         />

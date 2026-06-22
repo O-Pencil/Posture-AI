@@ -21,21 +21,25 @@ import {MemoryService} from '../../platform/memory/service';
 import {MemoryItem, MemoryType} from '../../platform/memory/types';
 import {loadAssessConfig, saveAssessConfig} from '../../assess/config';
 import {AssessBackend, AssessConfig, DEFAULT_ASSESS_CONFIG} from '../../assess/types';
+import {DEFAULT_WS_CONFIG, loadWsConfig, saveWsConfig, WsConfig, WsMapping} from '../../platform/wsConfig';
 import {AssessReadiness, checkAssessReadiness} from '../../assess/readiness';
 import {Locale, useLocale, useT} from '../i18n';
 import {IconCpu, IconBrain, IconBell, IconInfoCircle} from '@tabler/icons-react-native';
 
-export type DataMode = 'loading' | 'sensor' | 'mock' | 'ble';
+export type DataMode = 'loading' | 'sensor' | 'mock' | 'ble' | 'ws';
 export type BleStatusLite = 'idle' | 'scanning' | 'connecting' | 'connected' | 'error';
+export type WsStatusLite = 'idle' | 'connecting' | 'connected' | 'error';
 
 type Props = {
   state: DashboardState;
   mode: DataMode;
   memory?: MemoryService;
   bleStatus?: BleStatusLite;
+  wsStatus?: WsStatusLite;
   onUseSensor: () => void;
   onUseMock: () => void;
   onUseBle?: () => void;
+  onUseWs?: () => void;
   onCalibrate?: () => void;
   onScenario: (s: MockScenario) => void;
 };
@@ -144,6 +148,84 @@ function AssessConfigCard(): React.JSX.Element {
         <Text style={styles.saveBtnText}>{saved ? t('common.save') + ' ✓' : t('common.save')}</Text>
       </Pressable>
       <Text style={styles.hint}>{t('settings.assess.privacy')}</Text>
+    </Card>
+  );
+}
+
+const WS_STATUS_LABEL: Record<string, string> = {
+  idle: '未连接',
+  connecting: '连接中…',
+  connected: '已连接',
+  error: '连接失败',
+};
+
+const WS_MAPPING_LABEL: Record<WsMapping, string> = {
+  'node-T': '单点·背(Node-T)',
+  '3-axis': '单机·演三态',
+};
+
+/** 保底数据源：另一台手机当姿态带（WS）。自管 url/映射持久化；连接/校准走 App。 */
+function WsConfigCard({
+  mode,
+  wsStatus,
+  onUseWs,
+  onCalibrate,
+}: {
+  mode: DataMode;
+  wsStatus?: WsStatusLite;
+  onUseWs?: () => void;
+  onCalibrate?: () => void;
+}): React.JSX.Element | null {
+  const [cfg, setCfg] = useState<WsConfig>(DEFAULT_WS_CONFIG);
+
+  useEffect(() => {
+    loadWsConfig().then(setCfg);
+  }, []);
+
+  if (!onUseWs) {
+    return null;
+  }
+
+  const setUrl = (url: string) => {
+    const next = {...cfg, url};
+    setCfg(next);
+    saveWsConfig(next);
+  };
+  const setMapping = (mapping: WsMapping) => {
+    const next = {...cfg, mapping};
+    setCfg(next);
+    saveWsConfig(next);
+  };
+
+  return (
+    <Card style={styles.card}>
+      <Text style={styles.cardTitle}>手机姿态带（WS · 保底）</Text>
+      <Text style={styles.hint}>
+        ESP32 没烧通时用：另一台手机贴背当传感器。先在 Mac 跑 scripts/ws-relay，把它打印的地址填这里。
+      </Text>
+      <TextInput
+        style={[styles.input, {marginTop: theme.spacing.md2}]}
+        value={cfg.url}
+        onChangeText={setUrl}
+        placeholder="ws://192.168.1.100:8787"
+        placeholderTextColor={theme.colors.textMuted}
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
+      <View style={[styles.rowGap, {marginTop: theme.spacing.md2}]}>
+        {(Object.keys(WS_MAPPING_LABEL) as WsMapping[]).map(m => (
+          <Pill key={m} active={cfg.mapping === m} label={WS_MAPPING_LABEL[m]} onPress={() => setMapping(m)} />
+        ))}
+      </View>
+      <Pressable style={styles.saveBtn} onPress={onUseWs}>
+        <Text style={styles.saveBtnText}>{mode === 'ws' ? '重新连接' : '连接'}</Text>
+      </Pressable>
+      <Text style={styles.hint}>状态：{WS_STATUS_LABEL[wsStatus ?? 'idle']}</Text>
+      {mode === 'ws' && wsStatus === 'connected' && onCalibrate ? (
+        <Pressable style={styles.saveBtn} onPress={onCalibrate}>
+          <Text style={styles.saveBtnText}>坐直校准</Text>
+        </Pressable>
+      ) : null}
     </Card>
   );
 }
@@ -325,9 +407,11 @@ export function SettingsScreen({
   mode,
   memory,
   bleStatus,
+  wsStatus,
   onUseSensor,
   onUseMock,
   onUseBle,
+  onUseWs,
   onCalibrate,
   onScenario,
 }: Props): React.JSX.Element {
@@ -363,6 +447,7 @@ export function SettingsScreen({
         <Text style={styles.cardTitle}>{t('settings.data.title')}</Text>
         <View style={styles.wrapRow}>
           {onUseBle ? <Pill active={mode === 'ble'} label={t('settings.data.hardwareBand')} onPress={onUseBle} /> : null}
+          {onUseWs ? <Pill active={mode === 'ws'} label="手机姿态带" onPress={onUseWs} /> : null}
           <Pill active={mode === 'sensor'} label={t('settings.data.sensor')} onPress={onUseSensor} />
           <Pill active={mode === 'mock'} label={t('settings.data.mock')} onPress={onUseMock} />
         </View>
@@ -377,10 +462,18 @@ export function SettingsScreen({
           </View>
         ) : (
           <Text style={styles.hint}>
-            {mode === 'sensor' ? t('settings.data.activeSensor') : mode === 'mock' ? t('settings.data.activeMock') : t('settings.data.loading')}
+            {mode === 'ws'
+              ? '手机姿态带（WS）— 配置见下方卡片'
+              : mode === 'sensor'
+              ? t('settings.data.activeSensor')
+              : mode === 'mock'
+              ? t('settings.data.activeMock')
+              : t('settings.data.loading')}
           </Text>
         )}
       </Card>
+
+      <WsConfigCard mode={mode} wsStatus={wsStatus} onUseWs={onUseWs} onCalibrate={onCalibrate} />
 
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>{t('settings.mock.title')}</Text>

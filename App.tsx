@@ -24,6 +24,7 @@ import {createReminder} from './src/platform/reminder';
 import {createMockSource, MockScenario, MockSource} from './src/posture/mock';
 import {createSensorSource, SensorSource} from './src/platform/sensorSource';
 import {BleSensorSource, BleStatus, createBleSensorSource} from './src/platform/bleSensorSource';
+import {createWsSensorSource, WsSensorSource, WsStatus} from './src/platform/wsSensorSource';
 import {DashboardState} from './src/posture/types';
 import {Locale, LocaleProvider, tr, useT} from './src/ui/i18n';
 
@@ -43,7 +44,7 @@ function buildInitialState(locale: Locale): DashboardState {
   };
 }
 
-type Mode = 'loading' | 'sensor' | 'mock' | 'ble';
+type Mode = 'loading' | 'sensor' | 'mock' | 'ble' | 'ws';
 
 function App(): React.JSX.Element {
   // 加载 Fredoka 字体（圆润可爱标题字体）
@@ -67,6 +68,8 @@ function App(): React.JSX.Element {
   const sensorRef = useRef<SensorSource>(createSensorSource(engineRef.current));
   // 硬件数据源（ESP32+BNO085 姿态带，BLE）；连上后取代手机 IMU
   const bleRef = useRef<BleSensorSource>(createBleSensorSource(engineRef.current));
+  // 保底数据源（另一台手机当姿态带，WS）；ESP32 没烧通时用
+  const wsRef = useRef<WsSensorSource>(createWsSensorSource(engineRef.current));
   const mockRef = useRef<MockSource>(createMockSource(engineRef.current));
   // 语义记忆（教练"懂你"）：本地存储，注入教练 prompt 个性化；写入由 onboarding/反馈钩子调用
   const memoryRef = useRef(createMemoryService());
@@ -83,10 +86,18 @@ function App(): React.JSX.Element {
   const [growth, setGrowth] = useState<GrowthState>(() => growthRef.current.getState());
   const [mode, setMode] = useState<Mode>('loading');
   const [bleStatus, setBleStatus] = useState<BleStatus>('idle');
+  const [wsStatus, setWsStatus] = useState<WsStatus>('idle');
+
+  // 停掉除当前要启用之外的所有数据源（数据源互斥）
+  const stopOthers = (keep: 'sensor' | 'mock' | 'ble' | 'ws') => {
+    if (keep !== 'sensor') sensorRef.current.stop();
+    if (keep !== 'mock') mockRef.current.stop();
+    if (keep !== 'ble') bleRef.current.stop();
+    if (keep !== 'ws') wsRef.current.stop();
+  };
 
   const useSensor = async () => {
-    bleRef.current.stop();
-    mockRef.current.stop();
+    stopOthers('sensor');
     const ok = await sensorRef.current.start();
     if (ok) {
       setMode('sensor');
@@ -97,16 +108,14 @@ function App(): React.JSX.Element {
   };
 
   const useMock = () => {
-    bleRef.current.stop();
-    sensorRef.current.stop();
+    stopOthers('mock');
     mockRef.current.resume();
     mockRef.current.start();
     setMode('mock');
   };
 
   const pinScenario = (scenario: MockScenario) => {
-    bleRef.current.stop();
-    sensorRef.current.stop();
+    stopOthers('mock');
     mockRef.current.start();
     mockRef.current.setScenario(scenario);
     setMode('mock');
@@ -114,8 +123,7 @@ function App(): React.JSX.Element {
 
   // 连硬件姿态带（BLE）；连上取代手机 IMU，连不上回退手机 IMU
   const useBle = async () => {
-    sensorRef.current.stop();
-    mockRef.current.stop();
+    stopOthers('ble');
     const ok = await bleRef.current.start();
     if (ok) {
       setMode('ble');
@@ -123,12 +131,32 @@ function App(): React.JSX.Element {
       useSensor();
     }
   };
-  const calibrateBle = () => bleRef.current.calibrate();
+
+  // 连保底「手机姿态带（WS）」；连上取代手机 IMU，连不上回退手机 IMU
+  const useWs = async () => {
+    stopOthers('ws');
+    const ok = await wsRef.current.start();
+    if (ok) {
+      setMode('ws');
+    } else {
+      useSensor();
+    }
+  };
+
+  // 坐直校准：作用于当前激活的姿态带（BLE / WS）
+  const calibrate = () => {
+    if (mode === 'ws') {
+      wsRef.current.calibrate();
+    } else {
+      bleRef.current.calibrate();
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = engineRef.current.subscribe(setK);
     const unsubscribeGrowth = growthRef.current.subscribe(setGrowth);
     bleRef.current.onStatus(s => setBleStatus(s));
+    wsRef.current.onStatus(s => setWsStatus(s));
     adviceRef.current.start();
     growthRef.current.start();
     reminderRef.current.start();
@@ -146,6 +174,7 @@ function App(): React.JSX.Element {
       reminderRef.current.stop();
       sensorRef.current.stop();
       bleRef.current.stop();
+      wsRef.current.stop();
       mockRef.current.stop();
     };
     // refs 是 stable 的（useRef），无需列入 deps
@@ -181,10 +210,12 @@ function App(): React.JSX.Element {
         memory={memoryRef.current}
         mode={mode}
         bleStatus={bleStatus}
+        wsStatus={wsStatus}
         onUseSensor={useSensor}
         onUseMock={useMock}
         onUseBle={useBle}
-        onCalibrate={calibrateBle}
+        onUseWs={useWs}
+        onCalibrate={calibrate}
         onScenario={pinScenario}
       />
     </LocaleProvider>
@@ -197,9 +228,11 @@ function AppContent({
   memory,
   mode,
   bleStatus,
+  wsStatus,
   onUseSensor,
   onUseMock,
   onUseBle,
+  onUseWs,
   onCalibrate,
   onScenario,
 }: {
@@ -208,9 +241,11 @@ function AppContent({
   memory: ReturnType<typeof createMemoryService>;
   mode: Mode;
   bleStatus: BleStatus;
+  wsStatus: WsStatus;
   onUseSensor: () => Promise<void>;
   onUseMock: () => void;
   onUseBle: () => Promise<void>;
+  onUseWs: () => Promise<void>;
   onCalibrate: () => void;
   onScenario: (s: MockScenario) => void;
 }): React.JSX.Element {
@@ -218,6 +253,8 @@ function AppContent({
   const subtitle =
     mode === 'ble'
       ? '数据源：硬件姿态带（BLE）'
+      : mode === 'ws'
+      ? '数据源：手机姿态带（WS）'
       : mode === 'sensor'
       ? t('settings.data.activeSensor')
       : mode === 'mock'
@@ -230,10 +267,12 @@ function AppContent({
       memory={memory}
       mode={mode}
       bleStatus={bleStatus}
+      wsStatus={wsStatus}
       deskSubtitle={subtitle}
       onUseSensor={onUseSensor}
       onUseMock={onUseMock}
       onUseBle={onUseBle}
+      onUseWs={onUseWs}
       onCalibrate={onCalibrate}
       onScenario={onScenario}
     />

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Catune 手机传感器</title>
+<style>
+  body{font-family:-apple-system,system-ui,sans-serif;background:#111;color:#eee;margin:0;padding:28px;text-align:center}
+  h1{font-size:18px;font-weight:700;margin:0 0 6px}
+  .sub{color:#888;font-size:13px}
+  button{font-size:18px;padding:16px 28px;border-radius:14px;border:0;background:#FB4B00;color:#fff;margin-top:22px;font-weight:600}
+  .vals{font-size:44px;font-weight:800;margin-top:24px;letter-spacing:1px}
+  .status{margin-top:12px;color:#aaa;font-size:14px}
+  .tip{margin-top:20px;color:#bbb;font-size:13px;line-height:1.7}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:9px;background:#666;margin-right:6px;vertical-align:middle}
+  .on{background:#3ddc84}
+</style>
+</head>
+<body>
+  <h1>Catune 手机传感器</h1>
+  <div class="sub">贴背 = Node-T（胸椎）</div>
+  <div class="status"><span class="dot" id="dot"></span><span id="status">未连接</span></div>
+  <button id="go">开始（授权运动）</button>
+  <div class="vals" id="vals">— / —</div>
+  <div class="tip">把这台手机竖着贴在上背、屏幕朝外。<br>前倾 = 驼背，左右倾 = 侧倾。<br>到 App 里坐直点「坐直校准」归零。</div>
+<script>
+  var NODE_ID = 1;            // 1 = 胸 Node-T
+  var ws = null, last = 0;
+  var statusEl = document.getElementById('status');
+  var valsEl = document.getElementById('vals');
+  var dotEl = document.getElementById('dot');
+
+  function setStatus(t, on){ statusEl.textContent = t; dotEl.className = 'dot' + (on ? ' on' : ''); }
+
+  function connect(){
+    var proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(proto + '://' + location.host);
+    ws.onopen = function(){ setStatus('已连接中转，发送中…', true); };
+    ws.onclose = function(){ setStatus('断开，3s 后重连', false); setTimeout(connect, 3000); };
+    ws.onerror = function(){ setStatus('连接错误', false); };
+  }
+
+  function onOri(e){
+    var pitch = e.beta || 0;   // 前后俯仰 -180..180
+    var roll  = e.gamma || 0;  // 左右翻滚 -90..90
+    valsEl.textContent = Math.round(pitch) + '° / ' + Math.round(roll) + '°';
+    var now = Date.now();
+    if (ws && ws.readyState === 1 && now - last > 33) {   // ~30Hz
+      last = now;
+      ws.send(JSON.stringify({nodeId: NODE_ID, pitch: pitch, roll: roll}));
+    }
+  }
+
+  document.getElementById('go').onclick = async function(){
+    try {
+      // iOS 13+ 需用户手势 + 显式授权
+      if (typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) {
+        var r = await DeviceOrientationEvent.requestPermission();
+        if (r !== 'granted') { setStatus('运动权限被拒', false); return; }
+      }
+    } catch (err) {}
+    window.addEventListener('deviceorientation', onOri);
+    connect();
+    setStatus('已授权，连接中…', false);
+  };
+</script>
+</body>
+</html>
