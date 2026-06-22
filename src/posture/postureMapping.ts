@@ -24,6 +24,9 @@ import {mapNodeTToSpine} from './spineKinematics';
 /** 手机竖直（pitch≈90°）= 挺直背 的参考角。 */
 export const UPRIGHT_PITCH_DEG = 90;
 
+/** 单手机模拟：侧倾(腰椎)也让颈椎略前倾，使颈椎跟随「整体脊柱姿态」而非只看胸椎。 */
+const NECK_LATERAL_COUPLING = 0.2;
+
 export function orientationToNodes(
   pitchDeg: number,
   rollDeg: number,
@@ -32,7 +35,8 @@ export function orientationToNodes(
 ): {neck: number; thor: number; lumbar: number} {
   const fwd = clamp(baselinePitch - pitchDeg, -20, 60); // 前倾为正：竖直=0，平放≈+90
   const side = clamp(rollDeg - baselineRoll, -45, 45); // 左右侧倾
-  // 脊柱运动学：胸=前倾量；颈含生理曲度 + 胸椎耦合
+  // 脊柱运动学：胸=前倾量；颈=生理曲度 + 胸椎耦合(矢状面) + 腰椎侧倾的小幅联动(单手机模拟)
   const spine = mapNodeTToSpine(fwd, side);
-  return {neck: spine.neckPitch, thor: spine.thorPitch, lumbar: spine.lumbarRoll};
+  const neck = clamp(spine.neckPitch + Math.abs(side) * NECK_LATERAL_COUPLING, 0, 45);
+  return {neck, thor: spine.thorPitch, lumbar: spine.lumbarRoll};
 }
