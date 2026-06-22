@@ -12,7 +12,7 @@
  * [TO] 被 `AppShell` 在 desk tab 渲染
  * [HERE] src/ui/screens/DeskScreen.tsx · Desk 首页布局原型的 RNW 迁移版
  */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import Svg, {Circle, Path} from 'react-native-svg';
 
@@ -43,15 +43,26 @@ const PITCH_RANGE_DEG = 25;
 const LEAN_RANGE_DEG = 25;
 /** 点位校准模式：开启后点击猫身打印该点的 (u,v) + 当前帧号，用于填 catAnchors 的关键帧表。 */
 const CALIBRATE = false;
-/** 允许相对图集单格 1:1 像素略放大（主视觉 hero，2x 在 3x 屏上仍可接受） */
-const ATLAS_DISPLAY_UPSCALE = 2;
-/** 猫占场景宽度比例（主视觉，约 85–90% 场景宽） */
-const CAT_WIDTH_RATIO = 0.9;
-/** 猫占场景高度比例上限 */
+/** 允许相对图集单格 1:1 像素略放大（主视觉 hero） */
+const ATLAS_DISPLAY_UPSCALE = 2.3;
+/** 场景内布局：桌 top 锚点 + 猫相对桌 + 植物 scene 左上角 */
+const DESK_TOP_RATIO = 0.2;
+const DESK_TO_CAT_WIDTH = 1.68;
+const DESK_ASPECT = 0.92;
+/** 猫「脚」落在桌面上的位置（相对 desk 高度，自 desk 顶向下） */
+const CAT_FEET_ON_DESK_RATIO = 0.1;
+const PLANT_WIDTH_RATIO = 0.1;
+const PLANT_ASPECT = 0.72;
+/** 脊柱点位 SVG 相对猫 box 右移 */
+const SENSOR_OVERLAY_X_SHIFT = 0.1;
+/** 桌面宽度不超过 scene 的比例，防止随猫放大溢出 */
+const DESK_MAX_SCENE_WIDTH = 0.96;
+/** 猫在 scene 内占宽/占高上限 */
+const CAT_WIDTH_RATIO = 1;
 const CAT_HEIGHT_RATIO = 0.88;
+/** 姿态轴切换迟滞（度），避免颈/腰阈值附近来回抖 */
+const AXIS_HYSTERESIS_DEG = 4;
 const SCENE_ASPECT_RATIO = 2 / 3;
-/** Desk 主场景区占屏高（略加大，给猫留足纵向空间） */
-const SCENE_HEIGHT_RATIO = 0.62;
 const SCENE_BOTTOM_GAP = 16;
 /** 模型反馈区固定 3 行高度，避免文案行数变化挤动下方场景 */
 const FEEDBACK_LINE_HEIGHT = 20;
@@ -71,24 +82,87 @@ function formatDeg(value: number): string {
   return `${Math.abs(value).toFixed(1)}°`;
 }
 
-/** 俯仰 / 侧倾双轴：取偏离中立更大的那一轴驱动猫雪碧图（相等时优先俯仰）。 */
-function pickPostureAxis(
+/** 俯仰 / 侧倾双轴：取偏离中立更大的那一轴驱动猫雪碧图；带迟滞避免阈值附近抖。 */
+function useStablePostureAxis(
   state: DashboardState,
   hasPitch: boolean,
   hasLean: boolean,
 ): 'pitch' | 'lean' {
+  const axisRef = useRef<'pitch' | 'lean'>('pitch');
+
   if (hasPitch && !hasLean) {
+    axisRef.current = 'pitch';
     return 'pitch';
   }
   if (!hasPitch && hasLean) {
+    axisRef.current = 'lean';
     return 'lean';
   }
   if (!hasPitch && !hasLean) {
     return 'pitch';
   }
+
   const neckDev = Math.abs(state.neckPitch - SPINE_KINEMATICS.normalNeckRestDeg);
   const leanDev = Math.abs(state.lumbarRoll);
-  return neckDev >= leanDev ? 'pitch' : 'lean';
+  const current = axisRef.current;
+
+  if (current === 'pitch') {
+    if (leanDev > neckDev + AXIS_HYSTERESIS_DEG) {
+      axisRef.current = 'lean';
+    }
+  } else if (neckDev > leanDev + AXIS_HYSTERESIS_DEG) {
+    axisRef.current = 'pitch';
+  }
+
+  return axisRef.current;
+}
+
+type SceneLayoutMetrics = {
+  deskW: number;
+  deskH: number;
+  plantH: number;
+  catTop: number;
+  catLeft: number;
+  boxW: number;
+  boxH: number;
+};
+
+/** 桌 top 20% 锚点；猫相对桌；植物 scene 左上角 10% 宽。 */
+function computeSceneLayout(
+  sceneW: number,
+  sceneH: number,
+  visualSize: {width: number; height: number} | null,
+): SceneLayoutMetrics {
+  const empty = {
+    deskW: 0,
+    deskH: 0,
+    plantH: 0,
+    catTop: 0,
+    catLeft: 0,
+    boxW: 0,
+    boxH: 0,
+  };
+  if (sceneW <= 0 || sceneH <= 0 || !visualSize) {
+    return empty;
+  }
+
+  const maxCatW = sceneW * CAT_WIDTH_RATIO;
+  const maxCatH = Math.max(0, sceneH - SCENE_BOTTOM_GAP);
+  const boxW = Math.min(visualSize.width, maxCatW);
+  const boxH = Math.min(visualSize.height, maxCatH, boxW / SCENE_ASPECT_RATIO);
+
+  const deskW = Math.min(boxW * DESK_TO_CAT_WIDTH, sceneW * DESK_MAX_SCENE_WIDTH);
+  const deskH = deskW * DESK_ASPECT;
+  const deskTop = sceneH * DESK_TOP_RATIO;
+
+  const plantW = sceneW * PLANT_WIDTH_RATIO;
+  let plantH = plantW * PLANT_ASPECT;
+  plantH = Math.min(plantH, sceneH * 0.42);
+
+  const catTop = Math.max(SCENE_BOTTOM_GAP, deskTop - boxH + deskH * CAT_FEET_ON_DESK_RATIO);
+  const catLeft = (sceneW - boxW) / 2;
+
+  return {deskW, deskH, plantH, catTop, catLeft, boxW, boxH};
 }
 
 /** 经过 C7→T12→L5 三点的平滑脊柱曲线（像素坐标）。 */
@@ -201,11 +275,12 @@ function SensorOverlay({
   if (boxW <= 0 || boxH <= 0) {
     return null;
   }
+  const xShift = boxW * SENSOR_OVERLAY_X_SHIFT;
   const spine = anchorsAt(frameIndex);
   const points: Array<{key: SpineNode; x: number; y: number}> = [
-    {key: 'c7', x: spine.c7.u * boxW, y: spine.c7.v * boxH},
-    {key: 't12', x: spine.t12.u * boxW, y: spine.t12.v * boxH},
-    {key: 'l5', x: spine.l5.u * boxW, y: spine.l5.v * boxH},
+    {key: 'c7', x: spine.c7.u * boxW + xShift, y: spine.c7.v * boxH},
+    {key: 't12', x: spine.t12.u * boxW + xShift, y: spine.t12.v * boxH},
+    {key: 'l5', x: spine.l5.u * boxW + xShift, y: spine.l5.v * boxH},
   ];
   const [c7, t12, l5] = points;
   const path = spineCurvePath(c7, t12, l5);
@@ -238,32 +313,31 @@ function SensorOverlay({
 
 type RenderMode = 'sprite' | 'frames';
 
-function PostureScene({state, onZoomToPlant}: {state: DashboardState; onZoomToPlant?: () => void}): React.JSX.Element {
+function PostureScene({
+  state,
+  onZoomToPlant,
+}: {
+  state: DashboardState;
+  onZoomToPlant?: () => void;
+}): React.JSX.Element {
   const {locale} = useLocale();
   const t = useT();
   const hasPitchAtlas = PITCH_ATLAS.source != null && PITCH_ATLAS.count > 1;
   const hasPitchFrames = PITCH_FRAMES.length > 1;
   const hasLeanAtlas = LEAN_ATLAS.source != null && LEAN_ATLAS.count > 1;
   const hasLeanFrames = LEAN_FRAMES.length > 1;
-  const postureAxis = pickPostureAxis(state, hasPitchAtlas, hasLeanAtlas);
-  const activeAtlas = postureAxis === 'pitch' ? PITCH_ATLAS : LEAN_ATLAS;
+  const postureAxis = useStablePostureAxis(state, hasPitchAtlas, hasLeanAtlas);
   const [sceneLayout, setSceneLayout] = useState({width: 0, height: 0});
   const [visualSize, setVisualSize] = useState<{width: number; height: number} | null>(null);
   const [frameIndex, setFrameIndex] = useState(0);
-  // 渲染方式：默认雪碧图；两者都就绪时可切到旧的逐帧关键帧渲染做对比
   const [renderMode, setRenderMode] = useState<RenderMode>('sprite');
   const useSprite = renderMode === 'sprite' && (hasPitchAtlas || hasLeanAtlas);
-  // demo：固定雪碧图（效果优于逐帧），隐藏切换避免现场误触回退到卡顿的关键帧模式
   const showModeToggle = false;
-  // 建议动作 → 高亮对应脊柱节点（把"模型说的动作"指到猫身上）
   const highlightNode: SpineNode | null = state.action ? getActionMeta(state.action, locale).node : null;
-  const boxW = visualSize?.width ?? 0;
-  const boxH = visualSize?.height ?? 0;
-  const deskW = boxW > 0 ? boxW * 1.28 : 0;
-  const deskH = deskW * 0.92;
-  const plantW = boxW > 0 ? boxW * 0.6 : 0;
-  const plantH = plantW * 0.72;
-  const catBottom = deskH * 0.38;
+
+  const layout = computeSceneLayout(sceneLayout.width, sceneLayout.height, visualSize);
+  const {deskW, deskH, plantH, catTop, catLeft, boxW, boxH} = layout;
+  const sceneReady = sceneLayout.width > 0 && sceneLayout.height > 0 && boxW > 0;
 
   useEffect(() => {
     if (sceneLayout.width <= 0 || sceneLayout.height <= 0) {
@@ -271,7 +345,7 @@ function PostureScene({state, onZoomToPlant}: {state: DashboardState; onZoomToPl
     }
     const availableHeight = Math.max(0, sceneLayout.height - SCENE_BOTTOM_GAP);
     const next = fitAtlasDisplaySize(
-      activeAtlas,
+      PITCH_ATLAS,
       sceneLayout.width * CAT_WIDTH_RATIO,
       availableHeight * CAT_HEIGHT_RATIO,
       SCENE_ASPECT_RATIO,
@@ -282,7 +356,7 @@ function PostureScene({state, onZoomToPlant}: {state: DashboardState; onZoomToPl
         ? prev
         : next,
     );
-  }, [postureAxis, sceneLayout.width, sceneLayout.height]);
+  }, [sceneLayout.width, sceneLayout.height]);
 
   // 校准：点击猫身 → 打印该点比例 (u,v) + 当前帧号，照着填 catAnchors 的关键帧表
   const onCalibrateTap = (evt: {nativeEvent: {locationX: number; locationY: number}}) => {
@@ -298,6 +372,7 @@ function PostureScene({state, onZoomToPlant}: {state: DashboardState; onZoomToPl
   return (
     <View style={styles.scene}>
       <View
+        collapsable={false}
         style={styles.sceneFrame}
         onLayout={event => {
           const {width, height} = event.nativeEvent.layout;
@@ -308,89 +383,79 @@ function PostureScene({state, onZoomToPlant}: {state: DashboardState; onZoomToPl
           );
         }}>
 
-        {/* 桌子层：宽度随猫等比放大，底对齐场景 */}
-        <Image
-          source={DESK_IMAGE}
-          style={[styles.deskImage, deskW > 0 && {width: deskW, height: deskH}]}
-          resizeMode="cover"
-        />
+        {sceneReady ? (
+          <>
+            <Image
+              source={DESK_IMAGE}
+              style={[styles.deskImage, {width: deskW, height: deskH}]}
+              resizeMode="cover"
+            />
 
-        {/* 植物层：在桌子左侧，可点 → 镜头推进到 Plant 页 */}
-        <Pressable
-          style={[
-            styles.plantImage,
-            plantW > 0 && {width: plantW, height: plantH, bottom: deskH * 0.55},
-          ]}
-          onPress={onZoomToPlant}
-          hitSlop={10}>
-          <Image source={PLANT_IMAGE} style={StyleSheet.absoluteFill} resizeMode="cover" />
-        </Pressable>
-
-        {/* 猫主视觉：坐在桌面上方 */}
-        <View
-          style={[
-            styles.sceneVisual,
-            visualSize ?? styles.sceneVisualPlaceholder,
-            boxW > 0 && {bottom: catBottom},
-          ]}>
-          {useSprite && postureAxis === 'pitch' && hasPitchAtlas && PITCH_ATLAS.source ? (
-            <CatSprite
-              atlas={PITCH_ATLAS.source}
-              cols={PITCH_ATLAS.cols}
-              rows={PITCH_ATLAS.rows}
-              count={PITCH_ATLAS.count}
-              angle={state.neckPitch}
-              cellWidth={boxW}
-              cellHeight={boxH}
-              minDeg={-PITCH_RANGE_DEG}
-              maxDeg={PITCH_RANGE_DEG}
-              invert
-              onFrameChange={setFrameIndex}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : useSprite && postureAxis === 'lean' && hasLeanAtlas && LEAN_ATLAS.source ? (
-            <CatSprite
-              atlas={LEAN_ATLAS.source}
-              cols={LEAN_ATLAS.cols}
-              rows={LEAN_ATLAS.rows}
-              count={LEAN_ATLAS.count}
-              angle={state.lumbarRoll}
-              cellWidth={boxW}
-              cellHeight={boxH}
-              minDeg={-LEAN_RANGE_DEG}
-              maxDeg={LEAN_RANGE_DEG}
-              onFrameChange={setFrameIndex}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : postureAxis === 'pitch' && hasPitchFrames ? (
-            <CatFlipbook
-              frames={PITCH_FRAMES}
-              angle={state.neckPitch}
-              minDeg={-PITCH_RANGE_DEG}
-              maxDeg={PITCH_RANGE_DEG}
-              invert
-              onFrameChange={setFrameIndex}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : hasLeanFrames ? (
-            <CatFlipbook
-              frames={LEAN_FRAMES}
-              angle={state.lumbarRoll}
-              minDeg={-LEAN_RANGE_DEG}
-              maxDeg={LEAN_RANGE_DEG}
-              onFrameChange={setFrameIndex}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : (
-            <Image source={PORTAL_IMAGE} style={StyleSheet.absoluteFill} resizeMode="contain" />
-          )}
-          <SensorOverlay frameIndex={frameIndex} boxW={boxW} boxH={boxH} highlightNode={highlightNode} />
-          {CALIBRATE ? (
-            <Pressable style={StyleSheet.absoluteFill} onPress={onCalibrateTap}>
-              <Text style={styles.calibrateBadge}>{t('desk.calibrateBadge', {n: frameIndex})}</Text>
+            <Pressable style={[styles.plantImage, {height: plantH}]} onPress={onZoomToPlant} hitSlop={10}>
+              <Image source={PLANT_IMAGE} style={StyleSheet.absoluteFill} resizeMode="contain" />
             </Pressable>
-          ) : null}
-        </View>
+
+            <View style={[styles.sceneVisual, {width: boxW, height: boxH, top: catTop, left: catLeft}]}>
+              {useSprite && postureAxis === 'pitch' && hasPitchAtlas && PITCH_ATLAS.source ? (
+                <CatSprite
+                  atlas={PITCH_ATLAS.source}
+                  cols={PITCH_ATLAS.cols}
+                  rows={PITCH_ATLAS.rows}
+                  count={PITCH_ATLAS.count}
+                  angle={state.neckPitch}
+                  cellWidth={boxW}
+                  cellHeight={boxH}
+                  minDeg={-PITCH_RANGE_DEG}
+                  maxDeg={PITCH_RANGE_DEG}
+                  invert
+                  onFrameChange={setFrameIndex}
+                  style={StyleSheet.absoluteFill}
+                />
+              ) : useSprite && postureAxis === 'lean' && hasLeanAtlas && LEAN_ATLAS.source ? (
+                <CatSprite
+                  atlas={LEAN_ATLAS.source}
+                  cols={LEAN_ATLAS.cols}
+                  rows={LEAN_ATLAS.rows}
+                  count={LEAN_ATLAS.count}
+                  angle={state.lumbarRoll}
+                  cellWidth={boxW}
+                  cellHeight={boxH}
+                  minDeg={-LEAN_RANGE_DEG}
+                  maxDeg={LEAN_RANGE_DEG}
+                  onFrameChange={setFrameIndex}
+                  style={StyleSheet.absoluteFill}
+                />
+              ) : postureAxis === 'pitch' && hasPitchFrames ? (
+                <CatFlipbook
+                  frames={PITCH_FRAMES}
+                  angle={state.neckPitch}
+                  minDeg={-PITCH_RANGE_DEG}
+                  maxDeg={PITCH_RANGE_DEG}
+                  invert
+                  onFrameChange={setFrameIndex}
+                  style={StyleSheet.absoluteFill}
+                />
+              ) : hasLeanFrames ? (
+                <CatFlipbook
+                  frames={LEAN_FRAMES}
+                  angle={state.lumbarRoll}
+                  minDeg={-LEAN_RANGE_DEG}
+                  maxDeg={LEAN_RANGE_DEG}
+                  onFrameChange={setFrameIndex}
+                  style={StyleSheet.absoluteFill}
+                />
+              ) : (
+                <Image source={PORTAL_IMAGE} style={StyleSheet.absoluteFill} resizeMode="contain" />
+              )}
+              <SensorOverlay frameIndex={frameIndex} boxW={boxW} boxH={boxH} highlightNode={highlightNode} />
+              {CALIBRATE ? (
+                <Pressable style={StyleSheet.absoluteFill} onPress={onCalibrateTap}>
+                  <Text style={styles.calibrateBadge}>{t('desk.calibrateBadge', {n: frameIndex})}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          </>
+        ) : null}
 
         {showModeToggle ? (
           <View style={styles.modeToggle}>
@@ -482,18 +547,22 @@ export function DeskScreen({
 
   return (
     <View style={styles.root}>
-      <DeskHeader
-        state={state}
-        locale={locale}
-        userName={userName}
-        onOpenTraining={onOpenTraining}
-        onOpenAssess={onOpenAssess}
-        showFeedback={showFeedback}
-        justRated={justRated}
-        onFeedback={onFeedback}
-      />
-      <MetricStrip state={state} />
-      <PostureScene state={state} onZoomToPlant={onZoomToPlant} />
+      <View>
+        <DeskHeader
+          state={state}
+          locale={locale}
+          userName={userName}
+          onOpenTraining={onOpenTraining}
+          onOpenAssess={onOpenAssess}
+          showFeedback={showFeedback}
+          justRated={justRated}
+          onFeedback={onFeedback}
+        />
+        <MetricStrip state={state} />
+      </View>
+      <View style={styles.sceneHost}>
+        <PostureScene state={state} onZoomToPlant={onZoomToPlant} />
+      </View>
     </View>
   );
 }
@@ -592,9 +661,10 @@ const styles = StyleSheet.create({
   metrics: {
     flexDirection: 'row',
     paddingHorizontal: theme.spacing.xl,
-    paddingBottom: theme.spacing.sm,
+    paddingBottom: theme.spacing.xs,
     gap: theme.spacing.lg,
-    zIndex: 2,
+    backgroundColor: 'transparent',
+    pointerEvents: 'box-none',
   },
   metricItem: {
     flex: 1,
@@ -614,33 +684,27 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: theme.spacing.xs,
   },
-  scene: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: DESK_TAB_INSET,
-    height: `${SCENE_HEIGHT_RATIO * 100}%`,
+  sceneHost: {
+    flex: 1,
     minHeight: 300,
-    alignItems: 'center',
     overflow: 'hidden',
-    zIndex: 1,
+  },
+  scene: {
+    flex: 1,
+    width: '100%',
+    overflow: 'hidden',
   },
   sceneFrame: {
+    flex: 1,
     width: '100%',
-    height: '100%',
     position: 'relative',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   sceneVisual: {
     position: 'absolute',
-    alignSelf: 'center',
     overflow: 'hidden',
     zIndex: 2,
-  },
-  sceneVisualPlaceholder: {
-    width: '72%',
-    aspectRatio: SCENE_ASPECT_RATIO,
-    opacity: 0,
   },
   modeToggle: {
     position: 'absolute',
@@ -683,13 +747,15 @@ const styles = StyleSheet.create({
   },
   deskImage: {
     position: 'absolute',
-    bottom: 0,
+    top: `${DESK_TOP_RATIO * 100}%`,
     alignSelf: 'center',
     zIndex: 0,
   },
   plantImage: {
     position: 'absolute',
-    left: '6%',
-    zIndex: 1,
+    top: 0,
+    left: 0,
+    width: `${PLANT_WIDTH_RATIO * 100}%`,
+    zIndex: 3,
   },
 });

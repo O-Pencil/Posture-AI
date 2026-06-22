@@ -7,10 +7,10 @@ import {DeviceMotion} from 'expo-sensors';
 import type {PostureEngine} from '../posture/engine';
 import {orientationToNodes} from '../posture/postureMapping';
 import {loadWsConfig} from './wsConfig';
+import {readDevicePitchRoll} from './deviceMotionReader';
 import type {WsStatus} from './wsSensorSource';
 
 const NODE_ID = 1;
-const RAD2DEG = 180 / Math.PI;
 const SEND_INTERVAL_MS = 33;
 
 export type WsSenderSource = {
@@ -22,18 +22,7 @@ export type WsSenderSource = {
 };
 
 function readPitchRoll(data: DeviceMotion.DeviceMotionMeasurement): {pitch: number; roll: number} | null {
-  const r = data.rotation;
-  if (r) {
-    return {pitch: r.beta * RAD2DEG, roll: r.gamma * RAD2DEG};
-  }
-  const g = data.accelerationIncludingGravity;
-  if (g) {
-    return {
-      pitch: Math.atan2(-g.y, Math.hypot(g.x, g.z)) * RAD2DEG,
-      roll: Math.atan2(g.x, Math.hypot(g.y, g.z)) * RAD2DEG,
-    };
-  }
-  return null;
+  return readDevicePitchRoll(data);
 }
 
 export function createWsSenderSource(engine: PostureEngine): WsSenderSource {
@@ -63,6 +52,9 @@ export function createWsSenderSource(engine: PostureEngine): WsSenderSource {
   };
 
   const bindMotion = () => {
+    sub?.remove();
+    sub = null;
+    DeviceMotion.setUpdateInterval(SEND_INTERVAL_MS);
     sub = DeviceMotion.addListener(data => {
       const angles = readPitchRoll(data);
       if (!angles) {

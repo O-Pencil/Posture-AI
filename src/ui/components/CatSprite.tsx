@@ -15,7 +15,6 @@ import React, {useEffect, useMemo, useRef} from 'react';
 import {
   Animated,
   Easing,
-  Image,
   ImageSourcePropType,
   Platform,
   StyleProp,
@@ -83,15 +82,8 @@ export function CatSprite({
 
   const w = Math.max(1, Math.round(cellWidth));
   const h = Math.max(1, Math.round(cellHeight));
-
-  // 用 Metro 打包后的真实图集像素尺寸，避免 meta 与 bundle 不一致导致拉伸发糊
-  const resolved = useMemo(() => Image.resolveAssetSource(atlas), [atlas]);
-  const atlasPixelW = resolved?.width && resolved.width > 0 ? resolved.width : cols * w;
-  const atlasPixelH = resolved?.height && resolved.height > 0 ? resolved.height : rows * h;
   const displayW = cols * w;
   const displayH = rows * h;
-  const scaleX = displayW / atlasPixelW;
-  const scaleY = displayH / atlasPixelH;
 
   // 角度 → 目标帧，UI 线程缓动平移（不触发 React 重渲染图集）
   useEffect(() => {
@@ -122,10 +114,9 @@ export function CatSprite({
   // 阶梯式（snap）插值：每帧在 [i-0.5, i+0.5) 内保持整格位置，半整数处近乎瞬跳到下一格。
   // 雪碧图必须整格对齐——线性平移会让两格同时露出=横向拖影，不是旋转。行优先：col=i%cols, row=floor(i/cols)。
   const {inputRange, xOut, yOut} = useMemo(() => {
-    const cellW = atlasPixelW / cols;
-    const cellH = atlasPixelH / rows;
-    const X = (i: number) => -(i % cols) * cellW * scaleX;
-    const Y = (i: number) => -Math.floor(i / cols) * cellH * scaleY;
+    // 平移用显示坐标（每格 w×h），与 Image 拉伸到 cols*w × rows*h 一致，避免 resolve 尺寸抖动错格
+    const X = (i: number) => -((i % cols) * w);
+    const Y = (i: number) => -(Math.floor(i / cols) * h);
     const input: number[] = [];
     const xs: number[] = [];
     const ys: number[] = [];
@@ -148,7 +139,7 @@ export function CatSprite({
       ys.push(ys[0] ?? 0);
     }
     return {inputRange: input, xOut: xs, yOut: ys};
-  }, [count, cols, rows, atlasPixelW, atlasPixelH, scaleX, scaleY]);
+  }, [count, cols, rows, w, h]);
 
   if (w <= 0 || h <= 0 || count < 1) {
     return null;

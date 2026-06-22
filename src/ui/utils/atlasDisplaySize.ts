@@ -1,4 +1,5 @@
-import {Image, ImageSourcePropType, PixelRatio} from 'react-native';
+import {ImageSourcePropType, PixelRatio} from 'react-native';
+import {resolveImageAsset} from './resolveImageAsset';
 
 export type AtlasCellSize = {
   source?: ImageSourcePropType | null;
@@ -18,7 +19,11 @@ export function maxAtlasLogicalSize(atlas: AtlasCellSize): {maxWidth: number; ma
   const rows = atlas.rows ?? 1;
 
   if (atlas.source) {
-    const resolved = Image.resolveAssetSource(atlas.source);
+    const fallback =
+      atlas.cellW && atlas.cellH && cols > 0 && rows > 0
+        ? {width: atlas.cellW * cols, height: atlas.cellH * rows}
+        : undefined;
+    const resolved = resolveImageAsset(atlas.source, fallback);
     if (resolved?.width && resolved?.height && cols > 0 && rows > 0) {
       return {
         maxWidth: resolved.width / cols / ratio,

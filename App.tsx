@@ -117,6 +117,7 @@ function App(): React.JSX.Element {
 
   const useSensor = async () => {
     stopOthers('sensor');
+    sensorRef.current.stop();
     const ok = await sensorRef.current.start();
     if (ok) {
       setMode('sensor');
