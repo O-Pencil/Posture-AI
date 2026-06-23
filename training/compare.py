@@ -84,10 +84,39 @@ def metrics(outputs):
     }
 
 
+def md_cell(s: str) -> str:
+    """转义 Markdown 表格单元格（去换行、转义竖线）。"""
+    return s.replace('\\', '\\\\').replace('|', '\\|').replace('\n', ' / ').strip()
+
+
+def write_markdown(path, args, diff, cases, base_outs, lora_outs, mb, ml, identical):
+    """把 A/B 对照 + 指标表写成干净 Markdown（录视频/参赛材料截图用）。"""
+    L = []
+    L.append('# 基座 vs 微调（LoRA）对比\n')
+    L.append(f'- 基座：`{args.base}`')
+    L.append(f'- 微调：`{os.path.basename(args.lora)}`')
+    L.append(f'- adapter 生效校验：logits |Δ|max = **{diff:.4f}** '
+             + ('✓ 生效（确为两个不同模型）' if diff > 1e-4 else '⚠ 几乎无差异，疑似未训到/未加载'))
+    L.append(f'- 与基座完全一致：**{identical}/{len(cases)}** 条\n')
+    L.append('## 逐条对照')
+    L.append('| # | 输入 | 基座输出 | 微调版输出 |')
+    L.append('| --- | --- | --- | --- |')
+    for i, (tc, b, l) in enumerate(zip(cases, base_outs, lora_outs), 1):
+        L.append(f'| {i} | {md_cell(tc)} | {md_cell(b)} | {md_cell(l)} |')
+    L.append('\n## 指标汇总（带标签↑、超30字↓、禁词→0）')
+    L.append('| 模型 | 平均字数 | 带[动作]标签 | 超30字 | 禁词 |')
+    L.append('| --- | --- | --- | --- | --- |')
+    L.append(f'| 基座 | {mb["avg_len"]} | {mb["tag_rate"]} | {mb["over30_rate"]} | {mb["banned_rate"]} |')
+    L.append(f'| 微调 | {ml["avg_len"]} | {ml["tag_rate"]} | {ml["over30_rate"]} | {ml["banned_rate"]} |')
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(L) + '\n')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--base', default=BASE)
     ap.add_argument('--lora', default='training/saves/qwen0.5b-catune-lora-v2')
+    ap.add_argument('--md', default=None, help='额外把对比与指标写成 Markdown 表格到此路径（录视频/材料用）')
     args = ap.parse_args()
 
     print('>>> Loading tokenizer')
@@ -138,6 +167,10 @@ def main():
     print(f'{"基座":8}{mb["avg_len"]:>8}{mb["tag_rate"]:>8}{mb["over30_rate"]:>8}{mb["banned_rate"]:>8}')
     print(f'{"微调":8}{ml["avg_len"]:>8}{ml["tag_rate"]:>8}{ml["over30_rate"]:>8}{ml["banned_rate"]:>8}')
     print(f'\n与基座完全一致: {identical}/{len(TEST_CASES)} 条')
+
+    if args.md:
+        write_markdown(args.md, args, diff, TEST_CASES, base_outs, lora_outs, mb, ml, identical)
+        print(f'\n✓ 已写出 Markdown 对比表：{args.md}')
 
 
 if __name__ == '__main__':
