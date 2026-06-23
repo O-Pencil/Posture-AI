@@ -17,7 +17,6 @@ import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import Svg, {Circle, Path} from 'react-native-svg';
 
 import {DashboardState, PostureAction, PostureName, SpineNode} from '../../posture/types';
-import {SPINE_KINEMATICS} from '../../posture/spineKinematics';
 import {getActionMeta} from '../../posture/actionTag';
 import {getExercise} from '../../posture/exercises';
 import {MemoryService} from '../../platform/memory/service';
@@ -102,15 +101,17 @@ function useStablePostureAxis(
     return 'pitch';
   }
 
-  const neckDev = Math.abs(state.neckPitch - SPINE_KINEMATICS.normalNeckRestDeg);
+  // 用「干净」的独立轴判别：俯仰=前倾量 thorPitch、侧倾=lumbarRoll。
+  // 不用 neckPitch——它已与 lumbar 耦合(生理模拟)，会让左右侧倾误触发俯仰轴（抬头低头被左右干扰）。
+  const pitchDev = Math.abs(state.thorPitch);
   const leanDev = Math.abs(state.lumbarRoll);
   const current = axisRef.current;
 
   if (current === 'pitch') {
-    if (leanDev > neckDev + AXIS_HYSTERESIS_DEG) {
+    if (leanDev > pitchDev + AXIS_HYSTERESIS_DEG) {
       axisRef.current = 'lean';
     }
-  } else if (neckDev > leanDev + AXIS_HYSTERESIS_DEG) {
+  } else if (pitchDev > leanDev + AXIS_HYSTERESIS_DEG) {
     axisRef.current = 'pitch';
   }
 
@@ -402,7 +403,7 @@ function PostureScene({
                   cols={PITCH_ATLAS.cols}
                   rows={PITCH_ATLAS.rows}
                   count={PITCH_ATLAS.count}
-                  angle={state.neckPitch}
+                  angle={state.thorPitch}
                   cellWidth={boxW}
                   cellHeight={boxH}
                   minDeg={-PITCH_RANGE_DEG}
@@ -428,7 +429,7 @@ function PostureScene({
               ) : postureAxis === 'pitch' && hasPitchFrames ? (
                 <CatFlipbook
                   frames={PITCH_FRAMES}
-                  angle={state.neckPitch}
+                  angle={state.thorPitch}
                   minDeg={-PITCH_RANGE_DEG}
                   maxDeg={PITCH_RANGE_DEG}
                   invert
