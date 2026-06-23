@@ -30,7 +30,7 @@ import {LEAN_ATLAS} from '../assets/leanAtlas';
 import {fitAtlasDisplaySize} from '../utils/atlasDisplaySize';
 import {PITCH_FRAMES} from '../assets/pitchFrames';
 import {PITCH_ATLAS} from '../assets/pitchAtlas';
-import {anchorsAt} from '../assets/catAnchors';
+import {anchorsAt, PostureAxis} from '../assets/catAnchors';
 import {APP_NAME} from '../../constants/appMeta';
 
 const PORTAL_IMAGE = require('../../../public/portal.png');
@@ -263,11 +263,13 @@ function MetricStrip({state}: {state: DashboardState}): React.JSX.Element {
 /** 点位层：按「当前帧」的脊柱锚点（比例）× 猫盒子尺寸换算成像素，贴在猫的头→腰上。
  *  highlightNode：当前建议动作对应的节点 → 该点位橙色高亮 + 光环，把"模型说的动作"指到猫身上。 */
 function SensorOverlay({
+  axis,
   frameIndex,
   boxW,
   boxH,
   highlightNode,
 }: {
+  axis: PostureAxis;
   frameIndex: number;
   boxW: number;
   boxH: number;
@@ -277,7 +279,7 @@ function SensorOverlay({
     return null;
   }
   const xShift = boxW * SENSOR_OVERLAY_X_SHIFT;
-  const spine = anchorsAt(frameIndex);
+  const spine = anchorsAt(axis, frameIndex);
   const points: Array<{key: SpineNode; x: number; y: number}> = [
     {key: 'c7', x: spine.c7.u * boxW + xShift, y: spine.c7.v * boxH},
     {key: 't12', x: spine.t12.u * boxW + xShift, y: spine.t12.v * boxH},
@@ -366,8 +368,9 @@ function PostureScene({
     }
     const u = (evt.nativeEvent.locationX / boxW).toFixed(3);
     const v = (evt.nativeEvent.locationY / boxH).toFixed(3);
+    // axis 标明这一帧属于哪套锚点表（pitch / lean），照着填对应表
     // eslint-disable-next-line no-console
-    console.log(`[catAnchors] frame=${frameIndex}  u=${u}  v=${v}`);
+    console.log(`[catAnchors:${postureAxis}] frame=${frameIndex}  u=${u}  v=${v}`);
   };
 
   return (
@@ -448,10 +451,10 @@ function PostureScene({
               ) : (
                 <Image source={PORTAL_IMAGE} style={StyleSheet.absoluteFill} resizeMode="contain" />
               )}
-              <SensorOverlay frameIndex={frameIndex} boxW={boxW} boxH={boxH} highlightNode={highlightNode} />
+              <SensorOverlay axis={postureAxis} frameIndex={frameIndex} boxW={boxW} boxH={boxH} highlightNode={highlightNode} />
               {CALIBRATE ? (
                 <Pressable style={StyleSheet.absoluteFill} onPress={onCalibrateTap}>
-                  <Text style={styles.calibrateBadge}>{t('desk.calibrateBadge', {n: frameIndex})}</Text>
+                  <Text style={styles.calibrateBadge}>{postureAxis} · {t('desk.calibrateBadge', {n: frameIndex})}</Text>
                 </Pressable>
               ) : null}
             </View>
