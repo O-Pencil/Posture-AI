@@ -106,3 +106,12 @@ docs/demos/*.apk
 scripts/sme2-demo/.docker-mnn-build/
 
 .mnn-ios-build/
+
+# Expo export:embed 产物（release 自动编进 APK，dev 走 Metro；不入库）
+android/app/src/main/assets/index.android.bundle
+
+# 本地 Python 缓存
+**/__pycache__/
+
+# 临时文件
+temp/
