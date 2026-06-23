@@ -42,20 +42,22 @@ const MNN_FILE_SET = [
   'llm.mnn',
   'llm.mnn.weight',
   'tokenizer.txt',
-  'embeddings_bf16.bin',
 ] as const;
 
 // VL 模型在 LLM 文件集基础上多视觉编码器文件。
 // ⚠ 下载前务必核对所选 HF 仓库实际文件名（不同导出可能为 visual.mnn 单文件或含 .weight），否则下载会 404。
 const VL_FILE_SET = [...MNN_FILE_SET, 'visual.mnn', 'visual.mnn.weight'] as const;
 
+// 注：之前这里有 'embeddings_bf16.bin'。Qwen3-1.7B 仓库没有该文件（404），
+// 0.5B / VL 的 llm.mnn.weight 已包含全部 embedding 权重，单独下载反而浪费 265MB+ 流量。已移除。
+
 export const MODEL_CATALOG: readonly MnnModelDef[] = [
   {
     id: 'qwen2.5-0.5b',
     label: 'Qwen2.5-0.5B',
-    sizeHint: '~550MB',
+    sizeHint: '~290MB',
     subdir: `${MNN_MODELS_ROOT}qwen2.5-0.5b/`,
-    baseUrl: 'https://hf-mirror.com/taobao-mnn/Qwen2.5-0.5B-Instruct-MNN/resolve/main/',
+    baseUrl: 'https://huggingface.co/taobao-mnn/Qwen2.5-0.5B-Instruct-MNN/resolve/main/',
     files: MNN_FILE_SET,
     tags: ['emulator', 'device'],
     emulatorNote: '模拟器可跑通下载与 UI；INT4 推理易出现乱码，中文质量以真机为准。',
@@ -66,7 +68,7 @@ export const MODEL_CATALOG: readonly MnnModelDef[] = [
     label: 'Qwen3-1.7B',
     sizeHint: '~1.2GB',
     subdir: `${MNN_MODELS_ROOT}qwen3-1.7b/`,
-    baseUrl: 'https://hf-mirror.com/taobao-mnn/Qwen3-1.7B-MNN/resolve/main/',
+    baseUrl: 'https://huggingface.co/taobao-mnn/Qwen3-1.7B-MNN/resolve/main/',
     files: MNN_FILE_SET,
     tags: ['device', 'sme2'],
     emulatorNote: '体积大，模拟器易 OOM；仅建议在 SME2/大内存真机验收。',
@@ -77,7 +79,7 @@ export const MODEL_CATALOG: readonly MnnModelDef[] = [
     label: 'Qwen2-VL-2B（体态评估）',
     sizeHint: '~1.5GB',
     subdir: `${MNN_MODELS_ROOT}qwen2-vl-2b/`,
-    baseUrl: 'https://hf-mirror.com/taobao-mnn/Qwen2-VL-2B-Instruct-MNN/resolve/main/',
+    baseUrl: 'https://huggingface.co/taobao-mnn/Qwen2-VL-2B-Instruct-MNN/resolve/main/',
     files: VL_FILE_SET,
     tags: ['device', 'sme2'],
     vision: true,
