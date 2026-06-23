@@ -34,18 +34,31 @@ export function createAssessService(locale: Locale = 'en'): AssessService {
   return {
     async assess(imageBase64) {
       const cfg = await loadAssessConfig();
+      // 诊断日志（Metro 控制台可见）：暴露实际生效的配置，避免 UI 显示与运行时不一致时无迹可循。
+      console.warn('[assess] cfg', {
+        backend: cfg.backend,
+        apiKeyLen: cfg.cloud.apiKey.trim().length,
+        apiKeyHead: cfg.cloud.apiKey.trim().slice(0, 4),
+        baseURL: cfg.cloud.baseURL,
+        model: cfg.cloud.model,
+        hasImage: Boolean(imageBase64),
+      });
       try {
         if (imageBase64) {
           if (cfg.backend === 'cloud' && cfg.cloud.apiKey.trim()) {
+            console.warn('[assess] → cloud');
             return safety(await cloudAssess(cfg.cloud, imageBase64, locale), locale);
           }
           if (cfg.backend === 'local' && isLocalVlAvailable()) {
+            console.warn('[assess] → local');
             return safety(await localVlAssess(imageBase64, locale), locale);
           }
         }
-      } catch {
+      } catch (e) {
+        console.warn('[assess] backend failed, fall back to preset', e);
         // 网络/原生/解析失败 → 落到预置
       }
+      console.warn('[assess] → preset (mock)');
       return safety(pickPreset(locale), locale);
     },
   };

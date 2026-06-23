@@ -28,6 +28,8 @@ export interface AssessConfig {
 export const DEFAULT_ASSESS_CONFIG: AssessConfig = {
   backend: 'preset',
   cloud: {
+    // 阿里云百炼 OpenAI 兼容端点；`/compatible-mode/v1` 才是 chat/completions 路径。
+    // 之前默认写成这个，但用户从控制台复制的 `/api/v1` 会 404（百炼模型列表/管理用，不是 chat）。
     baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     apiKey: '',
     model: 'qwen-vl-max',

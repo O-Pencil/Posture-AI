@@ -68,7 +68,7 @@ const ASSESS_BACKEND_KEY: Record<AssessBackend, string> = {
 function AssessConfigCard(): React.JSX.Element {
   const t = useT();
   const [cfg, setCfg] = useState<AssessConfig>(DEFAULT_ASSESS_CONFIG);
-  const [saved, setSaved] = useState(false);
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [readiness, setReadiness] = useState<AssessReadiness | null>(null);
 
   useEffect(() => {
@@ -81,11 +81,11 @@ function AssessConfigCard(): React.JSX.Element {
 
   const setBackend = (backend: AssessBackend) => {
     setCfg(c => ({...c, backend}));
-    setSaved(false);
+    setSaveState('idle');
   };
   const setCloud = (patch: Partial<AssessConfig['cloud']>) => {
     setCfg(c => ({...c, cloud: {...c.cloud, ...patch}}));
-    setSaved(false);
+    setSaveState('idle');
   };
 
   return (
@@ -146,11 +146,21 @@ function AssessConfigCard(): React.JSX.Element {
 
       <Pressable
         style={styles.saveBtn}
-        onPress={() => {
-          saveAssessConfig(cfg);
-          setSaved(true);
+        disabled={saveState === 'saving'}
+        onPress={async () => {
+          setSaveState('saving');
+          const ok = await saveAssessConfig(cfg);
+          setSaveState(ok ? 'saved' : 'failed');
         }}>
-        <Text style={styles.saveBtnText}>{saved ? t('common.save') + ' ✓' : t('common.save')}</Text>
+        <Text style={styles.saveBtnText}>
+          {saveState === 'saving'
+            ? t('common.save') + '…'
+            : saveState === 'saved'
+              ? t('common.save') + ' ✓'
+              : saveState === 'failed'
+                ? t('common.save') + ' ✗'
+                : t('common.save')}
+        </Text>
       </Pressable>
       <Text style={styles.hint}>{t('settings.assess.privacy')}</Text>
     </Card>

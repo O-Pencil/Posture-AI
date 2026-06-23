@@ -39,6 +39,12 @@ export async function cloudAssess(
     }),
   });
   if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    console.warn('[assess] cloud http error', {
+      status: res.status,
+      url: `${cfg.baseURL.replace(/\/$/, '')}/chat/completions`,
+      body: errBody.slice(0, 500),
+    });
     throw new Error(`cloud assess failed: ${res.status}`);
   }
   const data = await res.json();

@@ -29,11 +29,14 @@ export async function loadAssessConfig(): Promise<AssessConfig> {
   }
 }
 
-export async function saveAssessConfig(config: AssessConfig): Promise<void> {
+export async function saveAssessConfig(config: AssessConfig): Promise<boolean> {
   try {
     await FileSystem.makeDirectoryAsync(DIR, {intermediates: true});
     await FileSystem.writeAsStringAsync(FILE, JSON.stringify(config));
-  } catch {
-    // web / 无 FS：忽略
+    return true;
+  } catch (e) {
+    // 暴露错误以便 UI/日志排查（之前静默吞掉会让 Key 看似已填但实际未持久化）
+    console.warn('[assess] saveAssessConfig failed', e);
+    return false;
   }
 }
