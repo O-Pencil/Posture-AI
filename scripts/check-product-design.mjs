@@ -9,9 +9,14 @@ import {existsSync, readFileSync, readdirSync, statSync} from 'node:fs';
 import {join, extname} from 'node:path';
 
 const failures = [];
+const warnings = [];
 
 function fail(message) {
   failures.push(message);
+}
+
+function warn(message) {
+  warnings.push(message);
 }
 
 function walk(dir, out = []) {
@@ -42,6 +47,8 @@ const requiredFiles = [
   '.agents/skills/catune-product-design/references/glossary.md',
   '.agents/skills/catune-product-design/references/patterns.md',
   '.agents/skills/catune-product-design/references/coverage-gaps.md',
+  '.agents/skills/catune-product-design/references/review-loop.md',
+  '.agents/skills/catune-product-design/references/decision-template.md',
 ];
 for (const file of requiredFiles) {
   if (!existsSync(file)) fail(`Missing product-design file: ${file}`);
@@ -74,6 +81,28 @@ for (const file of designFiles) {
       fail(`Platform/native dependency "${needle}" appears in UI file ${file}`);
     }
   }
+  if (/\bclassName\s*=/.test(text)) {
+    fail(`className appears in UI file ${file}; use src/design primitives/theme instead`);
+  }
+  if (/import\s*\{[^}]*\bModal\b[^}]*\}\s*from\s*['"]react-native['"]/.test(text) || /<Modal\b/.test(text)) {
+    fail(`React Native Modal appears in ${file}; use existing screen overlay patterns unless a decision record accepts a modal`);
+  }
+  if (/\bPicker\b|<select\b|<Select\b/.test(text)) {
+    fail(`Picker/select-like control appears in ${file}; prefer SegmentedControl/Chip for small static option sets`);
+  }
+  const lines = text.split('\n');
+  lines.forEach((line, index) => {
+    if (!line.includes('<Pressable')) return;
+    if (line.includes('accessibilityLabel') || line.includes('accessibilityRole')) return;
+    if (line.includes('StyleSheet.absoluteFill')) return;
+    warn(`Pressable may need an accessible name/role: ${file}:${index + 1}`);
+  });
+}
+
+if (warnings.length && process.env.CATUNE_SHOW_DESIGN_WARNINGS === '1') {
+  console.warn('Product design warnings:');
+  for (const w of warnings.slice(0, 30)) console.warn(`- ${w}`);
+  if (warnings.length > 30) console.warn(`- ... ${warnings.length - 30} more`);
 }
 
 if (failures.length) {

@@ -31,7 +31,8 @@ npm run dev
 - New design rules must be narrow, evidenced, and placed in the smallest relevant reference.
 - Mechanical rules belong in `scripts/check-product-design.mjs`.
 - Judgment rules belong in `references/`.
+- Candidate rules from feedback must go through `references/review-loop.md`.
+- Use `references/decision-template.md` when accepting or rejecting a durable rule.
 - Accepted examples belong in `exemplars/`.
 - Missing standards belong in `references/coverage-gaps.md`.
 - Do not turn one screenshot, one old file, or one reviewer preference into a universal rule.
-

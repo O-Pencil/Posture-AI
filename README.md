@@ -47,6 +47,7 @@ scripts/     # 构建、检查、资源生成脚本
 - 改姿态判断：改 `src/posture/engine.ts` 和相关测试。
 - 改传感器/BLE/文件系统：改 `src/platform/`，不要把原生能力写进 UI 组件。
 - 改端侧模型管理：改 `src/mnn/`，Android 原生桥在 `android/app/src/main/`。
+- 沉淀设计规则：先看 `.agents/skills/catune-product-design/references/review-loop.md`，再决定放进 guidance、lint、exemplar、test 或 coverage gap。
 
 ## 验证
 

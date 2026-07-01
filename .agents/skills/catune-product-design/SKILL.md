@@ -48,6 +48,7 @@ Load only the references needed for the task:
 | Copy, labels, empty/error text, accessible names | `references/copy.md` |
 | Screen-specific entry points and state ownership | `references/surfaces.md` |
 | Unknown or missing standard | `references/coverage-gaps.md` |
+| Turning feedback into standards | `references/review-loop.md` and `references/decision-template.md` |
 
 ## Workflow
 
@@ -74,6 +75,7 @@ Load only the references needed for the task:
 - Preserve input through validation and recoverable errors.
 - Make destructive actions explicit about object, scope, and consequence.
 - Do not add decorative novelty, motion, or copy unless it clarifies structure, state, or brand intent.
+- Do not promote one-off taste into a standard. Use the review loop before adding rules.
 
 ## Review Output
 

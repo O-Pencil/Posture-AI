@@ -86,6 +86,7 @@ docs/            # 联调 / 硬件 / API 等工程文档（8 份已恢复）
 - 改 UI 时用 `src/design/primitives/` 已有的组件（Card/Button/Field/SegmentedControl/Stack/...），不要重新发明。
 - 不要新增 `docs/`、`PRD/`、`prototype/`、`web/` 作为项目知识或正式 UI 来源。
 - 如果需要长期说明，更新 `README.md` 或本文件；不要分散新文档。
+- 从评审、截图或反复修正中沉淀新标准时，先走 `.agents/skills/catune-product-design/references/review-loop.md`，再决定是 guidance、lint、exemplar、test 还是 coverage gap。
 
 ---
 
