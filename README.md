@@ -21,7 +21,7 @@ npm run dev:ios
 
 ```text
 src/
-  design/    # UI、组件、screens、theme、i18n；日常 vibe coding 主入口
+  design/    # UI、组件、screens、theme、motion、i18n；日常 vibe coding 主入口
   posture/   # 纯 TS 姿态规则、打分、建议、训练、成长与报告
   platform/  # 传感器、BLE、震动、文件系统、语义记忆等平台适配
   mnn/       # 模型清单、下载、设备推荐、端侧推理 JS 客户端
@@ -39,6 +39,7 @@ scripts/     # 构建、检查、资源生成脚本
 
 - 改 UI 和交互：优先看 `src/design/screens/` 和 `src/design/components/`。
 - 改视觉规范：改 `src/design/theme/`，不要在页面里散落新颜色和尺寸。
+- 改 Android 动效：从 `src/design/motion/` 引入 `MotionView` / `FadeInView` / `ScalePressable`，不要在页面里散用 Reanimated。
 - 改文案：改 `src/design/i18n/en.ts` 与 `src/design/i18n/zh.ts`，保持 key 对齐。
 - 做用户可见改动：按 `.agents/skills/catune-product-design/SKILL.md` 的 Shape / Implement / Review / Copy / Harden 模式走。
 - 改姿态判断：改 `src/posture/engine.ts` 和相关测试。

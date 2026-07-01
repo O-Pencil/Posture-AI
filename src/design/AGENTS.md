@@ -13,6 +13,7 @@
 | `theme/` | 设计 token（colors / spacing / radius / font / shadow） |
 | `i18n/` | 国际化（en.ts / zh.ts / LocaleContext / types / format） |
 | `primitives/` | 基础组件（Card / Button / IconButton / Badge / Chip / SegmentedControl / Field / SwitchRow / ListItem / Section / ProgressBar / Stack） |
+| `motion/` | Android/RN 动效入口（MotionView / FadeInView / ScalePressable，底层 Reanimated） |
 | `icons/` | 自绘 SVG 图标（DeviceIcon / BatteryIcon / ...） |
 | `assets/` | 静态资源（catAnchors / leanAtlas） |
 
@@ -22,6 +23,7 @@
 - **i18n 走 hook**：`useT()` / `useLocale()` from `./i18n`；禁止直接 `tr('zh', key)` 在组件里。
 - **P3 头部**：每个 .tsx/.ts 都有 `[WHO/FROM/TO/HERE]` 头部（55/55，见 `doc-p3-header-coverage`）。
 - **零业务逻辑**：状态/打分在 `src/posture/`；UI 只渲染 `DashboardState`。
+- **动效入口**：Android 主线动效统一从 `src/design/motion` 引入；不要在页面里散落 Reanimated worklet。
 
 ## 关键页面
 

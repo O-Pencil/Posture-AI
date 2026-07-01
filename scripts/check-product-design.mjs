@@ -26,7 +26,7 @@ function walk(dir, out = []) {
   return out;
 }
 
-const forbiddenDirs = ['docs', 'PRD', 'prototype', 'web', 'src/ui'];
+const forbiddenDirs = ['PRD', 'prototype', 'web', 'src/ui'];
 for (const dir of forbiddenDirs) {
   if (existsSync(dir)) fail(`Forbidden legacy directory exists: ${dir}`);
 }

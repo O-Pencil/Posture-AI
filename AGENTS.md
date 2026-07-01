@@ -53,7 +53,7 @@ node scripts/check-no-color-literal.mjs  # 色值字面量（warn-only，W1 7-04
 ## 3. 目录边界
 
 ```text
-src/design/      # UI 层：组件库、screens、theme、i18n、primitives
+src/design/      # UI 层：组件库、screens、theme、i18n、primitives、motion
 src/posture/     # 纯 TS 业务核心：姿态规则、打分、建议、训练、成长、日报
 src/platform/    # 平台适配：DeviceMotion、BLE、WS、Vibration、FileSystem、memory
 src/mnn/         # 端侧模型：下载、设备推荐、推理流式客户端、原生调试边界
@@ -76,6 +76,7 @@ docs/            # 联调 / 硬件 / API 等工程文档（8 份已恢复）
 - UI 改动统一放在 `src/design/`。
 - 页面放 `src/design/screens/`；可复用组件放 `src/design/components/`；基础原语放 `src/design/primitives/`。
 - 主题 token 放 `src/design/theme/`；不要在页面里随意散落颜色、半径、阴影和字号。
+- Android 主线动效走 `src/design/motion/`；业务页面不要直接散用 Reanimated worklet。
 - 文案走 `src/design/i18n/`；新增 key 必须同时补 `en.ts` 和 `zh.ts`。
 - 姿态分类、分数、建议兜底、禁词逻辑只放 `src/posture/`。
 - DeviceMotion、BLE、震动、文件系统、NativeModules 不要直接写进 UI 组件，必须经 `src/platform/` 或 `src/mnn/`。
@@ -91,7 +92,7 @@ docs/            # 联调 / 硬件 / API 等工程文档（8 份已恢复）
 2. 按 `.agents/skills/catune-product-design/SKILL.md` 确认这次是 Shape / Implement / Review / Copy / Harden。
 3. 改 `src/design/screens/*` 或 `src/design/components/*`；优先复用 `src/design/primitives/*`。
 4. 抽出重复视觉模式到 `src/design/components/` 或 `src/design/primitives/`。
-5. 需要跨屏统一的视觉变量时，先加到 `src/design/theme/`。
+5. 需要跨屏统一的视觉变量时，先加到 `src/design/theme/`；需要动画时先看 `src/design/motion/`。
 6. 完成后跑 `npm run tsc:rn`、`npm test -- --runInBand`、`npm run lint`、`npm run design:check`。
 
 ---
