@@ -153,7 +153,7 @@ function AssessConfigCard(): React.JSX.Element {
         }
         onPress={() => {
           setSaveState('saving');
-          void saveAssessConfig(cfg).then(ok => setSaveState(ok ? 'saved' : 'failed'));
+          saveAssessConfig(cfg).then(ok => setSaveState(ok ? 'saved' : 'failed'));
         }}
       />
       <Text style={styles.hint}>{t('settings.assess.privacy')}</Text>

@@ -377,8 +377,6 @@ function PostureScene({
     }
     const u = (evt.nativeEvent.locationX / boxW).toFixed(3);
     const v = (evt.nativeEvent.locationY / boxH).toFixed(3);
-    // axis 标明这一帧属于哪套锚点表（pitch / lean），照着填对应表
-    // eslint-disable-next-line no-console
     console.log(`[catAnchors:${postureAxis}] frame=${frameIndex}  u=${u}  v=${v}`);
   };
 
@@ -527,7 +525,7 @@ export function DeskScreen({
     };
     refresh();
     // memory.ready 后再刷一次（覆盖初始化竞态）
-    void memory.ready.then(refresh);
+    memory.ready.then(refresh);
     return () => {
       cancelled = true;
     };

@@ -140,7 +140,7 @@ function EventsView({growth}: {growth: GrowthState}): React.JSX.Element {
               {e.action}
             </Text>
           </View>
-          <Text style={[styles.logDelta, {color: e.delta > 0 ? '#3A9E1F' : '#C20A0A'}]}>
+          <Text style={[styles.logDelta, e.delta > 0 ? styles.logDeltaPositive : styles.logDeltaNegative]}>
             {e.delta > 0 ? '+' : ''}
             {e.delta}
           </Text>
@@ -184,6 +184,8 @@ const styles = StyleSheet.create({
   logTime: {color: theme.colors.textMuted, fontSize: 11},
   logAction: {color: theme.colors.textSecondary, fontSize: 13, marginTop: theme.spacing.xxs},
   logDelta: {fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold, marginLeft: theme.spacing.md2},
+  logDeltaPositive: {color: '#3A9E1F'},
+  logDeltaNegative: {color: '#C20A0A'},
   empty: {alignItems: 'center', paddingVertical: theme.spacing.xxl, paddingHorizontal: theme.spacing.md2},
   emptyTitle: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
   emptyHint: {color: theme.colors.textMuted, fontSize: theme.font.sizeXs, marginTop: theme.spacing.sm, textAlign: 'center'},

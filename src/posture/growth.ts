@@ -124,7 +124,7 @@ export function createGrowthTracker(engine: PostureEngine, opts: GrowthOptions =
     // 落每日快照（异常入态 good=0 / abnormal=1；良好发分 good=1 / abnormal=0）
     const abnormalCount = delta < 0 ? 1 : 0;
     const goodCount = delta > 0 ? 1 : 0;
-    void upsertTodaySnapshot({
+    upsertTodaySnapshot({
       points,
       goodMinutes: goodCount,
       abnormalCount,
@@ -173,7 +173,7 @@ export function createGrowthTracker(engine: PostureEngine, opts: GrowthOptions =
         return;
       }
       // 启动时检查是否跨天，标 finalized
-      void rolloverIfNewDay();
+      rolloverIfNewDay();
       unsubEngine = engine.subscribe(s => onSample(s.posture));
       timer = setInterval(onTick, tickMs);
       emit();

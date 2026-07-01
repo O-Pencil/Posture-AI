@@ -11,7 +11,7 @@
  * 端侧 Qwen+MNN 为安卓原生支线，默认不编 native。
  */
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Platform, View} from 'react-native';
+import {ActivityIndicator, Platform, StyleSheet, View} from 'react-native';
 import {SafeAreaProvider, initialWindowMetrics} from 'react-native-safe-area-context';
 import {useFonts, Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold} from '@expo-google-fonts/fredoka';
 import {Geist_400Regular, Geist_500Medium, Geist_700Bold} from '@expo-google-fonts/geist';
@@ -204,7 +204,7 @@ function App(): React.JSX.Element {
     // Web / 安卓模拟器：WS 接收；iPhone 真机：本机 IMU（发送方在 Settings 手动切）
     const boot =
       Platform.OS === 'web' || (Platform.OS === 'android' && Device.isDevice === false) ? useWs() : useSensor();
-    void boot;
+    boot.catch(() => {});
     memoryRef.current.ready.then(() => {
       const saved = memoryRef.current.locale();
       localeRef.current = saved;
@@ -222,9 +222,6 @@ function App(): React.JSX.Element {
       wsSenderRef.current.stop();
       mockRef.current.stop();
     };
-    // refs 是 stable 的（useRef），无需列入 deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    // eslint-disable-next-line react-hooks/rules-of-hooks
   }, [launchSeen]);
 
   // locale 变化：engine 重算 + emit；growth 重新 snapshot
@@ -239,13 +236,13 @@ function App(): React.JSX.Element {
   };
 
   const handleLaunchStart = () => {
-    void saveLaunchSeen(true).then(() => setLaunchSeen(true));
+    saveLaunchSeen(true).then(() => setLaunchSeen(true));
   };
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       {!fontsLoaded || launchSeen === null ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF'}}>
+        <View style={styles.loading}>
           <ActivityIndicator size="small" color="#141414" />
         </View>
       ) : !launchSeen ? (
@@ -345,3 +342,12 @@ function AppContent({
 }
 
 export default App;
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+});

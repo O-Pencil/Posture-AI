@@ -36,7 +36,6 @@ export type BleSensorSource = {
 // react-native-ble-plx 懒加载（原生才有；RNW/缺库时为 null）
 let BleManagerCtor: (new () => any) | null = null;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   BleManagerCtor = require('react-native-ble-plx').BleManager;
 } catch {
   BleManagerCtor = null;
@@ -45,6 +44,7 @@ try {
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 /** base64(ble-plx 的 characteristic.value) → 字节，无第三方依赖。 */
 function base64ToBytes(b64: string): Uint8Array {
+  /* eslint-disable no-bitwise */
   const s = b64.replace(/[^A-Za-z0-9+/]/g, '');
   const len = Math.floor((s.length * 3) / 4);
   const out = new Uint8Array(len);
@@ -59,6 +59,7 @@ function base64ToBytes(b64: string): Uint8Array {
     if (c !== -1 && p < len) out[p++] = (n >> 8) & 255;
     if (d !== -1 && p < len) out[p++] = n & 255;
   }
+  /* eslint-enable no-bitwise */
   return out;
 }
 

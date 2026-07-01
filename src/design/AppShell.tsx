@@ -131,11 +131,13 @@ export function AppShell({
       ) : null}
       {tab === 'plant' && (
         <Animated.View
-          style={{
-            flex: 1,
+          style={[
+            styles.animatedScreen,
+            {
             opacity: plantZoom,
             transform: [{scale: plantZoom.interpolate({inputRange: [0, 1], outputRange: [1.12, 1]})}],
-          }}>
+            },
+          ]}>
           <PlantScreen growth={growth} />
         </Animated.View>
       )}
@@ -187,4 +189,5 @@ export function AppShell({
 
 const styles = StyleSheet.create({
   root: {flex: 1, fontFamily: theme.font.body},
+  animatedScreen: {flex: 1},
 });

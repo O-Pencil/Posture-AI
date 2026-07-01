@@ -124,7 +124,7 @@ export function AssessScreen({onClose, onGoSettings}: {onClose: () => void; onGo
           <>
             <View style={styles.resultHead}>
               {imageUri ? <Image source={{uri: imageUri}} style={styles.thumb} resizeMode="cover" /> : null}
-              <View style={{flex: 1}}>
+              <View style={styles.resultCopy}>
                 <Text style={styles.sourceTag}>{sourceLabel(result.source)}</Text>
                 <Text style={styles.summary}>{result.summary}</Text>
               </View>
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
   },
   obsLabel: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm},
   obsValue: {color: theme.colors.textPrimary, fontSize: theme.font.sizeSm, fontWeight: theme.font.weightBold},
+  resultCopy: {flex: 1},
   sugRow: {flexDirection: 'row', gap: theme.spacing.sm2, paddingVertical: 5},
   sugDot: {color: theme.colors.primary, fontSize: theme.font.sizeMd, fontWeight: theme.font.weightBold},
   sugText: {color: theme.colors.textSecondary, fontSize: theme.font.sizeSm, flex: 1, lineHeight: 20},

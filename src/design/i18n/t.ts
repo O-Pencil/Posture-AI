@@ -36,7 +36,6 @@ export function makeT(dict: Dict, locale: string, isDev: boolean) {
     const tmpl = dict[key];
     if (tmpl === undefined) {
       if (isDev) {
-        // eslint-disable-next-line no-console
         console.warn(`[i18n] missing key "${key}" in locale "${locale}"`);
       }
       return key;
