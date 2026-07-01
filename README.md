@@ -51,12 +51,23 @@ scripts/     # 构建、检查、资源生成脚本
 ## 验证
 
 ```bash
-npm run tsc:rn
-npm test -- --runInBand
-npm run lint
+npm run verify # Agent/提交前权威检查
 ```
 
-`npm run lint` 当前允许 warning，但不应有 error。
+`npm run verify` 会串起 lint、TypeScript、Jest、设计纪律、token 化率、循环依赖、死导出和色值字面量提示。GitHub Actions 也跑同一条命令。
+
+单项脚本：
+
+| 命令 | 用途 |
+| --- | --- |
+| `npm run lint` | ESLint，要求 0 error |
+| `npm run typecheck` / `npm run tsc:rn` | TypeScript 类型检查 |
+| `npm test -- --runInBand` | Jest 单测 |
+| `npm run check:design` | 设计纪律与目录边界 |
+| `npm run check:tokens` | `src/design` token 化率 |
+| `npm run check:deps` | `src/` 循环依赖 |
+| `npm run check:exports` | `src/` 死导出 |
+| `npm run check:colors` | 色值字面量提示，warn-only |
 
 ## 清理后的约定
 
