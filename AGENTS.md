@@ -123,15 +123,99 @@ npm run dev    # expo start --web
 
 ### 7.2 Android Emulator（arm64 + MNN 链路）
 
+#### 7.2.1 启动
+
 ```bash
-npm run dev:android   # expo run:android（首次会触发 prebuild + gradle 同步）
+# 方式 A：Expo CLI 直接跑（首次会触发 prebuild + gradle 同步）
+npm run dev:android
+
+# 方式 B：先启 Metro，再用本地 aapt/gradle 安装
+npm start                    # Metro bundler
+npx expo run:android         # 另开终端
 ```
 
-- **arm64 模拟器**（AVD）：可跑 MNN 链路，能验证 `libMNN.so` 加载 + `inferText` 调用，但 IME 实测 `sme2:0`（CPU 虚拟），输出预期乱码或 `!!!!`。
-- 路径：`android/` 是 `expo prebuild` 产物，已加 git。修改前先看 `ios/AGENTS.md` 和 `android/app/src/main/cpp/CMakeLists.txt`。
-- MNN 编入：`./gradlew assembleDebug -PenableMnn=true`（约 5.1MB libMNN.so）。
-- 验证脚本：`scripts/check-android-build-ready.mjs`、`scripts/check-mnn-device.ps1`。
-- 已知：`docs/真机模拟器测试反馈.md` 记录了历史踩坑。
+#### 7.2.2 AVD 创建（一次性）
+
+1. **Android Studio → Tools → Device Manager → Create Device**
+2. 选硬件：Pixel 6 / Pixel 7（arm64 都行）
+3. 系统镜像：**API 34 (Android 14) arm64-v8a with Google Play**（不要选 x86_64，MNN 必须 arm64）
+4. RAM ≥ 4GB、VM Heap ≥ 512MB（吃 MNN 时会撑）
+5. 启用 **Host GPU**（默认是 Software，模拟器会卡）
+6. **Storage ≥ 8GB**（`filesDir/mnn_models/qwen2.5-0.5b/` ~550MB + 系统）
+
+#### 7.2.3 首次启动流程
+
+```bash
+# 1. 启 Metro
+npm start
+
+# 2. 预检工程（缺文件先报）
+node scripts/check-android-build-ready.mjs
+
+# 3. 构建并安装到模拟器（首次 ~5-10 分钟）
+npx expo run:android
+
+# 4. 失败时单独跑构建
+cd android && ./gradlew assembleDebug
+```
+
+#### 7.2.4 调试快捷键（adb logcat 视角）
+
+| 按键 | 作用（Expo dev menu） |
+|---|---|
+| `r` | 重新加载 JS bundle（不重启 native） |
+| `j` | 打开 Chrome DevTools（JS debugger） |
+| `m` | 切换开发菜单显示 |
+| `⇧ m` | 切换 performance monitor |
+| `e` | 触发 JS error（边界测试） |
+
+模拟器本身：`⌃ M`（Mac）/ `Ctrl+M`（Win）打开 dev menu。
+
+#### 7.2.5 MNN 链路调试（端侧模型 IME 路径）
+
+```bash
+# 默认不编 MNN（保证纯 RN 在任意机器可编）
+./gradlew assembleDebug
+
+# 打开 MNN 编入（需 cpp/third_party/MNN 源码 + arm64 libMNN.so）
+./gradlew assembleDebug -PenableMnn=true
+# 或指定外部 MNN 源
+./gradlew assembleDebug -PenableMnn=true -DmnnSourceRoot=/path/to/MNN
+```
+
+**App 内入口**：Settings → 「设备指标 + MNN」折叠卡 → 看到 CPU 后端 / SME2 标志位 → 跑 INFER / 跑 BENCH。
+
+**预期行为**：
+- 模拟器 IME `sme2:0`（CPU 虚拟，**预期内**）
+- 输出 `!!!!` 乱码 → 也是预期（模型在模拟器偶发，但**链路通 loaded=true**）
+- 真机（小米14）`sme2:0` 也是已知，详见 `docs/联调进度与实测记录.md` §6
+- Mac Docker A1/A2 容器化 Arm CPU → 中文推理 ✅ → 见 `docs/联调进度与实测记录.md` §7
+
+#### 7.2.6 常见错误
+
+| 症状 | 处理 |
+|---|---|
+| `HAXM not installed` | Mac 装 Intel HAXM；Linux/ARM Mac 改用 KVM（Docker 路线） |
+| `adb: device offline` | `adb kill-server && adb devices` |
+| `Could not install Gradle distribution` | 检查 `android/gradle/wrapper/gradle-wrapper.properties` URL；公司代理 → `~/.gradle/init.gradle` |
+| `expo prebuild` 报 native config conflict | 先 `expo prebuild --clean` |
+| Port 8081 占用 | `lsof -i :8081` 杀进程，或 `npm start -- --port 8082` |
+| 模拟器白屏 | `adb shell input keyevent 82` 解锁屏幕 |
+| `libMNN.so` 未加载 | 跑 `./gradlew assembleDebug -PenableMnn=true` 重编 |
+
+#### 7.2.7 验证脚本
+
+```bash
+node scripts/check-android-build-ready.mjs   # 工程文件 + 工具链预检
+node scripts/check-mnn-device.ps1            # Windows 端 MNN 设备验证（Mac 跳过）
+```
+
+#### 7.2.8 路径提示
+
+- `android/` 是 `expo prebuild` 产物，已加 git。改前先看 `ios/AGENTS.md` 和 `android/app/src/main/cpp/CMakeLists.txt`（d1eb7cf 顺手清理了 docs 链接，详见 `Plans/d1eb7cf变更总结-2026-07-01.md`）。
+- MNN 编译产物：`android/app/build/intermediates/cmake/<variant>/obj/arm64-v8a/libMNN.so` ~5.1MB。
+- 修改原生代码后用 **`r` reload JS** 即可生效；改 `AndroidManifest.xml` / `build.gradle` 需要 **冷启模拟器**。
+- 历史踩坑：`docs/真机模拟器测试反馈.md`。
 
 ### 7.3 iOS Simulator
 
